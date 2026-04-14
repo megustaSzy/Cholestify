@@ -1,0 +1,14 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "API Cholestify",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Raditya Ahmad",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
