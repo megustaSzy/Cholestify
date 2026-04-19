@@ -1,8 +1,12 @@
 import express from "express";
 import dotenv from "dotenv";
+import userRoute from "./routes/user.route.js";
+
+dotenv.config();
 
 const app = express();
-dotenv.config();
+
+app.use(express.json());
 
 app.get("/api", (req, res) => {
   res.json({
@@ -13,5 +17,7 @@ app.get("/api", (req, res) => {
     },
   });
 });
+
+app.use("/api/users", userRoute);
 
 export default app;
