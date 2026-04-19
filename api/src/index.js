@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 
 const app = express();
 dotenv.config();
-const PORT = process.env.PORT;
 
 app.get("/api", (req, res) => {
   res.json({
@@ -15,6 +14,4 @@ app.get("/api", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running in http://localhost:${PORT}`);
-});
+export default app;
