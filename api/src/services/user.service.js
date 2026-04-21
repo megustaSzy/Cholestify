@@ -1,28 +1,8 @@
 import { prisma } from "../lib/prisma.js";
+import { badRequestId } from "../utils/badRequestId.js";
+import { notExistUser } from "../utils/notExistUser.js";
 
 export const UserService = {
-  async createUser(req, res) {
-    const newUser = req.body;
-
-    const data = await prisma.user.create({
-      data: {
-        nama: newUser.nama,
-        email: newUser.email,
-        password: newUser.password,
-        notelp: newUser.notelp,
-      },
-    });
-
-    return res.status(201).json({
-      success: true,
-      message: "Data User Berhasil Ditambahkan",
-      data: data,
-      metadata: {
-        status: 201,
-      },
-    });
-  },
-
   async getUsers(req, res) {
     const data = await prisma.user.findMany({
       orderBy: {
@@ -33,7 +13,7 @@ export const UserService = {
     if (data.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Data User Tidak Ditemukan",
+        message: process.env.USER_NOT_FOUND_MESSAGE,
         metadata: {
           status: 404,
         },
@@ -50,71 +30,89 @@ export const UserService = {
     });
   },
 
-  async getUsersById(req, res) {
-    const id = Number(req.params.id);
+  async getUsersById(req, res, next) {
+    try {
+      const id = Number(req.params.id);
 
-    const data = await prisma.user.findFirst({
-      where: {
-        id: id,
-      },
-    });
+      badRequestId(id, process.env.BAD_REQUEST_MESSAGE);
 
-    if (!data) {
-      return res.status(404).json({
-        success: false,
-        message: "Data User Tidak Ditemukan",
+      const data = await notExistUser(
+        prisma.user,
+        id,
+        process.env.USER_NOT_FOUND_MESSAGE,
+      );
+
+      return res.json({
+        success: true,
+        message: process.env.USER_SUCCESS_MESSAGE,
         metadata: {
-          status: 404,
+          status: 200,
         },
+        data: data,
       });
+    } catch (error) {
+      next(error);
     }
-
-    return res.json({
-      success: true,
-      message: process.env.USER_SUCCESS_MESSAGE,
-      metadata: {
-        status: 200,
-      },
-      data: data,
-    });
   },
 
-  async updateUser(req, res) {
-    const id = Number(req.params.id);
+  async update(req, res, next) {
+    try {
+      const id = Number(req.params.id);
 
-    const updateUser = req.body;
+      badRequestId(id, process.env.BAD_REQUEST_MESSAGE);
 
-    const data = await prisma.user.findFirst({
-      where: {
-        id: id,
-      },
-    });
+      await notExistUser(prisma.user, id, process.env.USER_NOT_FOUND_MESSAGE);
 
-    if (!data) {
-      return res.status(404).json({
-        success: false,
-        message: "Data User Tidak Ditemukan",
+      const updateData = {
+        nama: req.body.nama,
+        email: req.body.email,
+        notelp: req.body.notelp,
+      };
+
+      // hanya hash jika password dikirim
+      if (req.body.password) {
+        updateData.password = await bcrypt.hash(req.body.password, 10);
+      }
+
+      await prisma.user.update({
+        where: {
+          id,
+        },
+        data: updateData,
+      });
+
+      return res.status(200).json({
+        success: true,
+        message: "Data User Berhasil Diubah",
         metadata: {
-          status: 404,
+          status: 200,
         },
       });
+    } catch (error) {
+      next(error);
     }
+  },
 
-    await prisma.user.update({
+  async delete(req, res) {
+    const id = Number(req.params.id);
+
+    badRequestId(id, process.env.BAD_REQUEST_MESSAGE);
+
+    const data = await notExistUser(
+      prisma.user,
+      id,
+      process.env.USER_NOT_FOUND_MESSAGE,
+    );
+
+    await prisma.user.delete({
       where: {
         id: id,
       },
-      data: {
-        nama: updateUser.nama,
-        email: updateUser.email,
-        password: updateUser.password,
-        notelp: updateUser.notelp,
-      },
     });
 
-    return res.json({
+    return res.status(200).json({
       success: true,
-      message: "Data User Berhasil Diubah",
+      message: "Data User Berhasil Dihapus",
       metadata: {
         status: 200,
       },
