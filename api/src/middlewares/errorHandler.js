@@ -1,14 +1,17 @@
-// src/middlewares/errorHandler.js
+import { HttpStatus } from "../constants/httpStatus";
+
 export const errorHandler = (err, req, res, next) => {
   if (err.response) {
     return res.status(err.status).json(err.response);
   }
 
-  return res.status(500).json({
+  console.error(err);
+
+  return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
     success: false,
     message: "Internal Server Error",
     metadata: {
-      status: 500,
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
     },
   });
 };

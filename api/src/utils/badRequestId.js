@@ -1,18 +1,9 @@
-// src/utils/badRequestId.js
+import { HttpStatus } from "../constants/httpStatus.js";
+import { createError } from "./createError.js";
+
 export const badRequestId = (id, message) => {
   if (isNaN(id)) {
-    const error = new Error(message);
-
-    error.status = 400;
-    error.response = {
-      success: false,
-      message,
-      metadata: {
-        status: 400,
-      },
-    };
-
-    throw error;
+    throw createError(HttpStatus.BAD_REQUEST, message);
   }
 
   return id;
