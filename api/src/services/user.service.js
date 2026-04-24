@@ -12,7 +12,7 @@ export const UserService = {
       },
     });
 
-    if (data.length !== 0) {
+    if (data.length === 0) {
       const error = new Error(process.env.USER_NOT_FOUND_MESSAGE);
       error.status = HttpStatus.NOT_FOUND;
       error.response = {
