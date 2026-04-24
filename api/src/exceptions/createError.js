@@ -1,4 +1,3 @@
-// src/exceptions/createError.js
 export const createError = (status, message) => {
   const error = new Error(message);
 
