@@ -20,6 +20,18 @@ model User {
   notelp    String
   role      Role     @default(USER)
   createdAt DateTime @default(now())
+  tokens    Token[]
+}
+
+model Token {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  refreshToken String   @unique
+  expiresAt    DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
 
 enum Role {
