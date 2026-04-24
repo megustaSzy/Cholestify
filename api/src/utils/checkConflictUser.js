@@ -1,6 +1,6 @@
 // src/utils/checkConflictUser.js
 import { HttpStatus } from "../constants/httpStatus.js";
-import { createError } from "../exceptions/createError.js";
+import { ConflictError } from "../exceptions/ConflictError.js";
 
 export const checkConflictUser = async (prismaModel, email, message) => {
   const existingUser = await prismaModel.findUnique({
@@ -10,7 +10,7 @@ export const checkConflictUser = async (prismaModel, email, message) => {
   });
 
   if (existingUser) {
-    throw createError(HttpStatus.CONFLICT, message);
+    throw new ConflictError(message);
   }
 
   return existingUser;

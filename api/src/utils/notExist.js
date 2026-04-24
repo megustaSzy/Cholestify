@@ -1,5 +1,4 @@
-import { HttpStatus } from "../constants/httpStatus.js";
-import { createError } from "../exceptions/createError.js";
+import { NotFoundError } from "../exceptions/NotFoundError.js";
 
 export const notExist = async (prismaModel, where, message) => {
   const data = await prismaModel.findFirst({
@@ -7,7 +6,7 @@ export const notExist = async (prismaModel, where, message) => {
   });
 
   if (!data) {
-    throw createError(HttpStatus.NOT_FOUND, message);
+    throw new NotFoundError(message);
   }
 
   return data;
