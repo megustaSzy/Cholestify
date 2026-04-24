@@ -2,9 +2,16 @@
 import { prisma } from "../lib/prisma.js";
 import { checkConflictUser } from "../utils/checkConflictUser.js";
 import { emailExist } from "../utils/emailExist.js";
-import { createError } from "../exceptions/createError.js";
 import bcrypt from "bcryptjs";
 import { notExist } from "../utils/notExist.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../utils/jwt.js";
+import { UnauthorizedError } from "../exceptions/UnauthorizedError.js";
+import { HttpStatus } from "../constants/httpStatus.js";
+import { validateRefresh } from "../utils/validateRefresh.js";
 
 export const AuthService = {
   async register(body) {
@@ -52,11 +59,64 @@ export const AuthService = {
       process.env.USER_LOGIN_FAILED_MESSAGE,
     );
 
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+
+    // simpan refresh token ke DB
+    await prisma.token.create({
+      data: {
+        userId: user.id,
+        refreshToken,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
     return {
       id: user.id,
       nama: user.nama,
       email: user.email,
+      notelp: user.notelp,
       role: user.role,
+      accessToken,
+      refreshToken,
     };
+  },
+
+  async refresh(refreshToken) {
+    const decoded = verifyRefreshToken(refreshToken);
+
+    await validateRefresh(refreshToken);
+
+    const newAccessToken = generateAccessToken({
+      id: decoded.id,
+      email: decoded.email,
+      role: decoded.role,
+    });
+
+    return {
+      accessToken: newAccessToken,
+    };
+  },
+
+  async logout(refreshToken) {
+    if (!refreshToken) {
+      throw new UnauthorizedError(process.env.TOKEN_BAD_REQUEST);
+    }
+
+    const deleted = await prisma.token.deleteMany({
+      where: { refreshToken },
+    });
+
+    if (deleted.count === 0) {
+      throw new UnauthorizedError(process.env.TOKEN_BAD_REQUEST);
+    }
+
+    return true;
   },
 };
