@@ -1,5 +1,5 @@
 import { HttpStatus } from "../constants/httpStatus.js";
-import { createError } from "./createError.js";
+import { createError } from "../exceptions/createError.js";
 
 export const notExist = async (prismaModel, where, message) => {
   const data = await prismaModel.findFirst({

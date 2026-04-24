@@ -2,7 +2,7 @@
 import { prisma } from "../lib/prisma.js";
 import { checkConflictUser } from "../utils/checkConflictUser.js";
 import { emailExist } from "../utils/emailExist.js";
-import { createError } from "../utils/createError.js";
+import { createError } from "../exceptions/createError.js";
 import bcrypt from "bcryptjs";
 import { notExist } from "../utils/notExist.js";
 
