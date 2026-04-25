@@ -1,5 +1,5 @@
 // src/exceptions/BadRequestError.js
-import { HttpStatus } from "../constants/httpStatus.js";
+import { HttpStatus } from "../constants/http-status.constant.js";
 
 export class BadRequestError extends Error {
   constructor(message = "Bad Request") {

@@ -1,5 +1,5 @@
 // src/exceptions/ForbiddenError.js
-import { HttpStatus } from "../constants/httpStatus.js";
+import { HttpStatus } from "../constants/http-status.constant.js";
 
 export class ForbiddenError extends Error {
   constructor(message = "Forbidden") {

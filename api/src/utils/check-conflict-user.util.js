@@ -1,5 +1,5 @@
 // src/utils/checkConflictUser.js
-import { HttpStatus } from "../constants/httpStatus.js";
+import { HttpStatus } from "../constants/http-status.constant.js";
 import { ConflictError } from "../exceptions/ConflictError.js";
 
 export const checkConflictUser = async (prismaModel, email, message) => {

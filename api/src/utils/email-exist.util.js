@@ -1,6 +1,6 @@
 // src/utils/emailExist.js
 import bcrypt from "bcryptjs";
-import { HttpStatus } from "../constants/httpStatus.js";
+import { HttpStatus } from "../constants/http-status.constant.js";
 import { BadRequestError } from "../exceptions/BadRequestError.js";
 
 export const emailExist = async (password, hashedPassword, message) => {

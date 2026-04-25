@@ -8,6 +8,7 @@ export const MESSAGE = {
     NOT_FOUND: "Data User tidak Ditemukan",
     DELETE: "Data User berhasil Dihapus",
     EMAIL_EXIST: "Email sudah digunakan",
+    CREATED: "Data user berhasil ditambahkan",
   },
   AUTH: {
     LOGIN_SUCCESS: "Login berhasil",
@@ -16,6 +17,7 @@ export const MESSAGE = {
     LOGOUT_SUCCESS: "Logout berhasil",
     UNAUTHORIZED: "User tidak terautentikasi",
     FORBIDDEN: "Akses ditolak",
+    FORBIDDEN_OWNER: "Anda hanya bisa mengakses data sendiri"
   },
   TOKEN: {
     NOT_FOUND: "Token tidak ditemukan",

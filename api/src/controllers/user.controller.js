@@ -1,15 +1,34 @@
 // src/controllers/user.controller.js
-import { HttpStatus } from "../constants/httpStatus.js";
+import { HttpStatus } from "../constants/http-status.constant.js";
+import { MESSAGE } from "../constants/message.constant.js";
+import { AuthService } from "../services/auth.service.js";
 import { UserService } from "../services/user.service.js";
 
 export const UserController = {
+  async createUser(req, res, next) {
+    try {
+      const data = await UserService.create(req.body);
+
+      return res.status(HttpStatus.CREATED).json({
+        success: true,
+        message: MESSAGE.USER.CREATED,
+        metadata: {
+          status: HttpStatus.CREATED,
+        },
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async getUsers(req, res, next) {
     try {
       const data = await UserService.getUsers();
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: process.env.USER_SUCCESS_MESSAGE,
+        message: MESSAGE.USER.SUCCESS,
         metadata: {
           status: HttpStatus.OK,
         },
@@ -28,7 +47,7 @@ export const UserController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: process.env.USER_SUCCESS_MESSAGE,
+        message: MESSAGE.USER.SUCCESS,
         metadata: {
           status: HttpStatus.OK,
         },
@@ -47,7 +66,7 @@ export const UserController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: process.env.USER_UPDATE_MESSAGE,
+        message: MESSAGE.COMMON.UPDATE,
         metadata: {
           status: HttpStatus.OK,
         },
@@ -65,7 +84,7 @@ export const UserController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: process.env.USER_DELETE_MESSAGE,
+        message: MESSAGE.USER.DELETE,
         metadata: {
           status: HttpStatus.OK,
         },

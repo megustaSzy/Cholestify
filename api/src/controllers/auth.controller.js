@@ -1,5 +1,6 @@
 // src/controllers/auth.controller.js
 import { HttpStatus } from "../constants/httpStatus.js";
+import { MESSAGE } from "../constants/message.js";
 import { AuthService } from "../services/auth.service.js";
 
 export const AuthController = {
@@ -9,7 +10,7 @@ export const AuthController = {
 
       return res.status(HttpStatus.CREATED).json({
         success: true,
-        message: process.env.USER_REGISTER_SUCCESS_MESSAGE,
+        message: MESSAGE.AUTH.REGISTRASI_SUCCESS,
         metadata: {
           status: HttpStatus.CREATED,
         },
@@ -26,7 +27,7 @@ export const AuthController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: process.env.USER_LOGIN_SUCCESS_MESSAGE,
+        message: MESSAGE.AUTH.LOGIN_SUCCESS,
         metadata: {
           status: HttpStatus.OK,
         },
@@ -45,7 +46,7 @@ export const AuthController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: process.env.USER_LOGIN_SUCCESS_MESSAGE,
+        message: MESSAGE.AUTH.LOGIN_SUCCESS,
         metadata: {
           status: HttpStatus.OK,
         },
@@ -64,7 +65,7 @@ export const AuthController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: "Logout berhasil",
+        message: MESSAGE.AUTH.LOGOUT_SUCCESS,
         metadata: {
           status: HttpStatus.OK,
         },

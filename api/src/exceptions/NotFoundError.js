@@ -1,5 +1,5 @@
 // src/exceptions/NotFoundError.js
-import { HttpStatus } from "../constants/httpStatus.js";
+import { HttpStatus } from "../constants/http-status.constant.js";
 
 export class NotFoundError extends Error {
   constructor(message = "Not Found") {

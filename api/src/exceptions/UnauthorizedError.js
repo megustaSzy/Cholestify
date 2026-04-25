@@ -1,5 +1,5 @@
 // src/exceptions/UnauthorizedError.js
-import { HttpStatus } from "../constants/httpStatus.js";
+import { HttpStatus } from "../constants/http-status.constant.js";
 
 export class UnauthorizedError extends Error {
   constructor(message = "Unauthorized") {

@@ -2,11 +2,11 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import { requestLogger } from "./middlewares/logger.js";
-import { errorHandler } from "./middlewares/errorHandler.js";
+import { errorHandler } from "./middlewares/error-handler.middleware.js";
 import { swaggerUi, swaggerSpec } from "./docs/swagger.js";
 
-import userRoute from "./routes/user.route.js";
-import authRoute from "./routes/auth.route.js";
+import UserRoute from "./routes/user.route.js";
+import AuthRoute from "./routes/auth.route.js";
 
 dotenv.config();
 
@@ -27,13 +27,15 @@ app.get("/api", (req, res) => {
   });
 });
 
-app.use("/api/users", userRoute);
-app.use("/api/auth", authRoute);
+app.use("/api/users", UserRoute);
+app.use("/api/auth", AuthRoute);
 
 // swagger docs
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // wajib paling bawah
 app.use(errorHandler);
+
+// console.log(process.env.SALT_ROUNDS)
 
 export default app;

@@ -1,29 +1,27 @@
 // src/services/auth.service.js
 import { prisma } from "../lib/prisma.js";
-import { checkConflictUser } from "../utils/checkConflictUser.js";
-import { emailExist } from "../utils/emailExist.js";
+import { checkConflictUser } from "../utils/check-conflict-user.util.js";
+import { emailExist } from "../utils/email-exist.util.js";
 import bcrypt from "bcryptjs";
-import { notExist } from "../utils/notExist.js";
+import { notExist } from "../utils/not-exist.util.js";
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from "../utils/jwt.js";
+} from "../utils/jwt.util.js";
 import { UnauthorizedError } from "../exceptions/UnauthorizedError.js";
-import { HttpStatus } from "../constants/httpStatus.js";
-import { validateRefresh } from "../utils/validateRefresh.js";
+import { HttpStatus } from "../constants/http-status.constant.js";
+import { validateRefresh } from "../utils/validate-refresh.util.js";
+import { MESSAGE } from "../constants/message.constant.js";
+import { ROLE } from "../constants/role.constant.js";
 
 export const AuthService = {
   async register(body) {
-    const { email, nama, password, notelp, role } = body;
+    const { email, nama, password, notelp } = body;
 
-    await checkConflictUser(
-      prisma.user,
-      email,
-      process.env.USER_EMAIL_ALREADY_EXISTS_MESSAGE,
-    );
+    await checkConflictUser(prisma.user, email, MESSAGE.USER.EMAIL_EXIST);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, process.env.SALT_ROUNDS);
 
     const user = await prisma.user.create({
       data: {
@@ -31,33 +29,26 @@ export const AuthService = {
         email,
         password: hashedPassword,
         notelp,
-        role: role || "USER",
+        role: ROLE.USER,
+      },
+      select: {
+        id: true,
+        nama: true,
+        email: true,
+        notelp: true,
+        role: true,
       },
     });
 
-    return {
-      id: user.id,
-      nama: user.nama,
-      email: user.email,
-      notelp: user.notelp,
-      role: user.role,
-    };
+    return user;
   },
 
   async login(body) {
     const { email, password } = body;
 
-    const user = await notExist(
-      prisma.user,
-      { email },
-      process.env.USER_NOT_FOUND_MESSAGE,
-    );
+    const user = await notExist(prisma.user, { email }, MESSAGE.USER.NOT_FOUND);
 
-    await emailExist(
-      password,
-      user.password,
-      process.env.USER_LOGIN_FAILED_MESSAGE,
-    );
+    await emailExist(password, user.password, MESSAGE.AUTH.LOGIN_FAILED);
 
     const payload = {
       id: user.id,
@@ -106,7 +97,7 @@ export const AuthService = {
 
   async logout(refreshToken) {
     if (!refreshToken) {
-      throw new UnauthorizedError(process.env.TOKEN_BAD_REQUEST);
+      throw new UnauthorizedError(MESSAGE.TOKEN.INVALID);
     }
 
     const deleted = await prisma.token.deleteMany({
@@ -114,7 +105,7 @@ export const AuthService = {
     });
 
     if (deleted.count === 0) {
-      throw new UnauthorizedError(process.env.TOKEN_BAD_REQUEST);
+      throw new UnauthorizedError(MESSAGE.TOKEN.INVALID);
     }
 
     return true;
