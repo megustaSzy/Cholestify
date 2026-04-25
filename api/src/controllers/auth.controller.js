@@ -1,6 +1,5 @@
-// src/controllers/auth.controller.js
-import { HttpStatus } from "../constants/httpStatus.js";
-import { MESSAGE } from "../constants/message.js";
+import { HttpStatus } from "../constants/http-status.constant.js";
+import { MESSAGE } from "../constants/message.constant.js";
 import { AuthService } from "../services/auth.service.js";
 
 export const AuthController = {

@@ -1,4 +1,4 @@
-import { MESSAGE } from "../constants/message.js";
+import { MESSAGE } from "../constants/message.constant.js";
 import { UnauthorizedError } from "../exceptions/UnauthorizedError.js";
 import { verifyRefreshToken } from "../utils/jwt.util.js";
 
