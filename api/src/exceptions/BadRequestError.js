@@ -1,4 +1,3 @@
-// src/exceptions/BadRequestError.js
 import { HttpStatus } from "../constants/http-status.constant.js";
 
 export class BadRequestError extends Error {

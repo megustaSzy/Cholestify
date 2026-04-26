@@ -1,4 +1,4 @@
-import { HttpStatus } from "../constants/http-status.constant";
+import { HttpStatus } from "../constants/http-status.constant.js";
 
 export const errorHandler = (err, req, res, next) => {
   if (err.response) {

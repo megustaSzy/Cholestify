@@ -10,6 +10,6 @@ router.post("/", authMiddleware, roleMiddleware("ADMIN"), UserController.createU
 router.get("/", authMiddleware, roleMiddleware("ADMIN"), UserController.getUsers);
 router.get("/:id", authMiddleware, ownerOrAdmin("id"), UserController.getUsersById);
 router.patch("/:id", authMiddleware, ownerOrAdmin("id"), UserController.updateById);
-router.delete("/:id", authMiddleware, UserController.removeById);
+router.delete("/:id", authMiddleware, ownerOrAdmin("id"), UserController.removeById);
 
 export default router;
