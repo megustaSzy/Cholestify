@@ -1,12 +1,35 @@
 // src/routes/auth.route.js
 import { Router } from "express";
 import { AuthController } from "../controllers/auth.controller.js";
+import { validate } from "../middlewares/validation.middleware.js";
+import {
+  authForgotSchema,
+  authLoginSchema,
+  authRegisterSchema,
+  authResetPasswordSchema,
+  authResetTokenQuerySchema,
+} from "../validations/auth.validation.js";
+import { forgotPasswordLimiter } from "../middlewares/rate-limit.middleware.js";
+import { validateQuery } from "../middlewares/validation-query.middleware.js";
 
 const router = Router();
 
-router.post("/register", AuthController.register);
-router.post("/login", AuthController.login);
+router.post("/register", validate(authRegisterSchema), AuthController.register);
+router.post("/login", validate(authLoginSchema), AuthController.login);
 router.post("/refresh", AuthController.refresh);
 router.post("/logout", AuthController.logout);
+
+router.post(
+  "/forgot-password",
+  forgotPasswordLimiter,
+  validate(authForgotSchema),
+  AuthController.forgotPassword,
+);
+router.post(
+  "/reset-password",
+  validateQuery(authResetTokenQuerySchema),
+  validate(authResetPasswordSchema),
+  AuthController.resetPassword,
+);
 
 export default router;
