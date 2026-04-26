@@ -9,7 +9,7 @@ export const AuthController = {
 
       return res.status(HttpStatus.CREATED).json({
         success: true,
-        message: MESSAGE.AUTH.REGISTRASI_SUCCESS,
+        message: MESSAGE.AUTH.REGISTER_SUCCESS,
         metadata: {
           status: HttpStatus.CREATED,
         },
@@ -65,6 +65,40 @@ export const AuthController = {
       return res.status(HttpStatus.OK).json({
         success: true,
         message: MESSAGE.AUTH.LOGOUT_SUCCESS,
+        metadata: {
+          status: HttpStatus.OK,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async forgotPassword(req, res, next) {
+    try {
+      await AuthService.forgotPassword(req.body);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGE.AUTH.RESET_PASSWORD_EMAIL_SENT,
+        metadata: {
+          status: HttpStatus.OK,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async resetPassword(req, res, next) {
+    try {
+      const { token } = req.validatedQuery;
+
+      await AuthService.resetPassword(token, req.body);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGE.AUTH.PASSWORD_UPDATED,
         metadata: {
           status: HttpStatus.OK,
         },
