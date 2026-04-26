@@ -27,7 +27,7 @@ export const UserController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: MESSAGE.USER.SUCCESS,
+        message: MESSAGE.USER.FOUND,
         metadata: {
           status: HttpStatus.OK,
         },
@@ -46,7 +46,7 @@ export const UserController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: MESSAGE.USER.SUCCESS,
+        message: MESSAGE.USER.FOUND,
         metadata: {
           status: HttpStatus.OK,
         },
@@ -65,7 +65,7 @@ export const UserController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: MESSAGE.COMMON.UPDATE,
+        message: MESSAGE.COMMON.SUCCESS_UPDATE,
         metadata: {
           status: HttpStatus.OK,
         },
@@ -83,7 +83,7 @@ export const UserController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: MESSAGE.USER.DELETE,
+        message: MESSAGE.USER.DELETED,
         metadata: {
           status: HttpStatus.OK,
         },
