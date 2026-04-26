@@ -14,14 +14,25 @@ import { HttpStatus } from "../constants/http-status.constant.js";
 import { validateRefresh } from "../utils/validate-refresh.util.js";
 import { MESSAGE } from "../constants/message.constant.js";
 import { ROLE } from "../constants/role.constant.js";
+import { generateResetToken, hashToken } from "../utils/reset-token.util.js";
+import { sendResetEmail } from "../utils/mailer.util.js";
+import { BadRequestError } from "../exceptions/BadRequestError.js";
+import { AUTH_CONSTANT } from "../constants/auth.constant.js";
 
 export const AuthService = {
   async register(body) {
     const { email, nama, password, notelp } = body;
 
-    await checkConflictUser(prisma.user, email, MESSAGE.USER.EMAIL_EXIST);
+    await checkConflictUser(
+      prisma.user,
+      email,
+      MESSAGE.USER.EMAIL_ALREADY_USED,
+    );
 
-    const hashedPassword = await bcrypt.hash(password, process.env.SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(
+      password,
+      AUTH_CONSTANT.BCRYPT_SALT_ROUNDS,
+    );
 
     const user = await prisma.user.create({
       data: {
@@ -107,6 +118,77 @@ export const AuthService = {
     if (deleted.count === 0) {
       throw new UnauthorizedError(MESSAGE.TOKEN.INVALID);
     }
+
+    return true;
+  },
+
+  async forgotPassword(body) {
+    const { email } = body;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) return true;
+
+    await prisma.passwordResetToken.deleteMany({
+      where: {
+        userId: user.id,
+      },
+    });
+
+    const rawToken = generateResetToken();
+    const hashedToken = hashToken(rawToken);
+
+    await prisma.passwordResetToken.create({
+      data: {
+        userId: user.id,
+        token: hashedToken,
+        expiresAt: new Date(Date.now() + AUTH_CONSTANT.RESET_TOKEN_EXPIRE),
+      },
+    });
+
+    await sendResetEmail(user.email, rawToken);
+
+    return true;
+  },
+
+  async resetPassword(token, body) {
+    const { password } = body;
+
+    const hashedToken = hashToken(token);
+
+    const resetToken = await prisma.passwordResetToken.findUnique({
+      where: {
+        token: hashedToken,
+      },
+    });
+
+    if (!resetToken || resetToken.expiresAt <= new Date()) {
+      throw new BadRequestError(MESSAGE.AUTH.RESET_TOKEN_INVALID);
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      password,
+      AUTH_CONSTANT.BCRYPT_SALT_ROUNDS,
+    );
+
+    await prisma.user.update({
+      where: {
+        id: resetToken.userId,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    await prisma.passwordResetToken.deleteMany({
+      where: {
+        userId: resetToken.userId,
+      },
+    });
 
     return true;
   },
