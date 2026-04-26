@@ -1,3 +1,4 @@
+import { AUTH_CONSTANT } from "../constants/auth.constant.js";
 import { HttpStatus } from "../constants/http-status.constant.js";
 import { MESSAGE } from "../constants/message.constant.js";
 import { ROLE } from "../constants/role.constant.js";
@@ -12,9 +13,13 @@ export const UserService = {
   async create(body) {
     const { nama, email, password, notelp } = body;
 
-    await checkConflictUser(prisma.user, email, MESSAGE.USER.EMAIL_EXIST);
+    await checkConflictUser(
+      prisma.user,
+      email,
+      MESSAGE.USER.EMAIL_ALREADY_USED,
+    );
 
-    const hashedPassword = await bcrypt.hash(password, process.env.SALT_ROUNDS);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await prisma.user.create({
       data: {
@@ -104,7 +109,7 @@ export const UserService = {
     if (body.password) {
       updateData.password = await bcrypt.hash(
         body.password,
-        process.env.SALT_ROUNDS,
+        AUTH_CONSTANT.BCRYPT_SALT_ROUNDS,
       );
     }
 
