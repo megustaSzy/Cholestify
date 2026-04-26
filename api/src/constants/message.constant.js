@@ -1,24 +1,32 @@
 export const MESSAGE = {
   COMMON: {
-    BAD_REQUEST: "Parameter ID / Angka tidak Valid",
-    UPDATE: "Data Berhasil Diperbarui",
+    BAD_REQUEST: "Parameter tidak valid",
+    SUCCESS_UPDATE: "Data berhasil diperbarui",
   },
+
   USER: {
-    SUCCESS: "Data User Berhasil Ditemukan",
-    NOT_FOUND: "Data User tidak Ditemukan",
-    DELETE: "Data User berhasil Dihapus",
-    EMAIL_EXIST: "Email sudah digunakan",
-    CREATED: "Data user berhasil ditambahkan",
+    FOUND: "Data user berhasil ditemukan",
+    NOT_FOUND: "Data user tidak ditemukan",
+    CREATED: "User berhasil ditambahkan",
+    DELETED: "User berhasil dihapus",
+    EMAIL_ALREADY_USED: "Email sudah digunakan",
   },
+
   AUTH: {
     LOGIN_SUCCESS: "Login berhasil",
     LOGIN_FAILED: "Email atau password salah",
-    REGISTRASI_SUCCESS: "Registrasi Berhasil",
+    REGISTER_SUCCESS: "Registrasi berhasil",
     LOGOUT_SUCCESS: "Logout berhasil",
+
     UNAUTHORIZED: "User tidak terautentikasi",
     FORBIDDEN: "Akses ditolak",
-    FORBIDDEN_OWNER: "Anda hanya bisa mengakses data sendiri"
+    FORBIDDEN_OWNER: "Anda hanya bisa mengakses data sendiri",
+
+    RESET_PASSWORD_EMAIL_SENT: "Jika email terdaftar, link reset akan dikirim",
+    RESET_TOKEN_INVALID: "Token tidak valid atau sudah kadaluarsa",
+    PASSWORD_UPDATED: "Password berhasil diperbarui",
   },
+
   TOKEN: {
     NOT_FOUND: "Token tidak ditemukan",
     INVALID: "Token tidak valid",
