@@ -80,11 +80,13 @@ export const AuthService = {
     });
 
     return {
-      id: user.id,
-      nama: user.nama,
-      email: user.email,
-      notelp: user.notelp,
-      role: user.role,
+      user: {
+        id: user.id,
+        nama: user.nama,
+        email: user.email,
+        notelp: user.notelp,
+        role: user.role,
+      },
       accessToken,
       refreshToken,
     };
@@ -101,9 +103,7 @@ export const AuthService = {
       role: decoded.role,
     });
 
-    return {
-      accessToken: newAccessToken,
-    };
+    return { accessToken: newAccessToken };
   },
 
   async logout(refreshToken) {
@@ -191,5 +191,36 @@ export const AuthService = {
     });
 
     return true;
+  },
+
+  async googleLogin(user) {
+    const payload = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    const accessToken = generateAccessToken(payload);
+    const refreshToken = generateRefreshToken(payload);
+
+    await prisma.token.create({
+      data: {
+        userId: user.id,
+        refreshToken,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+
+    return {
+      user: {
+        id: user.id,
+        nama: user.nama,
+        email: user.email,
+        notelp: user.notelp,
+        role: user.role,
+      },
+      accessToken,
+      refreshToken,
+    };
   },
 };
