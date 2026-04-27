@@ -11,6 +11,7 @@ import {
 } from "../validations/auth.validation.js";
 import { forgotPasswordLimiter } from "../middlewares/rate-limit.middleware.js";
 import { validateQuery } from "../middlewares/validation-query.middleware.js";
+import passport from "passport";
 
 const router = Router();
 
@@ -30,6 +31,23 @@ router.post(
   validateQuery(authResetTokenQuerySchema),
   validate(authResetPasswordSchema),
   AuthController.resetPassword,
+);
+
+router.get(
+  "/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: false,
+  }),
+);
+
+router.get(
+  "/google/callback",
+  passport.authenticate("google", {
+    session: false,
+    failureRedirect: `${process.env.FRONTEND_URL}/login?error=google_auth_failed`,
+  }),
+  AuthController.googleCallback,
 );
 
 export default router;
