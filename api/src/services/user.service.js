@@ -43,6 +43,9 @@ export const UserService = {
 
   async getUsers() {
     const data = await prisma.user.findMany({
+      where: {
+        role: ROLE.USER,
+      },
       orderBy: {
         createdAt: "desc",
       },

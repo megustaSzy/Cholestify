@@ -44,6 +44,5 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorHandler);
 
-console.log(process.env.FRONTEND_URL);
 
 export default app;
