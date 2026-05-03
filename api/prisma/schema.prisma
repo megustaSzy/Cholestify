@@ -23,13 +23,13 @@ model User {
 }
 
 model Profile {
-  id          Int       @id @default(autoincrement())
-  userId      Int       @unique
-  patientCode String    @unique
-  dob         DateTime
-  bloodType   BloodType
-  isActive    Boolean   @default(true)
-  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          Int        @id @default(autoincrement())
+  userId      Int        @unique
+  patientCode String     @unique
+  dob         DateTime?
+  bloodType   BloodType?
+  isActive    Boolean    @default(true)
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum BloodType {

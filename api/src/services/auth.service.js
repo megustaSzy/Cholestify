@@ -18,6 +18,8 @@ import { generateResetToken, hashToken } from "../utils/reset-token.util.js";
 import { sendResetEmail } from "../utils/mailer.util.js";
 import { BadRequestError } from "../exceptions/BadRequestError.js";
 import { AUTH_CONSTANT } from "../constants/auth.constant.js";
+import { generatePatientCode } from "../utils/generate-patient-code.util.js";
+import { InternalServerError } from "../exceptions/InternalServerError.js";
 
 export const AuthService = {
   async register(body) {
@@ -34,24 +36,45 @@ export const AuthService = {
       AUTH_CONSTANT.BCRYPT_SALT_ROUNDS,
     );
 
-    const user = await prisma.user.create({
-      data: {
-        nama,
-        email,
-        password: hashedPassword,
-        notelp,
-        role: ROLE.USER,
-      },
-      select: {
-        id: true,
-        nama: true,
-        email: true,
-        notelp: true,
-        role: true,
-      },
-    });
+    let user;
 
-    return user;
+    for (let i = 0; i < 5; i++) {
+      try {
+        user = await prisma.user.create({
+          data: {
+            nama,
+            email,
+            password: hashedPassword,
+            notelp,
+            role: ROLE.USER,
+            profile: {
+              create: {
+                patientCode: generatePatientCode(),
+              },
+            },
+          },
+          select: {
+            id: true,
+            nama: true,
+            email: true,
+            notelp: true,
+            role: true,
+            profile: {
+              patientCode: true,
+            },
+          },
+        });
+
+        return user;
+      } catch (error) {
+        if (error.code === "P2002") {
+          continue;
+        }
+
+        throw error;
+      }
+    }
+    throw new InternalServerError("zzzzz");
   },
 
   async login(body) {
