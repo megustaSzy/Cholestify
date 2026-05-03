@@ -1,0 +1,4 @@
+export const AUTH_CONSTANT = {
+  RESET_TOKEN_EXPIRE: 5 * 60 * 1000,
+  BCRYPT_SALT_ROUNDS: 10,
+};
