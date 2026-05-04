@@ -17,9 +17,12 @@ import {
   Settings2Icon,
   CircleHelpIcon,
   DatabaseIcon,
-  FileChartColumnIcon,
   FileIcon,
   LogOutIcon,
+  User,
+  Eye,
+  UtensilsCrossed,
+  BarChart,
 } from "lucide-react";
 import { NavSecondary } from "./NavSecondary";
 import Link from "next/link";
@@ -55,22 +58,51 @@ const data = {
       icon: <DatabaseIcon />,
     },
     {
-      name: "Screening",
-      url: "/user/screening",
+      name: "Eye Scan",
+      url: "/user/eye-scan",
+      icon: <Eye />,
+    },
+    {
+      name: "Food Table",
+      url: "/user/food-table",
+      icon: <UtensilsCrossed />,
+    },
+    {
+      name: "Reports",
+      url: "/user/reports",
       icon: <FileIcon />,
     },
     {
-      name: "Profile",
-      // url: "#",
-      icon: <FileChartColumnIcon />,
+      name: "Metric",
+      // url: "",
+      icon: <BarChart />,
       items: [
         {
-          title: "Foto Profile",
-          url: "/signup",
+          title: "Log Lipid Panel",
+          url: "/user/metric/log-lipid-panel",
         },
         {
-          title: "Status",
-          url: "/login",
+          title: "Set Helath Goals",
+          url: "/user/metric/set-health-goals",
+        },
+        {
+          title: "Log Biometrics",
+          url: "/user/metric/log-biometrics",
+        },
+      ],
+    },
+    {
+      name: "Profile",
+      // url: "/user/profile/clinical-profile",
+      icon: <User />,
+      items: [
+        {
+          title: "Clinical Profile",
+          url: "/user/profile/clinical-profile",
+        },
+        {
+          title: "Helath Goals",
+          url: "/user/profile/health-goals",
         },
         {
           title: "Account Setting",
@@ -92,7 +124,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               {/* <CommandIcon className="size-5!" /> */}
               <div className="flex flex-col items-start leading-tight ml-5">
-                <span className="text-2xl font-semibold">Cholestify</span>
+                <span className="text-2xl font-semibold text-blue-600">
+                  Cholestify
+                </span>
                 <span className="text-sm text-muted-foreground">
                   Clinical Portal
                 </span>
