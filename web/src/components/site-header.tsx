@@ -10,7 +10,7 @@ export function SiteHeader() {
     .filter(Boolean)
     .filter((segment) => segment !== "user");
   const breadcrumb = segments.map((segment) =>
-    segment.replace("-", " ").toUpperCase(),
+    segment.replaceAll("-", " ").toUpperCase(),
   );
   // const getTitle = () => {
   //   if (pathname === "/dashboard") return "Dashboard";
