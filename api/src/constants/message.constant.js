@@ -27,6 +27,12 @@ export const MESSAGE = {
     PASSWORD_UPDATED: "Password berhasil diperbarui",
   },
 
+  PROFILE: {
+    FOUND: "Data profile berhasil ditemukan",
+    NOT_FOUND: "Data Profile tidak ditemukan",
+    DELETED: "Profile berhasil dihapus",
+  },
+
   TOKEN: {
     NOT_FOUND: "Token tidak ditemukan",
     INVALID: "Token tidak valid",
