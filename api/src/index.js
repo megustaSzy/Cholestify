@@ -11,6 +11,7 @@ import { swaggerUi, swaggerSpec } from "./docs/swagger.js";
 
 import UserRoute from "./routes/user.route.js";
 import AuthRoute from "./routes/auth.route.js";
+import ProfileRoute from "./routes/profile.route.js";
 
 const app = express();
 
@@ -39,10 +40,10 @@ app.get("/api", (req, res) => {
 
 app.use("/api/users", UserRoute);
 app.use("/api/auth", AuthRoute);
+app.use("/api/profiles", ProfileRoute);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use(errorHandler);
-
 
 export default app;

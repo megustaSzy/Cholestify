@@ -60,7 +60,9 @@ export const AuthService = {
             notelp: true,
             role: true,
             profile: {
-              patientCode: true,
+              select: {
+                patientCode: true,
+              },
             },
           },
         });
