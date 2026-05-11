@@ -113,4 +113,26 @@ export const ProfileService = {
       data: updateData,
     });
   },
+
+  async resetProfile(id) {
+    badRequestId(id, MESSAGE.COMMON.BAD_REQUEST);
+
+    await notExist(prisma.profile, { id }, MESSAGE.PROFILE.NOT_FOUND);
+
+    await prisma.profile.update({
+      where: {
+        id,
+      },
+      data: {
+        dob: null,
+        bloodType: null,
+      },
+    });
+
+    await prisma.biometric.deleteMany({
+      where: {
+        profileId: id,
+      },
+    });
+  },
 };

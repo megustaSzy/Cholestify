@@ -30,4 +30,11 @@ router.patch(
   ProfileController.updateProfile,
 );
 
+router.patch(
+  "/:id/reset",
+  authMiddleware,
+  roleMiddleware("ADMIN"),
+  ProfileController.resetProfile,
+);
+
 export default router;

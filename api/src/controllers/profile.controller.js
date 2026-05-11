@@ -88,4 +88,22 @@ export const ProfileController = {
       next(error);
     }
   },
+
+  async resetProfile(req, res, next) {
+    try {
+      const id = Number(req.params.id);
+
+      await ProfileService.resetProfile(id);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGE.PROFILE.RESET,
+        metadata: {
+          status: HttpStatus.OK,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

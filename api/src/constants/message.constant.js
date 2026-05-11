@@ -7,8 +7,8 @@ export const MESSAGE = {
   USER: {
     FOUND: "Data user berhasil ditemukan",
     NOT_FOUND: "Data user tidak ditemukan",
-    CREATED: "User berhasil ditambahkan",
-    DELETED: "User berhasil dihapus",
+    CREATED: "Data User berhasil ditambahkan",
+    DELETED: "Data User berhasil dihapus",
     EMAIL_ALREADY_USED: "Email sudah digunakan",
   },
 
@@ -30,7 +30,8 @@ export const MESSAGE = {
   PROFILE: {
     FOUND: "Data profile berhasil ditemukan",
     NOT_FOUND: "Data Profile tidak ditemukan",
-    DELETED: "Profile berhasil dihapus",
+    DELETED: "Data Profile berhasil dihapus",
+    RESET: "Data profile berhasil direset",
   },
 
   TOKEN: {
