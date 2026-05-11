@@ -20,6 +20,23 @@ export const ProfileController = {
     }
   },
 
+  async getMyProfile(req, res, next) {
+    try {
+      const data = await ProfileService.getMyProfile(req.user);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGE.PROFILE.FOUND,
+        metadata: {
+          status: HttpStatus.OK,
+        },
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async getProfileById(req, res, next) {
     try {
       const id = Number(req.params.id);
@@ -32,6 +49,40 @@ export const ProfileController = {
           status: HttpStatus.OK,
         },
         data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateProfile(req, res, next) {
+    try {
+      const id = Number(req.params.id);
+
+      await ProfileService.editProfile(id, req.body, req.user);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGE.COMMON.SUCCESS_UPDATE,
+        metadata: {
+          status: HttpStatus.OK,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async updateMyProfile(req, res, next) {
+    try {
+      await ProfileService.updateMyProfile(req.user, req.body);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGE.COMMON.SUCCESS_UPDATE,
+        metadata: {
+          status: HttpStatus.OK,
+        },
       });
     } catch (error) {
       next(error);

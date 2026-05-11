@@ -55,6 +55,11 @@ export const UserService = {
         email: true,
         notelp: true,
         role: true,
+        profile: {
+          select: {
+            patientCode: true,
+          },
+        },
       },
     });
 
