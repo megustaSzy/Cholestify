@@ -14,7 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 
-export default function PrivacyPoliceForm() {
+export default function PrivacyPolicyForm() {
   const [agreed, setAgreed] = useState(false);
   const router = useRouter();
 
