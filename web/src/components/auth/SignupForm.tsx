@@ -11,16 +11,19 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
+  FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { PasswordInput } from "./PasswordInput";
+import { HidePasswordInput } from "../HidePasswordInput";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   return (
     <Card {...props}>
       <CardHeader className="text-center">
-        <CardTitle>Registrasi Akun</CardTitle>
+        <CardTitle className="text-2xl font-semibold text-blue-600">
+          Registrasi Akun
+        </CardTitle>
         <CardDescription>Daftarkan Akun Anda Sebelum Login</CardDescription>
       </CardHeader>
       <CardContent>
@@ -45,7 +48,11 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
             </Field>
             <Field>
               <FieldLabel htmlFor="password">Password</FieldLabel>
-              <PasswordInput id="password" required />
+              <HidePasswordInput
+                id="password"
+                placeholder="••••••••"
+                required
+              />
               <FieldDescription>
                 Must be at least 8 characters long.
               </FieldDescription>
@@ -54,14 +61,30 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <FieldLabel htmlFor="confirm-password">
                 Confirm Password
               </FieldLabel>
-              <PasswordInput id="password" required />
+              <HidePasswordInput
+                id="password"
+                placeholder="••••••••"
+                required
+              />
               <FieldDescription>Please confirm your password.</FieldDescription>
             </Field>
             <FieldGroup>
               <Field>
-                <Button type="submit">Create Account</Button>
-                <Button variant="outline" type="button">
-                  Sign up with Google
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 text-white border-none"
+                  type="submit"
+                >
+                  Daftar
+                </Button>
+                <FieldSeparator className="my-2 [&>span]:bg-card">
+                  Atau
+                </FieldSeparator>
+                <Button
+                  className="hover:bg-gray-200"
+                  variant="outline"
+                  type="button"
+                >
+                  Daftar Menggunakan Google
                 </Button>
                 <FieldDescription className="px-6 text-center">
                   Sudah Punya Akun? <Link href="/login">Login Disini</Link>
