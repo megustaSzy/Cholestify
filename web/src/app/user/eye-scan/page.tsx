@@ -1,6 +1,9 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import HeaderForm from "@/components/user/eye-scan/HeaderForm";
+import EyeScanForm from "@/components/user/eye-scan/EyeScanForm";
+import HowToUse from "@/components/user/eye-scan/HowToUse";
 
 export default function EyeScanPage() {
   return (
@@ -15,10 +18,17 @@ export default function EyeScanPage() {
       <AppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="px-4 lg:px-6">Halaman Eye Scan</div>
+        <div className="flex flex-1 flex-col bg-gray-50 min-h-screen">
+          <div className="@container/main flex flex-1 flex-col">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6 px-4 lg:px-6">
+              <HeaderForm />
+              {/* Dua section */}
+              <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
+                {/* LEFT — Upload Card */}
+                <EyeScanForm />
+                {/* RIGHT — Cara Penggunaan */}
+                <HowToUse />
+              </div>
             </div>
           </div>
         </div>
