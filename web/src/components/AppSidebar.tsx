@@ -118,10 +118,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              className="data-[slot=sidebar-menu-button]:p-1.5! h-auto"
-              render={<Link href="#" />}
-            >
+            <SidebarMenuButton className="data-[slot=sidebar-menu-button]:p-1.5! h-auto hover:bg-transparent hover:text-inherit active:bg-transparent active:text-inherit cursor-default">
               {/* <CommandIcon className="size-5!" /> */}
               <div className="flex flex-col items-start leading-tight ml-5">
                 <span className="text-2xl font-semibold text-blue-600">

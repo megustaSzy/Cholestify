@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
-import { PasswordInput } from "./PasswordInput";
+import { HidePasswordInput } from "../HidePasswordInput";
 
 export function LoginForm({
   className,
@@ -26,7 +26,9 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle>Login Akun</CardTitle>
+          <CardTitle className=" text-2xl font-semibold text-blue-600">
+            Login Akun
+          </CardTitle>
           <CardDescription>Silahkan Login Akun Anda</CardDescription>
         </CardHeader>
         <CardContent>
@@ -45,18 +47,29 @@ export function LoginForm({
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
                 </div>
-                <PasswordInput id="password" required />
+                <HidePasswordInput id="password" placeholder="••••••••" required />
                 <Link
-                  href="#"
+                  href="/reset-password"
                   className="ml-auto inline-block text-sm underline-offset-4 hover:underline text-end text-muted-foreground"
                 >
-                  Forgot your password?
+                  Lupa Password?
                 </Link>
               </Field>
               <Field>
-                <Button type="submit">Login</Button>
-                <FieldSeparator className="my-2">Atau</FieldSeparator>
-                <Button variant="outline" type="button">
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 text-white border-none"
+                  type="submit"
+                >
+                  Login
+                </Button>
+                <FieldSeparator className="my-2 [&>span]:bg-card">
+                  Atau
+                </FieldSeparator>
+                <Button
+                  className="hover:bg-gray-200"
+                  variant="outline"
+                  type="button"
+                >
                   Login Menggunakan Google
                 </Button>
                 <FieldDescription className="text-center">

@@ -10,7 +10,7 @@ export function SiteHeader() {
     .filter(Boolean)
     .filter((segment) => segment !== "user");
   const breadcrumb = segments.map((segment) =>
-    segment.replace("-", " ").toUpperCase(),
+    segment.replaceAll("-", " ").toUpperCase(),
   );
   // const getTitle = () => {
   //   if (pathname === "/dashboard") return "Dashboard";
@@ -20,7 +20,7 @@ export function SiteHeader() {
   //   return "Dashboard";
   // };
   return (
-    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
+    <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height) bg-white">
       <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
         <SidebarTrigger className="-ml-1" />
         <Separator
