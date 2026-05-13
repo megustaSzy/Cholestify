@@ -1,9 +1,9 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import HeaderForm from "@/components/user/eye-scan/HeaderForm";
-import EyeScanForm from "@/components/user/eye-scan/EyeScanForm";
-import HowToUse from "@/components/user/eye-scan/HowToUse";
+import HeaderForm from "@/components/user/eye-scan/HeaderSection";
+import EyeScanForm from "@/components/user/eye-scan/EyeScanSection";
+import HowToUse from "@/components/user/eye-scan/HowToUseSection";
 
 export default function EyeScanPage() {
   return (

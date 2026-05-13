@@ -1,6 +1,11 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Log Biometrics - Cholestify",
+};
 
 export default function LogBiometricsPage() {
   return (

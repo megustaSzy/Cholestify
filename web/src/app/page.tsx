@@ -1,7 +1,20 @@
-import HomePage from "./homepage/page";
+import CallToActionForm from "@/components/homepage/CallToAction";
+import EcosystemHeratHealth from "@/components/homepage/EcosystemHeratHealth";
+import FooterForm from "@/components/homepage/Footer";
+import HeroForm from "@/components/homepage/HeroSection";
+import NavHeader from "@/components/homepage/NavHeader";
+import ThreeStepsPrecissionForm from "@/components/homepage/ThreeStepsPrecission";
+import React from "react";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <HomePage />
+    <div className="font-sans text-gray-900 bg-white antialiased">
+      <NavHeader />
+      <HeroForm />
+      <ThreeStepsPrecissionForm />
+      <EcosystemHeratHealth />
+      <CallToActionForm />
+      <FooterForm />
+    </div>
   );
 }
