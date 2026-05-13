@@ -29,7 +29,6 @@ model User {
 
   tokens      Token[]
   resetTokens PasswordResetToken[]
-  profile     Profile?
 }
 
 model Profile {
@@ -39,7 +38,6 @@ model Profile {
   dob         DateTime?
   bloodType   BloodType?
   isActive    Boolean    @default(true)
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   biometric  Biometric?
   screenings Screening[]

@@ -111,9 +111,6 @@ CREATE UNIQUE INDEX "PasswordResetToken_token_key" ON "PasswordResetToken"("toke
 CREATE INDEX "PasswordResetToken_userId_idx" ON "PasswordResetToken"("userId");
 
 -- AddForeignKey
-ALTER TABLE "Profile" ADD CONSTRAINT "Profile_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "Biometric" ADD CONSTRAINT "Biometric_profileId_fkey" FOREIGN KEY ("profileId") REFERENCES "Profile"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
