@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "Profile" ALTER COLUMN "dob" DROP NOT NULL,
-ALTER COLUMN "bloodType" DROP NOT NULL;

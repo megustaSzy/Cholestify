@@ -23,7 +23,7 @@ import { InternalServerError } from "../exceptions/InternalServerError.js";
 
 export const AuthService = {
   async register(body) {
-    const { email, nama, password, notelp } = body;
+    const { email, nama, password, notelp, dob, bloodType } = body;
 
     await checkConflictUser(
       prisma.user,
@@ -46,24 +46,22 @@ export const AuthService = {
             email,
             password: hashedPassword,
             notelp,
+            dob: dob ? new Date(dob) : null,
+            bloodType,
             role: ROLE.USER,
-            profile: {
-              create: {
-                patientCode: generatePatientCode(),
-              },
-            },
+            patientId: generatePatientCode(),
           },
+
           select: {
             id: true,
+            patientId: true,
             nama: true,
             email: true,
             notelp: true,
+            dob: true,
+            bloodType: true,
             role: true,
-            profile: {
-              select: {
-                patientCode: true,
-              },
-            },
+            createdAt: true,
           },
         });
 
@@ -76,7 +74,8 @@ export const AuthService = {
         throw error;
       }
     }
-    throw new InternalServerError("zzzzz");
+
+    throw new InternalServerError("Gagal membuat patient ID");
   },
 
   async login(body) {
@@ -239,10 +238,18 @@ export const AuthService = {
     return {
       user: {
         id: user.id,
+        patientId: user.patientId,
+
         nama: user.nama,
         email: user.email,
+
         notelp: user.notelp,
+
+        dob: user.dob,
+        bloodType: user.bloodType,
+
         role: user.role,
+        createdAt: user.createdAt,
       },
       accessToken,
       refreshToken,

@@ -8,16 +8,25 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  nama      String
-  email     String   @unique
-  password  String?
-  notelp    String?
-  googleId  String?  @unique
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
+  id Int @id @default(autoincrement())
 
-  profile     Profile?
+  patientId String @unique
+
+  nama     String
+  email    String  @unique
+  password String?
+
+  notelp String?
+
+  dob       DateTime?
+  bloodType BloodType?
+
+  googleId String? @unique
+  role     Role    @default(USER)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   tokens      Token[]
   resetTokens PasswordResetToken[]
 }
@@ -29,9 +38,9 @@ model Profile {
   dob         DateTime?
   bloodType   BloodType?
   isActive    Boolean    @default(true)
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  biometric Biometric?
+  biometric  Biometric?
+  screenings Screening[]
 }
 
 model Biometric {
@@ -45,6 +54,26 @@ model Biometric {
   updatedAt DateTime @updatedAt
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+model Screening {
+  id        Int @id @default(autoincrement())
+  profileId Int
+
+  imageUrl String
+
+  result     ScreeningResult
+  confidence Float?
+
+  createdAt DateTime @default(now())
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+}
+
+enum ScreeningResult {
+  NORMAL
+  INDICATION
+  SEVERE
 }
 
 enum BloodType {
