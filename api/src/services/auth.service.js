@@ -238,10 +238,18 @@ export const AuthService = {
     return {
       user: {
         id: user.id,
+        patientId: user.patientId,
+
         nama: user.nama,
         email: user.email,
+
         notelp: user.notelp,
+
+        dob: user.dob,
+        bloodType: user.bloodType,
+
         role: user.role,
+        createdAt: user.createdAt,
       },
       accessToken,
       refreshToken,
