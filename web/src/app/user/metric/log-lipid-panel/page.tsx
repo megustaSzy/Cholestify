@@ -1,5 +1,5 @@
 import { AppSidebar } from "@/components/AppSidebar";
-import { LogLipidPanelForm } from "@/components/LogLipidPanelForm";
+import { LogLipidPanelForm } from "@/components/user/metric/log-lipid-panel/LogLipidPanelForm";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 

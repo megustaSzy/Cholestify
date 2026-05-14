@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { CalendarIcon, SaveIcon, InfoIcon } from "lucide-react";
-import { Card, CardContent } from "./ui/card";
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
+import { Card, CardContent } from "../../../ui/card";
+import { Label } from "../../../ui/label";
+import { Input } from "../../../ui/input";
+import { Button } from "../../../ui/button";
 
 // Dummy initial
 const initialForm = {
@@ -152,7 +152,7 @@ export function LogLipidPanelForm() {
               <Button
                 variant="outline"
                 onClick={handleCancel}
-                className="w-full sm:w-auto text-blue-600 border-blue-200 hover:bg-blue-50"
+                className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
