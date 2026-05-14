@@ -2,9 +2,11 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Metadata } from "next";
+import LogBiometricsContent from "@/components/user/metric/biometric/BiometricForm";
+import HeaderSection from "@/components/user/metric/biometric/HeaderSection";
 
 export const metadata: Metadata = {
-  title: "Log Biometrics - Cholestify",
+  title: "Cholestify - Log Biometrics",
 };
 
 export default function LogBiometricsPage() {
@@ -23,7 +25,12 @@ export default function LogBiometricsPage() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="px-4 lg:px-6">Halaman Log Biometrics</div>
+              <div className="px-4 lg:px-6">
+                <div className="flex flex-col lg:px-0 w-full">
+                  <HeaderSection />
+                  <LogBiometricsContent />
+                </div>
+              </div>
             </div>
           </div>
         </div>
