@@ -79,9 +79,24 @@ export const AuthService = {
   },
 
   async login(body) {
-    const { email, password } = body;
+    const { identifier, password } = body;
 
-    const user = await notExist(prisma.user, { email }, MESSAGE.USER.NOT_FOUND);
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          {
+            email: identifier,
+          },
+          {
+            notelp: identifier,
+          },
+        ],
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundError(MESSAGE.USER.NOT_FOUND);
+    }
 
     await emailExist(password, user.password, MESSAGE.AUTH.LOGIN_FAILED);
 
@@ -92,6 +107,7 @@ export const AuthService = {
     };
 
     const accessToken = generateAccessToken(payload);
+
     const refreshToken = generateRefreshToken(payload);
 
     // simpan refresh token ke DB
@@ -106,11 +122,18 @@ export const AuthService = {
     return {
       user: {
         id: user.id,
+        patientId: user.patientId,
+
         nama: user.nama,
         email: user.email,
         notelp: user.notelp,
+
+        dob: user.dob,
+        bloodType: user.bloodType,
+
         role: user.role,
       },
+
       accessToken,
       refreshToken,
     };

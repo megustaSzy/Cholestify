@@ -1,32 +1,38 @@
+// biometric.service.js
+
 import { HttpStatus } from "../constants/http-status.constant.js";
 import { MESSAGE } from "../constants/message.constant.js";
-import { ROLE } from "../constants/role.constant.js";
+
 import { ConflictError } from "../exceptions/ConflictError.js";
 import { NotFoundError } from "../exceptions/NotFoundError.js";
+
 import { prisma } from "../lib/prisma.js";
+
+import { badRequestId } from "../utils/bad-request-id.util.js";
 import { notExist } from "../utils/not-exist.util.js";
 
 export const BiometricService = {
   async getBiometrics() {
     const data = await prisma.biometric.findMany({
       orderBy: {
-        id: "desc",
+        createdAt: "desc",
       },
+
       select: {
         id: true,
+
         height: true,
         weight: true,
-        profile: {
+
+        createdAt: true,
+        updatedAt: true,
+
+        user: {
           select: {
             id: true,
-            patientCode: true,
-            isActive: true,
-            user: {
-              select: {
-                id: true,
-                email: true,
-              },
-            },
+            patientId: true,
+            nama: true,
+            email: true,
           },
         },
       },
@@ -34,10 +40,13 @@ export const BiometricService = {
 
     if (data.length === 0) {
       const error = new Error(MESSAGE.BIOMETRIC.NOT_FOUND);
+
       error.status = HttpStatus.NOT_FOUND;
+
       error.response = {
         success: false,
         message: MESSAGE.BIOMETRIC.NOT_FOUND,
+
         metadata: {
           status: HttpStatus.NOT_FOUND,
         },
@@ -49,17 +58,22 @@ export const BiometricService = {
     return data;
   },
 
-  async getMyBiometrics(user) {
-    const data = await prisma.biometric.findFirst({
+  async getBiometricByUserId(userId) {
+    badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
+
+    const data = await prisma.biometric.findUnique({
       where: {
-        profile: {
-          userId: user.id,
-        },
+        userId,
       },
+
       select: {
         id: true,
+
         height: true,
         weight: true,
+
+        createdAt: true,
+        updatedAt: true,
       },
     });
 
@@ -70,30 +84,14 @@ export const BiometricService = {
     return data;
   },
 
-  async createBiometric(body, user, profileId = null) {
-    let targetProfileId;
+  async create(userId, body) {
+    badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    if (user.role === ROLE.ADMIN && profileId) {
-      targetProfileId = Number(profileId);
-    } else {
-      // user hanya bisa create biometric miliknya sendiri
-      const profile = await prisma.profile.findUnique({
-        where: {
-          userId: user.id,
-        },
-      });
+    await notExist(prisma.user, { id: userId }, MESSAGE.USER.NOT_FOUND);
 
-      if (!profile) {
-        throw new NotFoundError(MESSAGE.PROFILE.NOT_FOUND);
-      }
-
-      targetProfileId = profile.id;
-    }
-
-    // cek biometric sudah ada atau belum
     const existingBiometric = await prisma.biometric.findUnique({
       where: {
-        profileId: targetProfileId,
+        userId,
       },
     });
 
@@ -103,42 +101,29 @@ export const BiometricService = {
 
     const data = await prisma.biometric.create({
       data: {
-        profileId: targetProfileId,
+        userId,
+
         height: body.height,
         weight: body.weight,
       },
+
       select: {
         id: true,
+
         height: true,
         weight: true,
+
+        createdAt: true,
       },
     });
 
     return data;
   },
 
-  async updateBiometric(body, user, biometricId = null) {
-    let biometric;
+  async update(userId, body) {
+    badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    if (user.role === ROLE.ADMIN && biometricId) {
-      biometric = await prisma.biometric.findUnique({
-        where: {
-          id: Number(biometricId),
-        },
-      });
-    } else {
-      biometric = await prisma.biometric.findFirst({
-        where: {
-          profile: {
-            userId: user.id,
-          },
-        },
-      });
-    }
-
-    if (!biometric) {
-      throw new NotFoundError(MESSAGE.BIOMETRIC.NOT_FOUND);
-    }
+    await notExist(prisma.biometric, { userId }, MESSAGE.BIOMETRIC.NOT_FOUND);
 
     const updateData = {};
 
@@ -152,13 +137,17 @@ export const BiometricService = {
 
     const data = await prisma.biometric.update({
       where: {
-        id: biometric.id,
+        userId,
       },
+
       data: updateData,
+
       select: {
         id: true,
+
         height: true,
         weight: true,
+
         updatedAt: true,
       },
     });
@@ -166,14 +155,14 @@ export const BiometricService = {
     return data;
   },
 
-  async deleteBiometric(id) {
-    badRequestId(id, MESSAGE.COMMON.BAD_REQUEST);
+  async remove(userId) {
+    badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    await notExist(prisma.biometric, { id }, MESSAGE.BIOMETRIC.NOT_FOUND);
+    await notExist(prisma.biometric, { userId }, MESSAGE.BIOMETRIC.NOT_FOUND);
 
     await prisma.biometric.delete({
       where: {
-        id,
+        userId,
       },
     });
   },

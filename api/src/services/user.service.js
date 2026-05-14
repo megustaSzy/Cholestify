@@ -10,37 +10,6 @@ import { notExist } from "../utils/not-exist.util.js";
 import bcrypt from "bcryptjs";
 
 export const UserService = {
-  async create(body) {
-    const { nama, email, password, notelp } = body;
-
-    await checkConflictUser(
-      prisma.user,
-      email,
-      MESSAGE.USER.EMAIL_ALREADY_USED,
-    );
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await prisma.user.create({
-      data: {
-        nama,
-        email,
-        password: hashedPassword,
-        notelp,
-        role: ROLE.USER,
-      },
-      select: {
-        id: true,
-        nama: true,
-        email: true,
-        notelp: true,
-        role: true,
-      },
-    });
-
-    return user;
-  },
-
   async getUsers() {
     const data = await prisma.user.findMany({
       where: {
@@ -51,15 +20,13 @@ export const UserService = {
       },
       select: {
         id: true,
+        patientId: true,
         nama: true,
         email: true,
         notelp: true,
         role: true,
-        profile: {
-          select: {
-            patientCode: true,
-          },
-        },
+        dob: true,
+        bloodType: true,
       },
     });
 
@@ -89,10 +56,13 @@ export const UserService = {
       },
       select: {
         id: true,
+        patientId: true,
         nama: true,
         email: true,
         notelp: true,
         role: true,
+        dob: true,
+        bloodType: true,
       },
     });
 
