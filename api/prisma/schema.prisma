@@ -29,23 +29,13 @@ model User {
 
   tokens      Token[]
   resetTokens PasswordResetToken[]
-}
-
-model Profile {
-  id          Int        @id @default(autoincrement())
-  userId      Int        @unique
-  patientCode String     @unique
-  dob         DateTime?
-  bloodType   BloodType?
-  isActive    Boolean    @default(true)
-
-  biometric  Biometric?
-  screenings Screening[]
+  biometric   Biometric?
+  screenings  Screening[]
 }
 
 model Biometric {
-  id        Int @id @default(autoincrement())
-  profileId Int @unique
+  id     Int @id @default(autoincrement())
+  userId Int @unique
 
   height Float
   weight Float
@@ -53,12 +43,12 @@ model Biometric {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Screening {
-  id        Int @id @default(autoincrement())
-  profileId Int
+  id     Int @id @default(autoincrement())
+  userId Int
 
   imageUrl String
 
@@ -67,7 +57,7 @@ model Screening {
 
   createdAt DateTime @default(now())
 
-  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum ScreeningResult {
