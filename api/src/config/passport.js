@@ -5,7 +5,7 @@ import { prisma } from "../lib/prisma.js";
 
 import { ROLE } from "../constants/role.constant.js";
 
-import { generatePatientCode } from "../utils/generate-patient-code.js";
+import { generatePatientCode } from "../utils/generate-patient-code.util.js";
 
 passport.use(
   new GoogleStrategy(

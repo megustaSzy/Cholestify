@@ -1,15 +1,12 @@
 import { Router } from "express";
+
 import { BiometricController } from "../controllers/biometric.controller.js";
+
 import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { ownerOrAdmin } from "../middlewares/owner-or-admin.middleware.js";
 import { roleMiddleware } from "../middlewares/role.middleware.js";
 
 const router = Router();
-
-// USER
-router.get("/me", authMiddleware, BiometricController.getMyBiometric);
-router.post("/me", authMiddleware, BiometricController.createBiometric);
-router.patch("/me", authMiddleware, BiometricController.updateBiometric);
-
 
 // ADMIN
 router.get(
@@ -19,17 +16,20 @@ router.get(
   BiometricController.getBiometric,
 );
 
-router.post(
-  "/:profileId",
+// USER / ADMIN
+router.get(
+  "/:id",
   authMiddleware,
-  roleMiddleware("ADMIN"),
-  BiometricController.createBiometric,
+  ownerOrAdmin("id"),
+  BiometricController.getBiometricByUserId,
 );
+
+router.post("/", authMiddleware, BiometricController.createBiometric);
 
 router.patch(
   "/:id",
   authMiddleware,
-  roleMiddleware("ADMIN"),
+  ownerOrAdmin("id"),
   BiometricController.updateBiometric,
 );
 
@@ -39,4 +39,5 @@ router.delete(
   roleMiddleware("ADMIN"),
   BiometricController.deleteBiometric,
 );
+
 export default router;

@@ -11,7 +11,8 @@ import { swaggerUi, swaggerSpec } from "./docs/swagger.js";
 
 import UserRoute from "./routes/user.route.js";
 import AuthRoute from "./routes/auth.route.js";
-import ProfileRoute from "./routes/profile.route.js";
+import BiometricRoute from "./routes/biometric.route.js";
+import HeartRateRoute from "./routes/heart-rate.route.js";
 
 const app = express();
 
@@ -40,7 +41,8 @@ app.get("/api", (req, res) => {
 
 app.use("/api/users", UserRoute);
 app.use("/api/auth", AuthRoute);
-app.use("/api/profiles", ProfileRoute);
+app.use("/api/biometrics", BiometricRoute);
+app.use("/api/calculates", HeartRateRoute);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

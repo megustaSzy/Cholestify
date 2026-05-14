@@ -27,13 +27,7 @@ export const authRegisterSchema = Joi.object({
     .min(3)
     .max(50)
     .pattern(/^[A-Za-z\s]+$/)
-    .required()
-    .messages({
-      "string.empty": "Nama harus diisi",
-      "string.min": "Nama minimal 3 karakter",
-      "string.max": "Nama maksimal 50 karakter",
-      "string.pattern.base": "Nama hanya boleh huruf dan spasi",
-    }),
+    .required(),
 
   email: emailSchema,
   password: passwordSchema,
@@ -42,17 +36,18 @@ export const authRegisterSchema = Joi.object({
     .pattern(/^[0-9]+$/)
     .min(10)
     .max(13)
-    .required()
-    .messages({
-      "string.empty": "No telepon harus diisi",
-      "string.pattern.base": "No telepon hanya boleh angka",
-      "string.min": "No telepon minimal 10 digit",
-      "string.max": "No telepon maksimal 13 digit",
-    }),
+    .required(),
+
+  dob: Joi.date().optional(),
+
+  bloodType: Joi.string().valid("A", "B", "AB", "O").optional(),
 });
 
 export const authLoginSchema = Joi.object({
-  email: emailSchema,
+  identifier: Joi.string().required().messages({
+    "string.empty": "Email atau nomor telepon harus diisi",
+  }),
+
   password: Joi.string().required().messages({
     "string.empty": "Password harus diisi",
   }),

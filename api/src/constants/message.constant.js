@@ -34,6 +34,13 @@ export const MESSAGE = {
     RESET: "Data profile berhasil direset",
   },
 
+  BIOMETRIC: {
+    FOUND: "Data Biometric berhasil ditemukan",
+    NOT_FOUND: "Data Biometric tidak ditemukan",
+    DELETED: "Data Biometric berhasil dihapus",
+    RESET: "Data Biometric berhasil direset",
+  },
+
   TOKEN: {
     NOT_FOUND: "Token tidak ditemukan",
     INVALID: "Token tidak valid",
