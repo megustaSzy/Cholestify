@@ -1,8 +1,10 @@
+import { MESSAGE } from "../constants/message.constant.js";
 import { prisma } from "../lib/prisma.js";
+import { badRequestId } from "../utils/bad-request-id.util.js";
 
 export const HealthSummaryService = {
   async getHealthSummary(userId) {
-    if (!userId) throw new Error("userId is required");
+    badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
     const [biometric, lipidPanel] = await Promise.all([
       prisma.biometric.findFirst({

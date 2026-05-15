@@ -1,4 +1,5 @@
 import { HttpStatus } from "../constants/http-status.constant.js";
+import { MESSAGE } from "../constants/message.constant.js";
 
 import { HealthSummaryService } from "../services/health-summary.service.js";
 
@@ -11,7 +12,7 @@ export const HealthSummaryController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: "Data health summary berhasil diambil",
+        message: MESSAGE.SUMMARY.FOUND,
 
         metadata: {
           status: HttpStatus.OK,

@@ -8,23 +8,23 @@ Base URL: `http://localhost:3001`
 
 ## 📋 Daftar Endpoint
 
-| Method | Endpoint                  | Auth | Deskripsi                                          |
-|--------|---------------------------|------|-----------------------------------------------------|
-| `POST` | `/api/auth/register`      | ❌   | Registrasi user baru                                |
-| `POST` | `/api/auth/login`         | ❌   | Login, cookie di-set otomatis                       |
-| `POST` | `/api/auth/refresh`       | 🍪   | Refresh access token                                |
-| `POST` | `/api/auth/logout`        | 🍪   | Logout, cookie dihapus                              |
-| `POST` | `/api/auth/forgot-password`| ❌  | Kirim email reset password                          |
-| `POST` | `/api/auth/reset-password` | ❌  | Reset password via token query                      |
-| `GET`  | `/api/auth/google`        | ❌   | Login via Google OAuth                              |
-| `GET`  | `/api/users/:id`          | 🍪   | Ambil profil user                                   |
-| `PATCH`| `/api/users/:id`          | 🍪   | Update profil user                                  |
-| `GET`  | `/api/health-summary`     | 🍪   | **Dashboard** — Biometric + Lipid Panel (1 hit)     |
-| `POST` | `/api/biometrics`         | 🍪   | Input tinggi & berat badan (BMI dihitung otomatis)  |
-| `PATCH`| `/api/biometrics/:id`     | 🍪   | Update biometric                                    |
-| `POST` | `/api/lipid-panels`       | 🍪   | Input data kolesterol                               |
-| `PATCH`| `/api/lipid-panels/:id`   | 🍪   | Update data kolesterol                              |
-| `POST` | `/api/calculates`         | ❌   | Hitung zone detak jantung                           |
+| Method  | Endpoint                    | Auth | Deskripsi                                          |
+| ------- | --------------------------- | ---- | -------------------------------------------------- |
+| `POST`  | `/api/auth/register`        | ❌   | Registrasi user baru                               |
+| `POST`  | `/api/auth/login`           | ❌   | Login, cookie di-set otomatis                      |
+| `POST`  | `/api/auth/refresh`         | 🍪   | Refresh access token                               |
+| `POST`  | `/api/auth/logout`          | 🍪   | Logout, cookie dihapus                             |
+| `POST`  | `/api/auth/forgot-password` | ❌   | Kirim email reset password                         |
+| `POST`  | `/api/auth/reset-password`  | ❌   | Reset password via token query                     |
+| `GET`   | `/api/auth/google`          | ❌   | Login via Google OAuth                             |
+| `GET`   | `/api/users/:id`            | 🍪   | Ambil profil user                                  |
+| `PATCH` | `/api/users/:id`            | 🍪   | Update profil user                                 |
+| `GET`   | `/api/health-summary`       | 🍪   | **Dashboard** — Biometric + Lipid Panel (1 hit)    |
+| `POST`  | `/api/biometrics`           | 🍪   | Input tinggi & berat badan (BMI dihitung otomatis) |
+| `PATCH` | `/api/biometrics/:id`       | 🍪   | Update biometric                                   |
+| `POST`  | `/api/lipids`               | 🍪   | Input data kolesterol                              |
+| `PATCH` | `/api/lipids/:id`           | 🍪   | Update data kolesterol                             |
+| `POST`  | `/api/calculates`           | ❌   | Hitung zone detak jantung                          |
 
 > 🍪 = Token dikirim otomatis via HTTP-only Cookie, **tidak perlu set header manual**.
 
@@ -33,20 +33,22 @@ Base URL: `http://localhost:3001`
 ## 🔐 Auth
 
 ### Register
+
 **Endpoint:** `POST /api/auth/register`
 
 **Request Body (JSON):**
 
-| Field | Type | Required | Keterangan |
-|---|---|---|---|
-| `nama` | `string` | ✅ Ya | Nama lengkap user |
-| `email` | `string` | ✅ Ya | Email aktif |
-| `password` | `string` | ✅ Ya | Minimal 8 karakter (huruf besar, kecil, angka, simbol) |
-| `notelp` | `string` | ✅ Ya | Nomor telepon (10-13 digit) |
-| `dob` | `string` | ❌ Tidak | Tanggal lahir (format: `YYYY-MM-DD`) |
-| `bloodType` | `string` | ❌ Tidak | Golongan darah: `A`, `B`, `AB`, `O` |
+| Field       | Type     | Required | Keterangan                                             |
+| ----------- | -------- | -------- | ------------------------------------------------------ |
+| `nama`      | `string` | ✅ Ya    | Nama lengkap user                                      |
+| `email`     | `string` | ✅ Ya    | Email aktif                                            |
+| `password`  | `string` | ✅ Ya    | Minimal 8 karakter (huruf besar, kecil, angka, simbol) |
+| `notelp`    | `string` | ✅ Ya    | Nomor telepon (10-13 digit)                            |
+| `dob`       | `string` | ❌ Tidak | Tanggal lahir (format: `YYYY-MM-DD`)                   |
+| `bloodType` | `string` | ❌ Tidak | Golongan darah: `A`, `B`, `AB`, `O`                    |
 
 **Contoh Request:**
+
 ```json
 {
   "nama": "Budi Santoso",
@@ -59,6 +61,7 @@ Base URL: `http://localhost:3001`
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -71,16 +74,18 @@ Base URL: `http://localhost:3001`
 ---
 
 ### Login
+
 **Endpoint:** `POST /api/auth/login`
 
 **Request Body (JSON):**
 
-| Field | Type | Required | Keterangan |
-|---|---|---|---|
-| `identifier` | `string` | ✅ Ya | Email atau nomor telepon |
-| `password` | `string` | ✅ Ya | Password user |
+| Field        | Type     | Required | Keterangan               |
+| ------------ | -------- | -------- | ------------------------ |
+| `identifier` | `string` | ✅ Ya    | Email atau nomor telepon |
+| `password`   | `string` | ✅ Ya    | Password user            |
 
 **Contoh Request:**
+
 ```json
 {
   "identifier": "budi@example.com",
@@ -89,6 +94,7 @@ Base URL: `http://localhost:3001`
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -104,6 +110,7 @@ Base URL: `http://localhost:3001`
 **Endpoint:** `GET /api/health-summary`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -131,16 +138,18 @@ Base URL: `http://localhost:3001`
 ## 🏋️ Biometric
 
 ### Create Biometric
+
 **Endpoint:** `POST /api/biometrics`
 
 **Request Body (JSON):**
 
-| Field | Type | Required | Keterangan |
-|---|---|---|---|
-| `height` | `number` | ✅ Ya | Tinggi badan (cm), boleh desimal |
-| `weight` | `number` | ✅ Ya | Berat badan (kg), boleh desimal |
+| Field    | Type     | Required | Keterangan                       |
+| -------- | -------- | -------- | -------------------------------- |
+| `height` | `number` | ✅ Ya    | Tinggi badan (cm), boleh desimal |
+| `weight` | `number` | ✅ Ya    | Berat badan (kg), boleh desimal  |
 
 **Contoh Request:**
+
 ```json
 {
   "height": 167,
@@ -149,6 +158,7 @@ Base URL: `http://localhost:3001`
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -167,16 +177,18 @@ Base URL: `http://localhost:3001`
 ---
 
 ### Update Biometric
+
 **Endpoint:** `PATCH /api/biometrics/:id`
 
 **Request Body (JSON):** _(semua field opsional)_
 
-| Field | Type | Keterangan |
-|---|---|---|
+| Field    | Type     | Keterangan        |
+| -------- | -------- | ----------------- |
 | `height` | `number` | Tinggi badan (cm) |
-| `weight` | `number` | Berat badan (kg) |
+| `weight` | `number` | Berat badan (kg)  |
 
 **Contoh Request:**
+
 ```json
 {
   "weight": 68
@@ -184,6 +196,7 @@ Base URL: `http://localhost:3001`
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -198,18 +211,20 @@ Base URL: `http://localhost:3001`
 ## 🧪 Lipid Panel
 
 ### Create Lipid Panel
-**Endpoint:** `POST /api/lipid-panels`
+
+**Endpoint:** `POST /api/lipids`
 
 **Request Body (JSON):**
 
-| Field | Type | Required | Keterangan |
-|---|---|---|---|
-| `totalCholesterol` | `number` | ✅ Ya | Total kolesterol (mg/dL) |
-| `triglycerides` | `number` | ✅ Ya | Trigliserida (mg/dL) |
-| `ldl` | `number` | ✅ Ya | LDL / bad cholesterol (mg/dL) |
-| `hdl` | `number` | ✅ Ya | HDL / good cholesterol (mg/dL) |
+| Field              | Type     | Required | Keterangan                     |
+| ------------------ | -------- | -------- | ------------------------------ |
+| `totalCholesterol` | `number` | ✅ Ya    | Total kolesterol (mg/dL)       |
+| `triglycerides`    | `number` | ✅ Ya    | Trigliserida (mg/dL)           |
+| `ldl`              | `number` | ✅ Ya    | LDL / bad cholesterol (mg/dL)  |
+| `hdl`              | `number` | ✅ Ya    | HDL / good cholesterol (mg/dL) |
 
 **Contoh Request:**
+
 ```json
 {
   "totalCholesterol": 180,
@@ -220,6 +235,7 @@ Base URL: `http://localhost:3001`
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -232,18 +248,20 @@ Base URL: `http://localhost:3001`
 ---
 
 ### Update Lipid Panel
-**Endpoint:** `PATCH /api/lipid-panels/:id`
+
+**Endpoint:** `PATCH /api/lipids/:id`
 
 **Request Body (JSON):** _(semua field opsional)_
 
-| Field | Type | Keterangan |
-|---|---|---|
-| `totalCholesterol` | `number` | Total kolesterol (mg/dL) |
-| `triglycerides` | `number` | Trigliserida (mg/dL) |
-| `ldl` | `number` | LDL / bad cholesterol (mg/dL) |
-| `hdl` | `number` | HDL / good cholesterol (mg/dL) |
+| Field              | Type     | Keterangan                     |
+| ------------------ | -------- | ------------------------------ |
+| `totalCholesterol` | `number` | Total kolesterol (mg/dL)       |
+| `triglycerides`    | `number` | Trigliserida (mg/dL)           |
+| `ldl`              | `number` | LDL / bad cholesterol (mg/dL)  |
+| `hdl`              | `number` | HDL / good cholesterol (mg/dL) |
 
 **Contoh Request:**
+
 ```json
 {
   "totalCholesterol": 190
@@ -251,6 +269,7 @@ Base URL: `http://localhost:3001`
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -268,14 +287,15 @@ Base URL: `http://localhost:3001`
 
 **Request Body (JSON):**
 
-| Field | Type | Required | Keterangan |
-|---|---|---|---|
-| `dob` | `string` | ✅ Ya | Tanggal lahir (`YYYY-MM-DD`) |
-| `gender` | `string` | ✅ Ya | `MALE` atau `FEMALE` |
-| `restingHeartRate` | `number` | ✅ Ya | Detak jantung istirahat (bpm, 30-220) |
-| `activityLevel` | `string` | ✅ Ya | `INACTIVE`, `LIGHTLY_ACTIVE`, `ACTIVE`, `ATHLETE` |
+| Field              | Type     | Required | Keterangan                                        |
+| ------------------ | -------- | -------- | ------------------------------------------------- |
+| `dob`              | `string` | ✅ Ya    | Tanggal lahir (`YYYY-MM-DD`)                      |
+| `gender`           | `string` | ✅ Ya    | `MALE` atau `FEMALE`                              |
+| `restingHeartRate` | `number` | ✅ Ya    | Detak jantung istirahat (bpm, 30-220)             |
+| `activityLevel`    | `string` | ✅ Ya    | `INACTIVE`, `LIGHTLY_ACTIVE`, `ACTIVE`, `ATHLETE` |
 
 **Contoh Request:**
+
 ```json
 {
   "dob": "1995-06-15",
@@ -286,6 +306,7 @@ Base URL: `http://localhost:3001`
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -300,19 +321,21 @@ Base URL: `http://localhost:3001`
 ## 👤 Profil User
 
 ### Update Profil
+
 **Endpoint:** `PATCH /api/users/:id`
 
 **Request Body (JSON):** _(semua field opsional)_
 
-| Field | Type | Keterangan |
-|---|---|---|
-| `nama` | `string` | Nama lengkap |
-| `email` | `string` | Email baru |
-| `notelp` | `string` | Nomor telepon baru |
-| `dob` | `string` | Tanggal lahir (`YYYY-MM-DD`) |
+| Field       | Type     | Keterangan                          |
+| ----------- | -------- | ----------------------------------- |
+| `nama`      | `string` | Nama lengkap                        |
+| `email`     | `string` | Email baru                          |
+| `notelp`    | `string` | Nomor telepon baru                  |
+| `dob`       | `string` | Tanggal lahir (`YYYY-MM-DD`)        |
 | `bloodType` | `string` | Golongan darah: `A`, `B`, `AB`, `O` |
 
 **Contoh Request:**
+
 ```json
 {
   "nama": "Budi Updated",
@@ -321,6 +344,7 @@ Base URL: `http://localhost:3001`
 ```
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -335,6 +359,7 @@ Base URL: `http://localhost:3001`
 ## ❌ Error Response
 
 ### 400 — Bad Request
+
 ```json
 {
   "success": false,
@@ -344,6 +369,7 @@ Base URL: `http://localhost:3001`
 ```
 
 ### 401 — Unauthorized
+
 ```json
 {
   "success": false,
@@ -353,6 +379,7 @@ Base URL: `http://localhost:3001`
 ```
 
 ### 404 — Not Found
+
 ```json
 {
   "success": false,
@@ -362,6 +389,7 @@ Base URL: `http://localhost:3001`
 ```
 
 ### 409 — Conflict
+
 ```json
 {
   "success": false,

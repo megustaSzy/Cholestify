@@ -50,6 +50,10 @@ export const MESSAGE = {
     ALREADY_EXISTS: "Data Lipid Panel sudah ada untuk user ini",
   },
 
+  SUMMARY: {
+    FOUND: "Data health summary berhasil diambil",
+  },
+
   TOKEN: {
     NOT_FOUND: "Token tidak ditemukan",
     INVALID: "Token tidak valid",
