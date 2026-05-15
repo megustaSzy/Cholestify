@@ -9,6 +9,7 @@ Base URL: `http://localhost:PORT/api`
 - [Authentication](#-authentication)
 - [Users](#-users)
 - [Biometric](#-biometric)
+- [Lipid Panel](#-lipid-panel)
 - [Heart Rate](#-heart-rate)
 
 ---
@@ -248,17 +249,37 @@ Membuat data biometric baru untuk pengguna yang sedang login. 🔒 **User teraut
 
 **Request Body (JSON):**
 
-| Field    | Type     | Required | Keterangan        |
-| -------- | -------- | -------- | ----------------- |
-| `weight` | `number` | ✅ Ya    | Berat badan (kg)  |
-| `height` | `number` | ✅ Ya    | Tinggi badan (cm) |
+| Field    | Type     | Required | Keterangan                                   |
+| -------- | -------- | -------- | -------------------------------------------- |
+| `weight` | `number` | ✅ Ya    | Berat badan dalam kg, boleh desimal (contoh: `70.5`)  |
+| `height` | `number` | ✅ Ya    | Tinggi badan dalam cm, boleh desimal (contoh: `170.5`) |
+
+> 📊 `bmi` dan `bmiCategory` dihitung otomatis oleh server dari `weight` dan `height`. Tidak perlu dikirim di body.
 
 **Contoh Request:**
 
 ```json
 {
-  "weight": 70,
-  "height": 170
+  "weight": 60,
+  "height": 167
+}
+```
+
+**Contoh Response:**
+
+```json
+{
+  "success": true,
+  "message": "Data Biometric berhasil ditambahkan",
+  "metadata": { "status": 201 },
+  "data": {
+    "id": 1,
+    "height": 167,
+    "weight": 60,
+    "bmi": 21.5,
+    "bmiCategory": "Normal",
+    "createdAt": "2026-05-15T04:00:00.000Z"
+  }
 }
 ```
 
@@ -278,17 +299,18 @@ Memperbarui data biometric berdasarkan User ID. 🔒 **Owner atau ADMIN**
 
 **Request Body (JSON):** _(semua field opsional, kirim hanya yang ingin diperbarui)_
 
-| Field    | Type     | Keterangan        |
-| -------- | -------- | ----------------- |
-| `weight` | `number` | Berat badan (kg)  |
-| `height` | `number` | Tinggi badan (cm) |
+| Field    | Type     | Keterangan                                             |
+| -------- | -------- | ------------------------------------------------------ |
+| `weight` | `number` | Berat badan dalam kg, boleh desimal (contoh: `68.5`)   |
+| `height` | `number` | Tinggi badan dalam cm, boleh desimal (contoh: `165.5`) |
+
+> 📊 `bmi` dan `bmiCategory` akan di-recalculate otomatis jika `weight` atau `height` berubah.
 
 **Contoh Request:**
 
 ```json
 {
-  "weight": 68,
-  "height": 165
+  "weight": 68
 }
 ```
 
@@ -323,6 +345,90 @@ Menghitung zone detak jantung target berdasarkan data pengguna.
   "gender": "MALE",
   "restingHeartRate": 72,
   "activityLevel": "LIGHTLY_ACTIVE"
+}
+```
+
+---
+
+## 🧪 Lipid Panel
+
+Base path: `/api/lipid-panels`
+
+> Semua endpoint memerlukan autentikasi via **HTTP-only Cookie** yang di-set otomatis saat login.
+
+---
+
+### `GET /api/lipid-panels/:id`
+
+Mengambil data lipid panel berdasarkan User ID. 🔒 **Owner atau ADMIN**
+
+> 🍪 Token dikirim otomatis melalui **HTTP-only Cookie**, tidak perlu set header manual.
+
+**Path Parameter:**
+
+| Parameter | Type     | Keterangan  |
+|-----------|----------|-------------|
+| `id`      | `string` | ID pengguna |
+
+**Request Body:** _Tidak diperlukan_
+
+---
+
+### `POST /api/lipid-panels`
+
+Membuat data lipid panel baru untuk pengguna yang sedang login. 🔒 **User terautentikasi**
+
+> 🍪 Token dikirim otomatis melalui **HTTP-only Cookie**, tidak perlu set header manual.
+
+**Request Body (JSON):**
+
+| Field              | Type     | Required | Keterangan                                                      |
+|--------------------|----------|----------|------------------------------------------------------------------|
+| `totalCholesterol` | `number` | ✅ Ya    | Total kolesterol (mg/dL), target < 200 mg/dL                     |
+| `triglycerides`    | `number` | ✅ Ya    | Trigliserida (mg/dL), target < 150 mg/dL                         |
+| `ldl`              | `number` | ✅ Ya    | LDL / bad cholesterol (mg/dL), target < 100 mg/dL                |
+| `hdl`              | `number` | ✅ Ya    | HDL / good cholesterol (mg/dL), target > 40 (pria) / > 50 (wanita) |
+
+**Contoh Request:**
+
+```json
+{
+  "totalCholesterol": 180,
+  "triglycerides": 120,
+  "ldl": 90,
+  "hdl": 55
+}
+```
+
+---
+
+### `PATCH /api/lipid-panels/:id`
+
+Memperbarui data lipid panel berdasarkan User ID. 🔒 **Owner atau ADMIN**
+
+> 🍪 Token dikirim otomatis melalui **HTTP-only Cookie**, tidak perlu set header manual.
+
+**Path Parameter:**
+
+| Parameter | Type     | Keterangan  |
+|-----------|----------|-------------|
+| `id`      | `string` | ID pengguna |
+
+**Request Body (JSON):** _(semua field opsional, kirim hanya yang ingin diperbarui)_
+
+| Field              | Type     | Keterangan                       |
+|--------------------|----------|-----------------------------------|
+| `totalCholesterol` | `number` | Total kolesterol (mg/dL)          |
+| `triglycerides`    | `number` | Trigliserida (mg/dL)              |
+| `ldl`              | `number` | LDL / bad cholesterol (mg/dL)     |
+| `hdl`              | `number` | HDL / good cholesterol (mg/dL)    |
+
+**Contoh Request:**
+
+```json
+{
+  "totalCholesterol": 195,
+  "hdl": 60
 }
 ```
 
