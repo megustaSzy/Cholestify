@@ -7,12 +7,11 @@ import { NotFoundError } from "../exceptions/NotFoundError.js";
 import { prisma } from "../lib/prisma.js";
 
 import { badRequestId } from "../utils/bad-request-id.util.js";
-import { calculateBmi } from "../utils/calculate-bmi.util.js";
 import { notExist } from "../utils/not-exist.util.js";
 
-export const BiometricService = {
-  async getBiometrics() {
-    const data = await prisma.biometric.findMany({
+export const LipidPanelService = {
+  async getLipidPanels() {
+    const data = await prisma.lipidPanel.findMany({
       orderBy: {
         createdAt: "desc",
       },
@@ -20,11 +19,10 @@ export const BiometricService = {
       select: {
         id: true,
 
-        height: true,
-        weight: true,
-
-        bmi: true,
-        bmiCategory: true,
+        totalCholesterol: true,
+        triglycerides: true,
+        ldl: true,
+        hdl: true,
 
         createdAt: true,
         updatedAt: true,
@@ -41,13 +39,13 @@ export const BiometricService = {
     });
 
     if (data.length === 0) {
-      const error = new Error(MESSAGE.BIOMETRIC.NOT_FOUND);
+      const error = new Error(MESSAGE.LIPID_PANEL.NOT_FOUND);
 
       error.status = HttpStatus.NOT_FOUND;
 
       error.response = {
         success: false,
-        message: MESSAGE.BIOMETRIC.NOT_FOUND,
+        message: MESSAGE.LIPID_PANEL.NOT_FOUND,
 
         metadata: {
           status: HttpStatus.NOT_FOUND,
@@ -60,10 +58,10 @@ export const BiometricService = {
     return data;
   },
 
-  async getBiometricByUserId(userId) {
+  async getLipidPanelByUserId(userId) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    const data = await prisma.biometric.findUnique({
+    const data = await prisma.lipidPanel.findUnique({
       where: {
         userId,
       },
@@ -71,11 +69,10 @@ export const BiometricService = {
       select: {
         id: true,
 
-        height: true,
-        weight: true,
-
-        bmi: true,
-        bmiCategory: true,
+        totalCholesterol: true,
+        triglycerides: true,
+        ldl: true,
+        hdl: true,
 
         createdAt: true,
         updatedAt: true,
@@ -83,7 +80,7 @@ export const BiometricService = {
     });
 
     if (!data) {
-      throw new NotFoundError(MESSAGE.BIOMETRIC.NOT_FOUND);
+      throw new NotFoundError(MESSAGE.LIPID_PANEL.NOT_FOUND);
     }
 
     return data;
@@ -94,37 +91,33 @@ export const BiometricService = {
 
     await notExist(prisma.user, { id: userId }, MESSAGE.USER.NOT_FOUND);
 
-    const existingBiometric = await prisma.biometric.findUnique({
+    const existingLipidPanel = await prisma.lipidPanel.findUnique({
       where: {
         userId,
       },
     });
 
-    if (existingBiometric) {
-      throw new ConflictError(MESSAGE.BIOMETRIC.ALREADY_EXISTS);
+    if (existingLipidPanel) {
+      throw new ConflictError(MESSAGE.LIPID_PANEL.ALREADY_EXISTS);
     }
 
-    const { bmi, bmiCategory } = calculateBmi(body.height, body.weight);
-
-    const data = await prisma.biometric.create({
+    const data = await prisma.lipidPanel.create({
       data: {
         userId,
 
-        height: body.height,
-        weight: body.weight,
-
-        bmi,
-        bmiCategory,
+        totalCholesterol: body.totalCholesterol,
+        triglycerides: body.triglycerides,
+        ldl: body.ldl,
+        hdl: body.hdl,
       },
 
       select: {
         id: true,
 
-        height: true,
-        weight: true,
-
-        bmi: true,
-        bmiCategory: true,
+        totalCholesterol: true,
+        triglycerides: true,
+        ldl: true,
+        hdl: true,
 
         createdAt: true,
       },
@@ -136,33 +129,31 @@ export const BiometricService = {
   async update(userId, body) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    const existing = await prisma.biometric.findUnique({
-      where: { userId },
-    });
-
-    if (!existing) {
-      throw new NotFoundError(MESSAGE.BIOMETRIC.NOT_FOUND);
-    }
+    await notExist(
+      prisma.lipidPanel,
+      { userId },
+      MESSAGE.LIPID_PANEL.NOT_FOUND,
+    );
 
     const updateData = {};
 
-    if (body.height !== undefined) {
-      updateData.height = body.height;
+    if (body.totalCholesterol !== undefined) {
+      updateData.totalCholesterol = body.totalCholesterol;
     }
 
-    if (body.weight !== undefined) {
-      updateData.weight = body.weight;
+    if (body.triglycerides !== undefined) {
+      updateData.triglycerides = body.triglycerides;
     }
 
-    // Recalculate BMI jika height atau weight berubah
-    const newHeight = updateData.height ?? existing.height;
-    const newWeight = updateData.weight ?? existing.weight;
-    const { bmi, bmiCategory } = calculateBmi(newHeight, newWeight);
+    if (body.ldl !== undefined) {
+      updateData.ldl = body.ldl;
+    }
 
-    updateData.bmi = bmi;
-    updateData.bmiCategory = bmiCategory;
+    if (body.hdl !== undefined) {
+      updateData.hdl = body.hdl;
+    }
 
-    const data = await prisma.biometric.update({
+    const data = await prisma.lipidPanel.update({
       where: {
         userId,
       },
@@ -172,11 +163,10 @@ export const BiometricService = {
       select: {
         id: true,
 
-        height: true,
-        weight: true,
-
-        bmi: true,
-        bmiCategory: true,
+        totalCholesterol: true,
+        triglycerides: true,
+        ldl: true,
+        hdl: true,
 
         updatedAt: true,
       },
@@ -188,9 +178,13 @@ export const BiometricService = {
   async remove(userId) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    await notExist(prisma.biometric, { userId }, MESSAGE.BIOMETRIC.NOT_FOUND);
+    await notExist(
+      prisma.lipidPanel,
+      { userId },
+      MESSAGE.LIPID_PANEL.NOT_FOUND,
+    );
 
-    await prisma.biometric.delete({
+    await prisma.lipidPanel.delete({
       where: {
         userId,
       },

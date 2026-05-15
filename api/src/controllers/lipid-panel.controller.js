@@ -1,16 +1,16 @@
 import { HttpStatus } from "../constants/http-status.constant.js";
 import { MESSAGE } from "../constants/message.constant.js";
 
-import { BiometricService } from "../services/biometric.service.js";
+import { LipidPanelService } from "../services/lipid-panel.service.js";
 
-export const BiometricController = {
-  async getBiometric(req, res, next) {
+export const LipidPanelController = {
+  async getLipidPanels(req, res, next) {
     try {
-      const data = await BiometricService.getBiometrics();
+      const data = await LipidPanelService.getLipidPanels();
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: MESSAGE.BIOMETRIC.FOUND,
+        message: MESSAGE.LIPID_PANEL.FOUND,
 
         metadata: {
           status: HttpStatus.OK,
@@ -23,15 +23,15 @@ export const BiometricController = {
     }
   },
 
-  async getBiometricByUserId(req, res, next) {
+  async getLipidPanelByUserId(req, res, next) {
     try {
       const id = Number(req.params.id);
 
-      const data = await BiometricService.getBiometricByUserId(id);
+      const data = await LipidPanelService.getLipidPanelByUserId(id);
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: MESSAGE.BIOMETRIC.FOUND,
+        message: MESSAGE.LIPID_PANEL.FOUND,
 
         metadata: {
           status: HttpStatus.OK,
@@ -44,15 +44,15 @@ export const BiometricController = {
     }
   },
 
-  async createBiometric(req, res, next) {
+  async createLipidPanel(req, res, next) {
     try {
       const userId = req.user.id;
 
-      const data = await BiometricService.create(userId, req.body);
+      const data = await LipidPanelService.create(userId, req.body);
 
       return res.status(HttpStatus.CREATED).json({
         success: true,
-        message: MESSAGE.BIOMETRIC.CREATED,
+        message: MESSAGE.LIPID_PANEL.CREATED,
 
         metadata: {
           status: HttpStatus.CREATED,
@@ -65,11 +65,11 @@ export const BiometricController = {
     }
   },
 
-  async updateBiometric(req, res, next) {
+  async updateLipidPanel(req, res, next) {
     try {
       const userId = Number(req.params.id);
 
-      const data = await BiometricService.update(userId, req.body);
+      const data = await LipidPanelService.update(userId, req.body);
 
       return res.status(HttpStatus.OK).json({
         success: true,
@@ -86,15 +86,15 @@ export const BiometricController = {
     }
   },
 
-  async deleteBiometric(req, res, next) {
+  async deleteLipidPanel(req, res, next) {
     try {
       const userId = Number(req.params.id);
 
-      await BiometricService.remove(userId);
+      await LipidPanelService.remove(userId);
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: MESSAGE.BIOMETRIC.DELETED,
+        message: MESSAGE.LIPID_PANEL.DELETED,
 
         metadata: {
           status: HttpStatus.OK,

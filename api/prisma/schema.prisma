@@ -30,6 +30,7 @@ model User {
   tokens      Token[]
   resetTokens PasswordResetToken[]
   biometric   Biometric?
+  lipidPanel  LipidPanel?
   screenings  Screening[]
 }
 
@@ -39,6 +40,24 @@ model Biometric {
 
   height Float
   weight Float
+
+  bmi         Float
+  bmiCategory String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model LipidPanel {
+  id     Int @id @default(autoincrement())
+  userId Int @unique
+
+  totalCholesterol Float
+  triglycerides    Float
+  ldl              Float
+  hdl              Float
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
