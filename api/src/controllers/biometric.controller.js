@@ -1,5 +1,3 @@
-// biometric.controller.js
-
 import { HttpStatus } from "../constants/http-status.constant.js";
 import { MESSAGE } from "../constants/message.constant.js";
 
