@@ -174,10 +174,6 @@ Base URL: `http://localhost:3001`
 }
 ```
 
-````
-
----
-
 ### Get Biometric by User ID
 **Endpoint:** `GET /api/biometrics/:id`
 
@@ -269,8 +265,6 @@ Base URL: `http://localhost:3001`
   "data": { ... }
 }
 ```
-
-````
 
 ---
 
