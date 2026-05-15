@@ -27,16 +27,17 @@ Mendaftarkan pengguna baru.
 
 **Request Body (JSON):**
 
-| Field       | Type     | Required | Keterangan                                              |
-|-------------|----------|----------|---------------------------------------------------------|
-| `nama`      | `string` | ✅ Ya    | Nama lengkap (min 3, max 50 karakter, hanya huruf & spasi) |
-| `email`     | `string` | ✅ Ya    | Format email valid                                      |
+| Field       | Type     | Required | Keterangan                                                            |
+| ----------- | -------- | -------- | --------------------------------------------------------------------- |
+| `nama`      | `string` | ✅ Ya    | Nama lengkap (min 3, max 50 karakter, hanya huruf & spasi)            |
+| `email`     | `string` | ✅ Ya    | Format email valid                                                    |
 | `password`  | `string` | ✅ Ya    | Min 8 karakter, harus ada huruf besar, huruf kecil, angka, dan simbol |
-| `notelp`    | `string` | ✅ Ya    | Nomor telepon (10–13 digit angka)                       |
-| `dob`       | `date`   | ❌ Opsional | Tanggal lahir (format: `YYYY-MM-DD`)                 |
-| `bloodType` | `string` | ❌ Opsional | Golongan darah: `A`, `B`, `AB`, `O`                  |
+| `notelp`    | `string` | ✅ Ya    | Nomor telepon (10–13 digit angka)                                     |
+| `dob`       | `date`   | ✅ Ya    | Tanggal lahir (format: `YYYY-MM-DD`)                                  |
+| `bloodType` | `string` | ✅ Ya    | Golongan darah: `A`, `B`, `AB`, `O`                                   |
 
 **Contoh Request:**
+
 ```json
 {
   "nama": "Budi Santoso",
@@ -56,12 +57,13 @@ Login dengan email/nomor telepon dan password.
 
 **Request Body (JSON):**
 
-| Field        | Type     | Required | Keterangan                              |
-|--------------|----------|----------|-----------------------------------------|
-| `identifier` | `string` | ✅ Ya    | Email atau nomor telepon pengguna       |
-| `password`   | `string` | ✅ Ya    | Password akun                           |
+| Field        | Type     | Required | Keterangan                        |
+| ------------ | -------- | -------- | --------------------------------- |
+| `identifier` | `string` | ✅ Ya    | Email atau nomor telepon pengguna |
+| `password`   | `string` | ✅ Ya    | Password akun                     |
 
 **Contoh Request:**
+
 ```json
 {
   "identifier": "budi@example.com",
@@ -97,11 +99,12 @@ Mengirim email tautan reset password.
 
 **Request Body (JSON):**
 
-| Field   | Type     | Required | Keterangan        |
-|---------|----------|----------|-------------------|
-| `email` | `string` | ✅ Ya    | Email terdaftar   |
+| Field   | Type     | Required | Keterangan      |
+| ------- | -------- | -------- | --------------- |
+| `email` | `string` | ✅ Ya    | Email terdaftar |
 
 **Contoh Request:**
+
 ```json
 {
   "email": "budi@example.com"
@@ -116,18 +119,19 @@ Reset password menggunakan token yang dikirim ke email.
 
 **Query Parameter:**
 
-| Parameter | Type     | Required | Keterangan                            |
-|-----------|----------|----------|---------------------------------------|
-| `token`   | `string` | ✅ Ya    | Token reset password dari email       |
+| Parameter | Type     | Required | Keterangan                      |
+| --------- | -------- | -------- | ------------------------------- |
+| `token`   | `string` | ✅ Ya    | Token reset password dari email |
 
 **Request Body (JSON):**
 
-| Field             | Type     | Required | Keterangan                                   |
-|-------------------|----------|----------|----------------------------------------------|
+| Field             | Type     | Required | Keterangan                                                                            |
+| ----------------- | -------- | -------- | ------------------------------------------------------------------------------------- |
 | `password`        | `string` | ✅ Ya    | Password baru (min 8 karakter, harus ada huruf besar, huruf kecil, angka, dan simbol) |
-| `confirmPassword` | `string` | ✅ Ya    | Harus sama dengan `password`                 |
+| `confirmPassword` | `string` | ✅ Ya    | Harus sama dengan `password`                                                          |
 
 **Contoh Request:**
+
 ```json
 {
   "password": "NewRahasia@456",
@@ -159,44 +163,7 @@ Callback URL dari Google setelah autentikasi berhasil.
 
 Base path: `/api/users`
 
-> Semua endpoint memerlukan **Bearer Token** (`Authorization: Bearer <access_token>`).
-
----
-
-### `POST /api/users`
-
-Membuat pengguna baru. 🔒 **ADMIN only**
-
-**Headers:**
-
-```
-Authorization: Bearer <access_token>
-```
-
-**Request Body (JSON):** _(mengikuti skema yang sama dengan register)_
-
-| Field       | Type     | Required | Keterangan                                              |
-|-------------|----------|----------|---------------------------------------------------------|
-| `nama`      | `string` | ✅ Ya    | Nama lengkap pengguna                                   |
-| `email`     | `string` | ✅ Ya    | Format email valid                                      |
-| `password`  | `string` | ✅ Ya    | Password akun                                           |
-| `notelp`    | `string` | ✅ Ya    | Nomor telepon (10–13 digit)                             |
-| `dob`       | `date`   | ❌ Opsional | Tanggal lahir                                         |
-| `bloodType` | `string` | ❌ Opsional | Golongan darah: `A`, `B`, `AB`, `O`                  |
-
----
-
-### `GET /api/users`
-
-Mengambil daftar semua pengguna. 🔒 **ADMIN only**
-
-**Headers:**
-
-```
-Authorization: Bearer <access_token>
-```
-
-**Request Body:** _Tidak diperlukan_
+> Semua endpoint memerlukan autentikasi via **HTTP-only Cookie** yang di-set otomatis saat login.
 
 ---
 
@@ -204,17 +171,13 @@ Authorization: Bearer <access_token>
 
 Mengambil detail pengguna berdasarkan ID. 🔒 **Owner atau ADMIN**
 
-**Headers:**
-
-```
-Authorization: Bearer <access_token>
-```
+> 🍪 Token dikirim otomatis melalui **HTTP-only Cookie**, tidak perlu set header manual.
 
 **Path Parameter:**
 
-| Parameter | Type     | Keterangan        |
-|-----------|----------|-------------------|
-| `id`      | `string` | ID pengguna       |
+| Parameter | Type     | Keterangan  |
+| --------- | -------- | ----------- |
+| `id`      | `string` | ID pengguna |
 
 **Request Body:** _Tidak diperlukan_
 
@@ -224,22 +187,18 @@ Authorization: Bearer <access_token>
 
 Memperbarui data pengguna berdasarkan ID. 🔒 **Owner atau ADMIN**
 
-**Headers:**
-
-```
-Authorization: Bearer <access_token>
-```
+> 🍪 Token dikirim otomatis melalui **HTTP-only Cookie**, tidak perlu set header manual.
 
 **Path Parameter:**
 
-| Parameter | Type     | Keterangan        |
-|-----------|----------|-------------------|
-| `id`      | `string` | ID pengguna       |
+| Parameter | Type     | Keterangan  |
+| --------- | -------- | ----------- |
+| `id`      | `string` | ID pengguna |
 
 **Request Body (JSON):** _(semua field opsional, kirim hanya yang ingin diperbarui)_
 
 | Field       | Type     | Keterangan                          |
-|-------------|----------|-------------------------------------|
+| ----------- | -------- | ----------------------------------- |
 | `nama`      | `string` | Nama lengkap baru                   |
 | `email`     | `string` | Email baru                          |
 | `notelp`    | `string` | Nomor telepon baru                  |
@@ -247,6 +206,7 @@ Authorization: Bearer <access_token>
 | `bloodType` | `string` | Golongan darah: `A`, `B`, `AB`, `O` |
 
 **Contoh Request:**
+
 ```json
 {
   "nama": "Budi S. Updated",
@@ -256,45 +216,11 @@ Authorization: Bearer <access_token>
 
 ---
 
-### `DELETE /api/users/:id`
-
-Menghapus pengguna berdasarkan ID. 🔒 **ADMIN only**
-
-**Headers:**
-
-```
-Authorization: Bearer <access_token>
-```
-
-**Path Parameter:**
-
-| Parameter | Type     | Keterangan        |
-|-----------|----------|-------------------|
-| `id`      | `string` | ID pengguna       |
-
-**Request Body:** _Tidak diperlukan_
-
----
-
 ## 📊 Biometric
 
 Base path: `/api/biometric`
 
-> Semua endpoint memerlukan **Bearer Token** (`Authorization: Bearer <access_token>`).
-
----
-
-### `GET /api/biometric`
-
-Mengambil seluruh data biometric semua pengguna. 🔒 **ADMIN only**
-
-**Headers:**
-
-```
-Authorization: Bearer <access_token>
-```
-
-**Request Body:** _Tidak diperlukan_
+> Semua endpoint memerlukan autentikasi via **HTTP-only Cookie** yang di-set otomatis saat login.
 
 ---
 
@@ -302,16 +228,12 @@ Authorization: Bearer <access_token>
 
 Mengambil data biometric berdasarkan User ID. 🔒 **Owner atau ADMIN**
 
-**Headers:**
-
-```
-Authorization: Bearer <access_token>
-```
+> 🍪 Token dikirim otomatis melalui **HTTP-only Cookie**, tidak perlu set header manual.
 
 **Path Parameter:**
 
 | Parameter | Type     | Keterangan  |
-|-----------|----------|-------------|
+| --------- | -------- | ----------- |
 | `id`      | `string` | ID pengguna |
 
 **Request Body:** _Tidak diperlukan_
@@ -322,40 +244,21 @@ Authorization: Bearer <access_token>
 
 Membuat data biometric baru untuk pengguna yang sedang login. 🔒 **User terautentikasi**
 
-**Headers:**
-
-```
-Authorization: Bearer <access_token>
-```
+> 🍪 Token dikirim otomatis melalui **HTTP-only Cookie**, tidak perlu set header manual.
 
 **Request Body (JSON):**
 
-> Field mengikuti data biometric yang relevan untuk analisis kolesterol. Sesuaikan dengan skema model `Biometric` di database.
-
-| Field              | Type      | Required | Keterangan                                      |
-|--------------------|-----------|----------|-------------------------------------------------|
-| `weight`           | `number`  | ✅ Ya    | Berat badan (kg)                                |
-| `height`           | `number`  | ✅ Ya    | Tinggi badan (cm)                               |
-| `totalCholesterol` | `number`  | ✅ Ya    | Total kolesterol (mg/dL)                        |
-| `hdl`              | `number`  | ✅ Ya    | HDL kolesterol (mg/dL)                          |
-| `ldl`              | `number`  | ✅ Ya    | LDL kolesterol (mg/dL)                          |
-| `triglycerides`    | `number`  | ✅ Ya    | Trigliserida (mg/dL)                            |
-| `bloodPressure`    | `string`  | ❌ Opsional | Tekanan darah (contoh: `"120/80"`)           |
-| `bloodSugar`       | `number`  | ❌ Opsional | Kadar gula darah (mg/dL)                     |
-| `smokingStatus`    | `boolean` | ❌ Opsional | Status merokok (`true` / `false`)            |
+| Field    | Type     | Required | Keterangan        |
+| -------- | -------- | -------- | ----------------- |
+| `weight` | `number` | ✅ Ya    | Berat badan (kg)  |
+| `height` | `number` | ✅ Ya    | Tinggi badan (cm) |
 
 **Contoh Request:**
+
 ```json
 {
   "weight": 70,
-  "height": 170,
-  "totalCholesterol": 210,
-  "hdl": 55,
-  "ldl": 130,
-  "triglycerides": 150,
-  "bloodPressure": "120/80",
-  "bloodSugar": 95,
-  "smokingStatus": false
+  "height": 170
 }
 ```
 
@@ -365,59 +268,29 @@ Authorization: Bearer <access_token>
 
 Memperbarui data biometric berdasarkan User ID. 🔒 **Owner atau ADMIN**
 
-**Headers:**
-
-```
-Authorization: Bearer <access_token>
-```
+> 🍪 Token dikirim otomatis melalui **HTTP-only Cookie**, tidak perlu set header manual.
 
 **Path Parameter:**
 
 | Parameter | Type     | Keterangan  |
-|-----------|----------|-------------|
+| --------- | -------- | ----------- |
 | `id`      | `string` | ID pengguna |
 
 **Request Body (JSON):** _(semua field opsional, kirim hanya yang ingin diperbarui)_
 
-| Field              | Type      | Keterangan                         |
-|--------------------|-----------|------------------------------------|
-| `weight`           | `number`  | Berat badan (kg)                   |
-| `height`           | `number`  | Tinggi badan (cm)                  |
-| `totalCholesterol` | `number`  | Total kolesterol (mg/dL)           |
-| `hdl`              | `number`  | HDL kolesterol (mg/dL)             |
-| `ldl`              | `number`  | LDL kolesterol (mg/dL)             |
-| `triglycerides`    | `number`  | Trigliserida (mg/dL)               |
-| `bloodPressure`    | `string`  | Tekanan darah (contoh: `"120/80"`) |
-| `bloodSugar`       | `number`  | Kadar gula darah (mg/dL)           |
-| `smokingStatus`    | `boolean` | Status merokok (`true` / `false`)  |
+| Field    | Type     | Keterangan        |
+| -------- | -------- | ----------------- |
+| `weight` | `number` | Berat badan (kg)  |
+| `height` | `number` | Tinggi badan (cm) |
 
 **Contoh Request:**
+
 ```json
 {
   "weight": 68,
-  "totalCholesterol": 195
+  "height": 165
 }
 ```
-
----
-
-### `DELETE /api/biometric/:id`
-
-Menghapus data biometric berdasarkan User ID. 🔒 **ADMIN only**
-
-**Headers:**
-
-```
-Authorization: Bearer <access_token>
-```
-
-**Path Parameter:**
-
-| Parameter | Type     | Keterangan  |
-|-----------|----------|-------------|
-| `id`      | `string` | ID pengguna |
-
-**Request Body:** _Tidak diperlukan_
 
 ---
 
@@ -435,14 +308,15 @@ Menghitung zone detak jantung target berdasarkan data pengguna.
 
 **Request Body (JSON):**
 
-| Field              | Type     | Required | Keterangan                                                    |
-|--------------------|----------|----------|---------------------------------------------------------------|
+| Field              | Type     | Required | Keterangan                                                            |
+| ------------------ | -------- | -------- | --------------------------------------------------------------------- |
 | `dob`              | `date`   | ✅ Ya    | Tanggal lahir (format: `YYYY-MM-DD`, tidak boleh lebih dari hari ini) |
-| `gender`           | `string` | ✅ Ya    | Jenis kelamin: `MALE` atau `FEMALE`                           |
-| `restingHeartRate` | `number` | ✅ Ya    | Detak jantung saat istirahat (bpm, min: 30, max: 220)        |
-| `activityLevel`    | `string` | ✅ Ya    | Level aktivitas: `INACTIVE`, `LIGHTLY_ACTIVE`, `ACTIVE`, `ATHLETE` |
+| `gender`           | `string` | ✅ Ya    | Jenis kelamin: `MALE` atau `FEMALE`                                   |
+| `restingHeartRate` | `number` | ✅ Ya    | Detak jantung saat istirahat (bpm, min: 30, max: 220)                 |
+| `activityLevel`    | `string` | ✅ Ya    | Level aktivitas: `INACTIVE`, `LIGHTLY_ACTIVE`, `ACTIVE`, `ATHLETE`    |
 
 **Contoh Request:**
+
 ```json
 {
   "dob": "1995-06-15",
@@ -456,44 +330,77 @@ Menghitung zone detak jantung target berdasarkan data pengguna.
 
 ## 🔑 Authorization Levels
 
-| Level            | Keterangan                                                           |
-|------------------|----------------------------------------------------------------------|
-| 🌐 Public        | Tidak perlu token                                                    |
-| 🔒 Authenticated | Memerlukan Bearer Token (user manapun yang login)                    |
-| 👤 Owner/Admin   | Hanya pemilik resource atau user dengan role `ADMIN`                 |
-| 🛡️ Admin only   | Hanya user dengan role `ADMIN`                                       |
+| Level            | Keterangan                                                          |
+| ---------------- | ------------------------------------------------------------------- |
+| 🌐 Public        | Tidak perlu token                                                   |
+| 🔒 Authenticated | Token dikirim otomatis via HTTP-only Cookie (user yang sudah login) |
+| 👤 Owner/Admin   | Hanya pemilik resource atau user dengan role `ADMIN`                |
 
 ---
 
 ## 📦 Response Format
 
-Semua response menggunakan format JSON. Contoh response sukses:
+Semua response menggunakan format JSON standar berikut:
+
+### ✅ Success (`200` / `201`)
 
 ```json
 {
-  "status": "success",
+  "success": true,
   "message": "Data berhasil diambil",
+  "metadata": {
+    "status": 200
+  },
   "data": { ... }
 }
 ```
 
-Contoh response error:
+### ❌ Data Tidak Ditemukan (`404`)
 
 ```json
 {
-  "status": "error",
-  "message": "Pesan error yang relevan"
+  "success": false,
+  "message": "Data user tidak ditemukan",
+  "metadata": {
+    "status": 404
+  }
+}
+```
+
+### ❌ ID / Parameter Tidak Valid (`400`)
+
+```json
+{
+  "success": false,
+  "message": "Parameter tidak valid",
+  "metadata": {
+    "status": 400
+  }
+}
+```
+
+### ❌ Token Tidak Ditemukan / Tidak Terautentikasi (`401`)
+
+```json
+{
+  "success": false,
+  "message": "Token tidak ditemukan",
+  "metadata": {
+    "status": 401
+  }
 }
 ```
 
 ---
 
-## 🔒 Authentication Header
+## 🍪 Autentikasi via HTTP-only Cookie
 
-Untuk endpoint yang memerlukan autentikasi, sertakan header berikut:
+API ini menggunakan **HTTP-only Cookie** untuk menyimpan dan mengirim token autentikasi secara otomatis. Frontend **tidak perlu** menyertakan header `Authorization` secara manual.
 
-```
-Authorization: Bearer <access_token>
-```
+- Cookie di-set otomatis oleh server saat login berhasil (`POST /api/auth/login`)
+- Cookie dikirim otomatis oleh browser pada setiap request berikutnya
+- Untuk refresh token, cukup hit `POST /api/auth/refresh` — cookie lama dibaca otomatis
+- Saat logout (`POST /api/auth/logout`), cookie akan dihapus oleh server
 
-Access token didapat dari response login (`POST /api/auth/login`) atau refresh token (`POST /api/auth/refresh`).
+> ⚠️ Pastikan request dikirim dengan opsi `credentials: 'include'` (fetch) atau `withCredentials: true` (axios) agar cookie ikut terkirim.
+
