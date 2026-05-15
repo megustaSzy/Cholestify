@@ -1,0 +1,26 @@
+import { HttpStatus } from "../constants/http-status.constant.js";
+
+import { HealthSummaryService } from "../services/health-summary.service.js";
+
+export const HealthSummaryController = {
+  async getHealthSummary(req, res, next) {
+    try {
+      const userId = req.user.id;
+
+      const data = await HealthSummaryService.getHealthSummary(userId);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Data health summary berhasil diambil",
+
+        metadata: {
+          status: HttpStatus.OK,
+        },
+
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+};
