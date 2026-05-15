@@ -39,6 +39,15 @@ export const MESSAGE = {
     NOT_FOUND: "Data Biometric tidak ditemukan",
     DELETED: "Data Biometric berhasil dihapus",
     RESET: "Data Biometric berhasil direset",
+    ALREADY_EXISTS: "Data Biometric sudah ada untuk user ini",
+  },
+
+  LIPID_PANEL: {
+    FOUND: "Data Lipid Panel berhasil ditemukan",
+    NOT_FOUND: "Data Lipid Panel tidak ditemukan",
+    CREATED: "Data Lipid Panel berhasil ditambahkan",
+    DELETED: "Data Lipid Panel berhasil dihapus",
+    ALREADY_EXISTS: "Data Lipid Panel sudah ada untuk user ini",
   },
 
   TOKEN: {

@@ -11,6 +11,7 @@ Base URL: `http://localhost:PORT/api`
 - [Biometric](#-biometric)
 - [Lipid Panel](#-lipid-panel)
 - [Heart Rate](#-heart-rate)
+- [Frontend Integration](#-frontend-integration)
 
 ---
 
@@ -510,3 +511,124 @@ API ini menggunakan **HTTP-only Cookie** untuk menyimpan dan mengirim token aute
 
 > ⚠️ Pastikan request dikirim dengan opsi `credentials: 'include'` (fetch) atau `withCredentials: true` (axios) agar cookie ikut terkirim.
 
+---
+
+## 📱 Frontend Integration
+
+Panduan untuk tim frontend dalam mengonsumsi endpoint Biometric dan Lipid Panel. Pastikan selalu menyertakan `credentials: 'include'` pada setiap request.
+
+> Base URL disimpan di environment variable, contoh: `NEXT_PUBLIC_API_URL=http://localhost:3001`
+
+---
+
+### Fetch Biometric (HEIGHT / WEIGHT / BMI)
+
+Digunakan untuk menampilkan kartu **Height**, **Weight**, dan **BMI** beserta kategorinya.
+
+```js
+// GET /api/biometrics/:userId
+const getBiometric = async (userId) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/biometrics/${userId}`, {
+    method: 'GET',
+    credentials: 'include', // wajib untuk HTTP-only cookie
+  });
+
+  const json = await res.json();
+  return json.data;
+};
+
+// Contoh data yang dikembalikan:
+// {
+//   id: 1,
+//   height: 167,       -> tampilkan di kartu HEIGHT (cm)
+//   weight: 60,        -> tampilkan di kartu WEIGHT (kg)
+//   bmi: 21.5,         -> tampilkan di kartu BMI
+//   bmiCategory: "Normal",  -> tampilkan sebagai badge di kartu BMI
+//   createdAt: "...",
+//   updatedAt: "..."
+// }
+```
+
+**Mapping UI → API:**
+
+| UI Card | Field API       | Satuan |
+|---------|-----------------|--------|
+| HEIGHT  | `data.height`   | cm     |
+| WEIGHT  | `data.weight`   | kg     |
+| BMI     | `data.bmi`      | -      |
+| Badge   | `data.bmiCategory` | `"Underweight"` / `"Normal"` / `"Overweight"` / `"Obese"` |
+
+---
+
+### Fetch Lipid Panel (LDL / HDL / TOTAL / TRIGLYCERIDES)
+
+Digunakan untuk menampilkan section **Recent Lipid Panel** beserta tanggal terakhir update.
+
+```js
+// GET /api/lipid-panels/:userId
+const getLipidPanel = async (userId) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lipid-panels/${userId}`, {
+    method: 'GET',
+    credentials: 'include', // wajib untuk HTTP-only cookie
+  });
+
+  const json = await res.json();
+  return json.data;
+};
+
+// Contoh data yang dikembalikan:
+// {
+//   id: 1,
+//   totalCholesterol: 178,  -> tampilkan di kartu TOTAL
+//   triglycerides: 120,     -> tampilkan di kartu TRIGLYCERIDES
+//   ldl: 92,               -> tampilkan di kartu LDL (BAD)
+//   hdl: 65,               -> tampilkan di kartu HDL (GOOD)
+//   createdAt: "2023-10-12T...",  -> tampilkan sebagai tanggal "Oct 12, 2023"
+//   updatedAt: "..."
+// }
+```
+
+**Mapping UI → API:**
+
+| UI Card           | Field API              | Satuan | Target Normal           |
+|-------------------|------------------------|--------|-------------------------|
+| LDL (BAD)         | `data.ldl`             | mg/dL  | Optimal: < 100 mg/dL    |
+| HDL (GOOD)        | `data.hdl`             | mg/dL  | Optimal: > 60 mg/dL     |
+| TOTAL             | `data.totalCholesterol`| mg/dL  | Optimal: < 200 mg/dL    |
+| TRIGLYCERIDES     | `data.triglycerides`   | mg/dL  | Optimal: < 150 mg/dL    |
+| Tanggal           | `data.createdAt`       | -      | Format: `Oct 12, 2023`  |
+
+---
+
+### Input Data Biometric
+
+```js
+// POST /api/biometrics
+const createBiometric = async ({ height, weight }) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/biometrics`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ height, weight }),
+    // BMI dan bmiCategory dihitung otomatis oleh server
+  });
+
+  return await res.json();
+};
+```
+
+### Input Data Lipid Panel
+
+```js
+// POST /api/lipid-panels
+const createLipidPanel = async ({ totalCholesterol, triglycerides, ldl, hdl }) => {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/lipid-panels`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ totalCholesterol, triglycerides, ldl, hdl }),
+  });
+
+  return await res.json();
+};
+```
