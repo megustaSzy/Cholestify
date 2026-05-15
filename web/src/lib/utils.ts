@@ -1,6 +1,56 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+import axios from "axios";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
+}
+
+// export const fetcher = (url: string) => API.get(url).then((res) => res.data);
+
+export const API = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
+});
+
+API.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+    if (
+      originalRequest.url.includes("/auth/") &&
+      originalRequest.url !== "/auth/logout"
+    ) {
+      return Promise.reject(error);
+    }
+
+    // Jika access token expired, coba refresh
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        await API.get("/auth/refresh");
+        return API(originalRequest);
+      } catch (refreshError) {
+        window.location.replace("/login");
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  },
+);
+
+// Fungsi untuk logout
+export async function logout() {
+  try {
+    await API.post("/auth/logout");
+  } catch (err) {
+    console.error("Logout gagal:", err);
+  } finally {
+    window.location.replace("/login");
+  }
 }
