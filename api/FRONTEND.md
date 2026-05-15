@@ -22,8 +22,8 @@ Base URL: `http://localhost:3001`
 | `GET`   | `/api/health-summary`       | 🍪   | **Dashboard** — Biometric + Lipid Panel (1 hit)    |
 | `POST`  | `/api/biometrics`           | 🍪   | Input tinggi & berat badan (BMI dihitung otomatis) |
 | `PATCH` | `/api/biometrics/:id`       | 🍪   | Update biometric                                   |
-| `POST`  | `/api/lipids`               | 🍪   | Input data kolesterol                              |
-| `PATCH` | `/api/lipids/:id`           | 🍪   | Update data kolesterol                             |
+| `POST`  | `/api/lipids`         | 🍪   | Input data kolesterol                              |
+| `PATCH` | `/api/lipids/:id`     | 🍪   | Update data kolesterol                             |
 | `POST`  | `/api/calculates`           | ❌   | Hitung zone detak jantung                          |
 
 > 🍪 = Token dikirim otomatis via HTTP-only Cookie, **tidak perlu set header manual**.
@@ -174,6 +174,27 @@ Base URL: `http://localhost:3001`
 }
 ```
 
+### Get Biometric by User ID
+**Endpoint:** `GET /api/biometrics/:id`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Data Biometric berhasil ditemukan",
+  "metadata": { "status": 200 },
+  "data": {
+    "id": 1,
+    "height": 167,
+    "weight": 60,
+    "bmi": 21.5,
+    "bmiCategory": "Normal",
+    "createdAt": "2026-05-15T04:00:00.000Z",
+    "updatedAt": "2026-05-15T04:00:00.000Z"
+  }
+}
+````
+
 ---
 
 ### Update Biometric
@@ -244,6 +265,29 @@ Base URL: `http://localhost:3001`
   "data": { ... }
 }
 ```
+
+---
+
+### Get Lipid Panel by User ID
+**Endpoint:** `GET /api/lipids/:id`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Data Lipid Panel berhasil ditemukan",
+  "metadata": { "status": 200 },
+  "data": {
+    "id": 1,
+    "totalCholesterol": 180,
+    "triglycerides": 120,
+    "ldl": 90,
+    "hdl": 55,
+    "createdAt": "2026-05-15T04:00:00.000Z",
+    "updatedAt": "2026-05-15T04:00:00.000Z"
+  }
+}
+````
 
 ---
 
