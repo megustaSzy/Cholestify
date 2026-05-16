@@ -6,12 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// export const fetcher = (url: string) => API.get(url).then((res) => res.data);
+export const fetcher = (url: string) => API.get(url).then((res) => res.data);
 
 export const API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: "/api-proxy",
   headers: {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "69420",
   },
   withCredentials: true,
 });
