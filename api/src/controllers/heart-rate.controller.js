@@ -1,5 +1,3 @@
-// controllers/heart-rate.controller.js
-
 import { HttpStatus } from "../constants/http-status.constant.js";
 
 import { HeartRateService } from "../services/heart-rate.service.js";
