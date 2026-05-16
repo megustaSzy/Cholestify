@@ -66,13 +66,20 @@ model LipidPanel {
 }
 
 model Screening {
-  id     Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
+
   userId Int
 
   imageUrl String
 
-  result     ScreeningResult
-  confidence Float?
+  result ScreeningResult
+
+  confidence Float
+
+  description String
+  recommendation String
+
+  probabilities Json?
 
   createdAt DateTime @default(now())
 
@@ -81,8 +88,8 @@ model Screening {
 
 enum ScreeningResult {
   NORMAL
-  INDICATION
-  SEVERE
+  INDIKASI_RINGAN
+  INDIKASI_KUAT
 }
 
 enum BloodType {
