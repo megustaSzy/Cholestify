@@ -1,8 +1,10 @@
 import Joi from "joi";
 
 export const heartRateSchema = Joi.object({
-  dob: Joi.date().max("now").required().messages({
+  dob: Joi.date().min("1900-01-01").max("now").required().messages({
     "date.base": "Tanggal lahir tidak valid",
+
+    "date.min": "Tanggal lahir terlalu lama",
 
     "date.max": "Tanggal lahir tidak boleh lebih dari hari ini",
 
