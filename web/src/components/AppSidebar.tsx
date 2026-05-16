@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { NavSecondary } from "./NavSecondary";
 import Link from "next/link";
+import { logout } from "@/lib/utils";
 
 const data = {
   user: {
@@ -37,8 +38,11 @@ const data = {
   navSecondary: [
     {
       title: "Logout",
-      url: "/",
+      // url: "/",
       icon: <LogOutIcon />,
+      onClick: () => {
+        logout();
+      },
     },
     {
       title: "Get Help",
@@ -88,6 +92,10 @@ const data = {
         {
           title: "Log Biometrics",
           url: "/user/metric/log-biometrics",
+        },
+        {
+          title: "Daily Tracking",
+          url: "/user/metric/daily-tracking",
         },
       ],
     },

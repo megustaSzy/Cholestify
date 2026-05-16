@@ -1,7 +1,9 @@
+"use client";
 import Link from "next/link";
-import React from "react";
+import { usePathname } from "next/navigation";
 
 export default function NavHeader() {
+  const pathname = usePathname();
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm group/nav">
       <input type="checkbox" id="mobile-menu" className="hidden" />
@@ -10,16 +12,21 @@ export default function NavHeader() {
           Cholestify
         </span>
 
-        {/* <div className="hidden md:flex items-center gap-8">
-            {[
-              { label: "Clinical Portal", active: false },
-              { label: "Home", active: true },
-              { label: "Food Directory", active: false },
-              { label: "Pricing", active: false },
-            ].map(({ label, active }) => (
+        <div className="hidden md:flex items-center gap-8">
+          {[
+            { label: "Home", href: "/" },
+            {
+              label: "Food Directory",
+              href: "/user/food-table",
+            },
+            { label: "Eye Scan", href: "/user/eye-scan" },
+            { label: "Calculator HDR", href: "/calculator-hdr" },
+          ].map(({ label, href }) => {
+            const active = pathname === href;
+            return (
               <Link
                 key={label}
-                href="#"
+                href={href}
                 className={`text-sm font-medium transition-colors ${
                   active
                     ? "text-blue-600 border-b-2 border-blue-600 pb-0.5"
@@ -28,8 +35,9 @@ export default function NavHeader() {
               >
                 {label}
               </Link>
-            ))}
-          </div> */}
+            );
+          })}
+        </div>
 
         <div className="hidden md:flex items-center gap-4">
           <Link
@@ -83,8 +91,30 @@ export default function NavHeader() {
       </div>
 
       {/* Mobile Dropdown Menu*/}
-      <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-lg max-h-0 overflow-hidden opacity-0 group-has-[:checked]/nav:max-h-60 group-has-[:checked]/nav:opacity-100 transition-all duration-300 ease-in-out">
-        <div className="px-4 sm:px-6 pb-5 pt-2 flex flex-col gap-3">
+      <div className="md:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-lg max-h-0 overflow-hidden opacity-0 group-has-[:checked]/nav:max-h-[32rem] group-has-[:checked]/nav:opacity-100 transition-all duration-300 ease-in-out">
+        <div className="px-4 sm:px-6 pb-5 pt-2 flex flex-col gap-2">
+          {[
+            { label: "Home", href: "/" },
+            { label: "Food Directory", href: "/user/food-table" },
+            { label: "Eye Scan", href: "/user/eye-scan" },
+            { label: "Calculator HDR", href: "/calculator-hdr" },
+          ].map(({ label, href }) => {
+            const active = pathname === href;
+            return (
+              <Link
+                key={label}
+                href={href}
+                className={`text-sm font-medium py-3 text-center rounded-lg transition-colors ${
+                  active
+                    ? "text-blue-600 bg-blue-50"
+                    : "text-gray-600 hover:bg-gray-50"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
+          <hr className="border-gray-100 my-2" />
           <Link
             href="/login"
             className="text-sm font-medium text-gray-800 hover:bg-gray-400 hover:text-white transition-colors py-2 text-center rounded-lg bg-gray-300"
