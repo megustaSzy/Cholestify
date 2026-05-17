@@ -15,12 +15,12 @@ export const LipidPanelService = {
       orderBy: {
         createdAt: "desc",
       },
-
       select: {
         id: true,
+        userId: true,
+        date: true,
 
         totalCholesterol: true,
-        triglycerides: true,
         ldl: true,
         hdl: true,
 
@@ -39,20 +39,9 @@ export const LipidPanelService = {
     });
 
     if (data.length === 0) {
-      const error = new Error(MESSAGE.LIPID_PANEL.NOT_FOUND);
-
-      error.status = HttpStatus.NOT_FOUND;
-
-      error.response = {
-        success: false,
-        message: MESSAGE.LIPID_PANEL.NOT_FOUND,
-
-        metadata: {
-          status: HttpStatus.NOT_FOUND,
-        },
-      };
-
-      throw error;
+      throw Object.assign(new Error(MESSAGE.LIPID_PANEL.NOT_FOUND), {
+        status: HttpStatus.NOT_FOUND,
+      });
     }
 
     return data;
@@ -61,16 +50,16 @@ export const LipidPanelService = {
   async getLipidPanelByUserId(userId) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    const data = await prisma.lipidPanel.findUnique({
-      where: {
-        userId,
+    const data = await prisma.lipidPanel.findMany({
+      where: { userId },
+      orderBy: {
+        date: "desc",
       },
-
       select: {
         id: true,
+        date: true,
 
         totalCholesterol: true,
-        triglycerides: true,
         ldl: true,
         hdl: true,
 
@@ -79,7 +68,7 @@ export const LipidPanelService = {
       },
     });
 
-    if (!data) {
+    if (!data || data.length === 0) {
       throw new NotFoundError(MESSAGE.LIPID_PANEL.NOT_FOUND);
     }
 
@@ -91,31 +80,21 @@ export const LipidPanelService = {
 
     await notExist(prisma.user, { id: userId }, MESSAGE.USER.NOT_FOUND);
 
-    const existingLipidPanel = await prisma.lipidPanel.findUnique({
-      where: {
-        userId,
-      },
-    });
-
-    if (existingLipidPanel) {
-      throw new ConflictError(MESSAGE.LIPID_PANEL.ALREADY_EXISTS);
-    }
-
     const data = await prisma.lipidPanel.create({
       data: {
         userId,
 
+        date: body.date ? new Date(body.date) : new Date(),
+
         totalCholesterol: body.totalCholesterol,
-        triglycerides: body.triglycerides,
         ldl: body.ldl,
         hdl: body.hdl,
       },
-
       select: {
         id: true,
+        date: true,
 
         totalCholesterol: true,
-        triglycerides: true,
         ldl: true,
         hdl: true,
 
@@ -126,68 +105,36 @@ export const LipidPanelService = {
     return data;
   },
 
-  async update(userId, body) {
+  async updateByUserId(userId, body) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    await notExist(
-      prisma.lipidPanel,
-      { userId },
-      MESSAGE.LIPID_PANEL.NOT_FOUND,
-    );
-
-    const updateData = {};
-
-    if (body.totalCholesterol !== undefined) {
-      updateData.totalCholesterol = body.totalCholesterol;
-    }
-
-    if (body.triglycerides !== undefined) {
-      updateData.triglycerides = body.triglycerides;
-    }
-
-    if (body.ldl !== undefined) {
-      updateData.ldl = body.ldl;
-    }
-
-    if (body.hdl !== undefined) {
-      updateData.hdl = body.hdl;
-    }
-
-    const data = await prisma.lipidPanel.update({
-      where: {
-        userId,
-      },
-
-      data: updateData,
-
-      select: {
-        id: true,
-
-        totalCholesterol: true,
-        triglycerides: true,
-        ldl: true,
-        hdl: true,
-
-        updatedAt: true,
-      },
+    const latest = await prisma.lipidPanel.findFirst({
+      where: { userId },
+      orderBy: { date: "desc" },
     });
 
-    return data;
+    if (!latest) {
+      throw new NotFoundError(MESSAGE.LIPID_PANEL.NOT_FOUND);
+    }
+
+    return prisma.lipidPanel.update({
+      where: { id: latest.id },
+      data: {
+        date: body.date ? new Date(body.date) : latest.date,
+        totalCholesterol: body.totalCholesterol ?? latest.totalCholesterol,
+        ldl: body.ldl ?? latest.ldl,
+        hdl: body.hdl ?? latest.hdl,
+      },
+    });
   },
 
-  async remove(userId) {
-    badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
+  async remove(id) {
+    badRequestId(id, MESSAGE.COMMON.BAD_REQUEST);
 
-    await notExist(
-      prisma.lipidPanel,
-      { userId },
-      MESSAGE.LIPID_PANEL.NOT_FOUND,
-    );
+    await notExist(prisma.lipidPanel, { id }, MESSAGE.LIPID_PANEL.NOT_FOUND);
 
     await prisma.lipidPanel.delete({
-      where: {
-        userId,
-      },
+      where: { id },
     });
   },
 };

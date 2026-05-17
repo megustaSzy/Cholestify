@@ -9,6 +9,7 @@ import { roleMiddleware } from "../middlewares/role.middleware.js";
 const router = Router();
 
 // ADMIN
+// ADMIN
 router.get(
   "/",
   authMiddleware,
@@ -16,16 +17,12 @@ router.get(
   LipidPanelController.getLipidPanels,
 );
 
+// USER
+router.get("/me", authMiddleware, LipidPanelController.getLipidPanelByUserId);
 router.post("/", authMiddleware, LipidPanelController.createLipidPanel);
+router.patch("/", authMiddleware, LipidPanelController.updateLipidPanel);
 
-router.patch(
-  "/:id",
-  authMiddleware,
-  ownerOrAdmin("id"),
-  LipidPanelController.updateLipidPanel,
-);
-
-// ADMIN
+// ADMIN ONLY
 router.delete(
   "/:id",
   authMiddleware,
