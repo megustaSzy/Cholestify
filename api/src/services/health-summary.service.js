@@ -9,6 +9,9 @@ export const HealthSummaryService = {
     const [biometric, lipidPanel] = await Promise.all([
       prisma.biometric.findFirst({
         where: { userId },
+        orderBy: {
+          createdAt: "desc",
+        },
         select: {
           height: true,
           weight: true,
@@ -19,11 +22,14 @@ export const HealthSummaryService = {
 
       prisma.lipidPanel.findFirst({
         where: { userId },
+        orderBy: {
+          date: "desc",
+        },
         select: {
           totalCholesterol: true,
-          triglycerides: true,
           ldl: true,
           hdl: true,
+          date: true,
         },
       }),
     ]);

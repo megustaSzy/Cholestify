@@ -54,6 +54,11 @@ export const MESSAGE = {
     FOUND: "Data health summary berhasil diambil",
   },
 
+  SCREENING: {
+    CREATED: "Screening berhasil",
+    IMAGE_REQUIRED: "Image wajib diupload",
+  },
+
   TOKEN: {
     NOT_FOUND: "Token tidak ditemukan",
     INVALID: "Token tidak valid",
