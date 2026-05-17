@@ -21,19 +21,23 @@ API.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (
-      originalRequest.url.includes("/auth/") &&
-      originalRequest.url !== "/auth/logout"
-    ) {
+
+    if (!originalRequest) {
       return Promise.reject(error);
     }
 
-    // Jika access token expired, coba refresh
+    const requestUrl = originalRequest.url ?? "";
+
+    if (requestUrl.includes("/auth/") && !requestUrl.includes("/auth/logout")) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        await API.get("/auth/refresh");
+        await API.post("/auth/refresh");
+
         return API(originalRequest);
       } catch (refreshError) {
         window.location.replace("/login");
