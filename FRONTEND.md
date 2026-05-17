@@ -25,10 +25,11 @@ Base URL: `http://localhost:3001`
 | `PATCH` | `/api/biometrics/`          | 🍪   | Update biometric user (pribadi)                    |
 | `POST`  | `/api/lipid-panels`         | 🍪   | Input data kolesterol baru                         |
 | `GET`   | `/api/lipid-panels/me`      | 🍪   | Ambil Riwayat Lipids user (pribadi)                |
-| `PATCH` | `/api/lipid-panels/`        | 🍪   | Update data kolesterol terbaru                     |
 | `POST`  | `/api/calculates`           | ❌   | Hitung zone detak jantung                          |
 | `POST`  | `/api/health-goals`         | 🍪   | Input target kesehatan dan dapatkan saran          |
-| `GET`   | `/api/health-goals/me`      | 🍪   | Ambil riwayat target & saran kesehatan             |
+| `GET`   | `/api/health-goals/me`      | 🍪   | Ambil riwayat target kesehatan                     |
+| `GET`   | `/api/health-recommendations/overview` | 🍪 | **Widget Overview** — Lipid Panel & Saran Terbaru |
+| `GET`   | `/api/health-recommendations/me` | 🍪 | Ambil riwayat saran kesehatan saja                 |
 
 > 🍪 = Token dikirim otomatis via HTTP-only Cookie, **tidak perlu set header manual**.
 
@@ -131,7 +132,13 @@ Base URL: `http://localhost:3001`
       "totalCholesterol": 180,
       "ldl": 90,
       "hdl": 55,
+      "triglycerides": 140,
       "date": "2024-05-16T10:00:00.000Z"
+    },
+    "recommendation": {
+      "dietaryAdvice": "Profil lipid Anda berada di rentang optimal. Pertahankan pola makan gizi seimbang yang Anda jalankan saat ini untuk menjaga kesehatan jantung jangka panjang.",
+      "activityAdvice": "Pertahankan rutinitas aktivitas fisik Anda saat ini untuk menjaga tingkat kolesterol dan metabolisme tubuh tetap sehat dan stabil.",
+      "generatedAt": "2024-05-16T10:00:00.000Z"
     }
   }
 }
@@ -246,6 +253,7 @@ Base URL: `http://localhost:3001`
 | `totalCholesterol` | `number` | ✅ Ya    | Total kolesterol (mg/dL)                  |
 | `ldl`              | `number` | ✅ Ya    | LDL / bad cholesterol (mg/dL)             |
 | `hdl`              | `number` | ✅ Ya    | HDL / good cholesterol (mg/dL)            |
+| `triglycerides`    | `number` | ✅ Ya    | Trigliserida (mg/dL)                      |
 | `date`             | `string` | ❌ Tidak | Tanggal pengecekan (default: `now`)       |
 
 **Contoh Request:**
@@ -255,6 +263,7 @@ Base URL: `http://localhost:3001`
   "totalCholesterol": 180,
   "ldl": 90,
   "hdl": 55,
+  "triglycerides": 140,
   "date": "2024-05-16"
 }
 ```
@@ -308,36 +317,6 @@ Base URL: `http://localhost:3001`
 
 ---
 
-### Update My Latest Lipid Panel
-
-**Endpoint:** `PATCH /api/lipid-panels/`
-
-**Request Body (JSON):** _(semua field opsional)_
-
-| Field              | Type     | Keterangan                     |
-| ------------------ | -------- | ------------------------------ |
-| `totalCholesterol` | `number` | Total kolesterol (mg/dL)       |
-| `ldl`              | `number` | LDL / bad cholesterol (mg/dL)  |
-| `hdl`              | `number` | HDL / good cholesterol (mg/dL) |
-| `date`             | `string` | Tanggal pengecekan             |
-
-**Contoh Request:**
-
-```json
-{
-  "totalCholesterol": 190
-}
-```
-
-**Response (200):**
-
-```json
-{
-  "success": true,
-  "message": "Data berhasil diperbarui",
-  "metadata": { "status": 200 },
-  "data": { ... }
-}
 ```
 
 ---
@@ -413,8 +392,6 @@ Base URL: `http://localhost:3001`
     "targetLdlHdlRatio": 2.5,
     "targetWeeklyCalories": 14000,
     "targetExerciseMins": 150,
-    "dietaryAdvice": "Rasio LDL/HDL Anda berada di rentang optimal. Pertahankan diet seimbang yang kaya akan sayuran, buah, dan lemak sehat.",
-    "activityAdvice": "Target latihan Anda sudah memenuhi standar kesehatan (minimal 150 menit/minggu). Pertahankan konsistensi ini untuk kesehatan kardiovaskular yang prima.",
     "createdAt": "2026-05-16T10:00:00.000Z"
   }
 }
@@ -437,8 +414,6 @@ Base URL: `http://localhost:3001`
       "targetLdlHdlRatio": 2.5,
       "targetWeeklyCalories": 14000,
       "targetExerciseMins": 150,
-      "dietaryAdvice": "...",
-      "activityAdvice": "...",
       "createdAt": "2026-05-16T10:00:00.000Z"
     }
   ]
@@ -480,6 +455,61 @@ Base URL: `http://localhost:3001`
   "message": "Data berhasil diperbarui",
   "metadata": { "status": 200 },
   "data": { ... }
+}
+```
+
+---
+
+## 💡 Health Recommendation (Otomatis)
+
+### Get Overview Widget
+**Endpoint:** `GET /api/health-recommendations/overview`
+
+**Deskripsi:** Mengambil data saran kesehatan terbaru beserta hasil lab kolesterol referensinya yang ter-generate secara otomatis setiap kali input Lipid Panel. Cocok untuk ditampilkan di UI Overview.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Data overview berhasil diambil",
+  "metadata": { "status": 200 },
+  "data": {
+    "lipidPanel": {
+      "totalCholesterol": 210,
+      "ldl": 145,
+      "hdl": 45,
+      "date": "2023-10-24T00:00:00.000Z"
+    },
+    "recommendation": {
+      "dietaryAdvice": "Batasi asupan makanan berlemak tinggi, gorengan, dan bersantan. Mulailah mengganti camilan manis dengan buah segar...",
+      "activityAdvice": "Yuk, tingkatkan aktivitas fisik Anda! Mulailah dengan menambahkan 20 hingga 30 menit olahraga ringan...",
+      "generatedAt": "2023-10-24T10:00:00.000Z"
+    }
+  }
+}
+```
+
+---
+
+### Get My Recommendations History
+**Endpoint:** `GET /api/health-recommendations/me`
+
+**Deskripsi:** Mengambil semua riwayat saran kesehatan milik user yang digenerate oleh sistem, murni hanya rekomendasi tanpa dicampur dengan riwayat angka Lipid Panel-nya.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Data saran kesehatan berhasil diambil",
+  "metadata": { "status": 200 },
+  "data": [
+    {
+      "id": 2,
+      "dietaryAdvice": "Batasi asupan makanan berlemak tinggi, gorengan, dan bersantan...",
+      "activityAdvice": "Yuk, tingkatkan aktivitas fisik Anda! Mulailah dengan menambahkan 20 hingga 30 menit...",
+      "generatedAt": "2023-10-24T10:00:00.000Z"
+    }
+  ]
 }
 ```
 

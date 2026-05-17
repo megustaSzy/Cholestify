@@ -1,4 +1,5 @@
 import { HttpStatus } from "../constants/http-status.constant.js";
+import { MESSAGE } from "../constants/message.constant.js";
 import { HealthGoalService } from "../services/health-goal.service.js";
 
 export const HealthGoalController = {
@@ -9,7 +10,7 @@ export const HealthGoalController = {
 
       return res.status(HttpStatus.CREATED).json({
         success: true,
-        message: "Health goal dan saran kesehatan berhasil dibuat",
+        message: MESSAGE.HEALTH_GOAL.CREATED,
         metadata: {
           status: HttpStatus.CREATED,
         },
@@ -27,7 +28,7 @@ export const HealthGoalController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: "Riwayat health goal berhasil diambil",
+        message: MESSAGE.HEALTH_GOAL.HISTORY_FOUND,
         metadata: {
           status: HttpStatus.OK,
         },
