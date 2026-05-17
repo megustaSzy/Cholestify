@@ -1,15 +1,21 @@
 import CallToActionForm from "@/components/homepage/CallToAction";
-import EcosystemHeratHealth from "@/components/homepage/EcosystemHeratHealth";
+import EcosystemHeratHealth from "@/components/homepage/EcosystemHeartHealth";
 import FooterForm from "@/components/homepage/Footer";
 import HeroForm from "@/components/homepage/HeroSection";
-import NavHeader from "@/components/homepage/NavHeader";
+import NavHeaderClient from "@/components/homepage/NavHeaderClient";
 import ThreeStepsPrecissionForm from "@/components/homepage/ThreeStepsPrecission";
+import { cookies } from "next/headers";
 import React from "react";
 
-export default function HomePage() {
+const TOKEN_COOKIE_NAME = "accessToken";
+
+export default async function HomePage() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value;
+
   return (
     <div className="font-sans text-gray-900 bg-white antialiased">
-      <NavHeader />
+      <NavHeaderClient hasToken={Boolean(token)} />
       <HeroForm />
       <ThreeStepsPrecissionForm />
       <EcosystemHeratHealth />

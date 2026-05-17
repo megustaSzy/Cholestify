@@ -30,7 +30,7 @@ export default function FooterForm() {
             Cholestify
           </span>
           <p className="text-[11px] text-gray-400 mt-1">
-            © 2026 Cholestify. Clinical Monitor. Human first.
+            © 2026 Cholestify. Clinical Monitor.
           </p>
         </div>
         <div className="flex justify-center sm:flex-1">

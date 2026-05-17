@@ -7,13 +7,13 @@ export default function CallToActionForm() {
       <div className="max-w-7xl mx-auto">
         <div className="bg-gradient-to-br from-blue-700 via-blue-600 to-blue-500 rounded-3xl px-5 sm:px-8 md:px-20 py-12 sm:py-16 text-center shadow-2xl shadow-blue-200">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight mb-4 leading-snug">
-            Ready to take control of your
+            Siap untuk mengendalikan kesehatan
             <br />
-            cardiovascular health?
+            kardiovaskular Anda?
           </h2>
           <p className="text-sm text-blue-200 mb-10 max-w-sm mx-auto leading-relaxed">
-            Join thousands of proactive individuals using Colestify to live
-            longer, healthier lives.
+            Bergabunglah dengan kami untuk memantau kadar kolesterol anda dan
+            memulai hidup lebih sehat.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-3">
             <Link
@@ -22,12 +22,12 @@ export default function CallToActionForm() {
             >
               Clinical Portal
             </Link>
-            <Link
+            {/* <Link
               href="#"
               className="inline-flex items-center justify-center border border-white/50 hover:border-white hover:bg-white/10 text-white font-semibold text-sm px-8 py-3.5 rounded-xl transition-all active:scale-95"
             >
               Contact Specialist
-            </Link>
+            </Link> */}
           </div>
         </div>
 
