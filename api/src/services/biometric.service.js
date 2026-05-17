@@ -136,14 +136,6 @@ export const BiometricService = {
   async update(userId, body) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    const existing = await prisma.biometric.findUnique({
-      where: { userId },
-    });
-
-    if (!existing) {
-      throw new NotFoundError(MESSAGE.BIOMETRIC.NOT_FOUND);
-    }
-
     const updateData = {};
 
     if (body.height !== undefined) {
@@ -154,30 +146,32 @@ export const BiometricService = {
       updateData.weight = body.weight;
     }
 
-    // Recalculate BMI jika height atau weight berubah
+    // Ambil data lama untuk kalkulasi BMI
+    const existing = await prisma.biometric.findUnique({
+      where: { userId },
+    });
+
+    if (!existing) {
+      throw new NotFoundError(MESSAGE.BIOMETRIC.NOT_FOUND);
+    }
+
     const newHeight = updateData.height ?? existing.height;
     const newWeight = updateData.weight ?? existing.weight;
+
     const { bmi, bmiCategory } = calculateBmi(newHeight, newWeight);
 
     updateData.bmi = bmi;
     updateData.bmiCategory = bmiCategory;
 
     const data = await prisma.biometric.update({
-      where: {
-        userId,
-      },
-
+      where: { userId },
       data: updateData,
-
       select: {
         id: true,
-
         height: true,
         weight: true,
-
         bmi: true,
         bmiCategory: true,
-
         updatedAt: true,
       },
     });

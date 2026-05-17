@@ -25,9 +25,9 @@ export const BiometricController = {
 
   async getBiometricByUserId(req, res, next) {
     try {
-      const id = Number(req.params.id);
+      const userId = req.user.id;
 
-      const data = await BiometricService.getBiometricByUserId(id);
+      const data = await BiometricService.getBiometricByUserId(userId);
 
       return res.status(HttpStatus.OK).json({
         success: true,
@@ -67,7 +67,7 @@ export const BiometricController = {
 
   async updateBiometric(req, res, next) {
     try {
-      const userId = Number(req.params.id);
+      const userId = req.user.id;
 
       const data = await BiometricService.update(userId, req.body);
 

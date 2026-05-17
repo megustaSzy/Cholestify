@@ -16,22 +16,10 @@ router.get(
   BiometricController.getBiometric,
 );
 
-// USER / ADMIN
-router.get(
-  "/:id",
-  authMiddleware,
-  ownerOrAdmin("id"),
-  BiometricController.getBiometricByUserId,
-);
-
+// USER
+router.get("/me", authMiddleware, BiometricController.getBiometricByUserId);
 router.post("/", authMiddleware, BiometricController.createBiometric);
-
-router.patch(
-  "/:id",
-  authMiddleware,
-  ownerOrAdmin("id"),
-  BiometricController.updateBiometric,
-);
+router.patch("/", authMiddleware, BiometricController.updateBiometric);
 
 router.delete(
   "/:id",
