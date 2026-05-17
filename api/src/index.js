@@ -13,8 +13,10 @@ import UserRoute from "./routes/user.route.js";
 import AuthRoute from "./routes/auth.route.js";
 import BiometricRoute from "./routes/biometric.route.js";
 import HeartRateRoute from "./routes/heart-rate.route.js";
+import HealthGoalRoute from "./routes/health-goal.route.js";
 import LipidPanelRoute from "./routes/lipid-panel.route.js";
 import HealthSummaryRoute from "./routes/health-summary.route.js";
+import PredictRoute from "./routes/screening.route.js";
 
 const app = express();
 
@@ -28,7 +30,6 @@ app.use(
   cors({
     origin: process.env.FRONTEND_URL,
     credentials: true,
-    allowedHeaders: ["Content-Type"],
   }),
 );
 
@@ -48,6 +49,8 @@ app.use("/api/biometrics", BiometricRoute);
 app.use("/api/calculates", HeartRateRoute);
 app.use("/api/lipids", LipidPanelRoute);
 app.use("/api/health-summary", HealthSummaryRoute);
+app.use("/api/predict", PredictRoute);
+app.use("/api/health-goals", HealthGoalRoute);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

@@ -30,8 +30,9 @@ model User {
   tokens      Token[]
   resetTokens PasswordResetToken[]
   biometric   Biometric?
-  lipidPanel  LipidPanel?
+  lipidPanels LipidPanel[]
   screenings  Screening[]
+  healthGoals HealthGoal[]
 }
 
 model Biometric {
@@ -52,10 +53,11 @@ model Biometric {
 
 model LipidPanel {
   id     Int @id @default(autoincrement())
-  userId Int @unique
+  userId Int
+
+  date DateTime?
 
   totalCholesterol Float
-  triglycerides    Float
   ldl              Float
   hdl              Float
 
@@ -80,6 +82,22 @@ model Screening {
   recommendation String
 
   probabilities Json?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model HealthGoal {
+  id Int @id @default(autoincrement())
+  userId Int
+
+  targetLdlHdlRatio Float
+  targetWeeklyCalories Int
+  targetExerciseMins Int
+
+  dietaryAdvice String
+  activityAdvice String
 
   createdAt DateTime @default(now())
 

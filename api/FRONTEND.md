@@ -19,14 +19,16 @@ Base URL: `http://localhost:3001`
 | `GET`   | `/api/auth/google`          | ❌   | Login via Google OAuth                             |
 | `GET`   | `/api/users/:id`            | 🍪   | Ambil profil user                                  |
 | `PATCH` | `/api/users/:id`            | 🍪   | Update profil user                                 |
-| `GET`   | `/api/health-summary`       | 🍪   | **Dashboard** — Biometric + Lipid Panel (1 hit)    |
+| `GET`   | `/api/health-summary`       | 🍪   | **Dashboard** — Biometric + Latest Lipid Panel     |
 | `POST`  | `/api/biometrics`           | 🍪   | Input tinggi & berat badan (BMI dihitung otomatis) |
-| `GET`   | `/api/biometrics/:id`       | 🍪   | Ambil Biometrics user                              |
-| `PATCH` | `/api/biometrics/:id`       | 🍪   | Update biometric                                   |
-| `POST`  | `/api/lipids`               | 🍪   | Input data kolesterol                              |
-| `GET`   | `/api/lipids/:id`           | 🍪   | Ambil Lipids user                                  |
-| `PATCH` | `/api/lipids/:id`           | 🍪   | Update data kolesterol                             |
+| `GET`   | `/api/biometrics/me`        | 🍪   | Ambil Biometrics user (pribadi)                    |
+| `PATCH` | `/api/biometrics/`          | 🍪   | Update biometric user (pribadi)                    |
+| `POST`  | `/api/lipid-panels`         | 🍪   | Input data kolesterol baru                         |
+| `GET`   | `/api/lipid-panels/me`      | 🍪   | Ambil Riwayat Lipids user (pribadi)                |
+| `PATCH` | `/api/lipid-panels/`        | 🍪   | Update data kolesterol terbaru                     |
 | `POST`  | `/api/calculates`           | ❌   | Hitung zone detak jantung                          |
+| `POST`  | `/api/health-goals`         | 🍪   | Input target kesehatan dan dapatkan saran          |
+| `GET`   | `/api/health-goals/me`      | 🍪   | Ambil riwayat target & saran kesehatan             |
 
 > 🍪 = Token dikirim otomatis via HTTP-only Cookie, **tidak perlu set header manual**.
 
@@ -127,9 +129,9 @@ Base URL: `http://localhost:3001`
     },
     "lipidPanel": {
       "totalCholesterol": 180,
-      "triglycerides": 120,
       "ldl": 90,
-      "hdl": 55
+      "hdl": 55,
+      "date": "2024-05-16T10:00:00.000Z"
     }
   }
 }
@@ -176,9 +178,9 @@ Base URL: `http://localhost:3001`
 }
 ```
 
-### Get Biometric by User ID
+### Get My Biometric
 
-**Endpoint:** `GET /api/biometrics/:id`
+**Endpoint:** `GET /api/biometrics/me`
 
 **Response (200):**
 
@@ -192,18 +194,16 @@ Base URL: `http://localhost:3001`
     "height": 167,
     "weight": 60,
     "bmi": 21.5,
-    "bmiCategory": "Normal",
-    "createdAt": "2026-05-15T04:00:00.000Z",
-    "updatedAt": "2026-05-15T04:00:00.000Z"
+    "bmiCategory": "Normal"
   }
 }
 ```
 
 ---
 
-### Update Biometric
+### Update My Biometric
 
-**Endpoint:** `PATCH /api/biometrics/:id`
+**Endpoint:** `PATCH /api/biometrics/`
 
 **Request Body (JSON):** _(semua field opsional)_
 
@@ -237,25 +237,25 @@ Base URL: `http://localhost:3001`
 
 ### Create Lipid Panel
 
-**Endpoint:** `POST /api/lipids`
+**Endpoint:** `POST /api/lipid-panels`
 
 **Request Body (JSON):**
 
-| Field              | Type     | Required | Keterangan                     |
-| ------------------ | -------- | -------- | ------------------------------ |
-| `totalCholesterol` | `number` | ✅ Ya    | Total kolesterol (mg/dL)       |
-| `triglycerides`    | `number` | ✅ Ya    | Trigliserida (mg/dL)           |
-| `ldl`              | `number` | ✅ Ya    | LDL / bad cholesterol (mg/dL)  |
-| `hdl`              | `number` | ✅ Ya    | HDL / good cholesterol (mg/dL) |
+| Field              | Type     | Required | Keterangan                                |
+| ------------------ | -------- | -------- | ----------------------------------------- |
+| `totalCholesterol` | `number` | ✅ Ya    | Total kolesterol (mg/dL)                  |
+| `ldl`              | `number` | ✅ Ya    | LDL / bad cholesterol (mg/dL)             |
+| `hdl`              | `number` | ✅ Ya    | HDL / good cholesterol (mg/dL)            |
+| `date`             | `string` | ❌ Tidak | Tanggal pengecekan (default: `now`)       |
 
 **Contoh Request:**
 
 ```json
 {
   "totalCholesterol": 180,
-  "triglycerides": 120,
   "ldl": 90,
-  "hdl": 55
+  "hdl": 55,
+  "date": "2024-05-16"
 }
 ```
 
@@ -272,9 +272,9 @@ Base URL: `http://localhost:3001`
 
 ---
 
-### Get Lipid Panel by User ID
+### Get My Lipid Panel History
 
-**Endpoint:** `GET /api/lipids/:id`
+**Endpoint:** `GET /api/lipid-panels/me`
 
 **Response (200):**
 
@@ -283,32 +283,43 @@ Base URL: `http://localhost:3001`
   "success": true,
   "message": "Data Lipid Panel berhasil ditemukan",
   "metadata": { "status": 200 },
-  "data": {
-    "id": 1,
-    "totalCholesterol": 180,
-    "triglycerides": 120,
-    "ldl": 90,
-    "hdl": 55,
-    "createdAt": "2026-05-15T04:00:00.000Z",
-    "updatedAt": "2026-05-15T04:00:00.000Z"
-  }
+  "data": [
+    {
+      "id": 2,
+      "date": "2024-05-16T00:00:00.000Z",
+      "totalCholesterol": 180,
+      "ldl": 90,
+      "hdl": 55,
+      "createdAt": "...",
+      "updatedAt": "..."
+    },
+    {
+      "id": 1,
+      "date": "2024-05-01T00:00:00.000Z",
+      "totalCholesterol": 210,
+      "ldl": 110,
+      "hdl": 45,
+      "createdAt": "...",
+      "updatedAt": "..."
+    }
+  ]
 }
 ```
 
 ---
 
-### Update Lipid Panel
+### Update My Latest Lipid Panel
 
-**Endpoint:** `PATCH /api/lipids/:id`
+**Endpoint:** `PATCH /api/lipid-panels/`
 
 **Request Body (JSON):** _(semua field opsional)_
 
 | Field              | Type     | Keterangan                     |
 | ------------------ | -------- | ------------------------------ |
 | `totalCholesterol` | `number` | Total kolesterol (mg/dL)       |
-| `triglycerides`    | `number` | Trigliserida (mg/dL)           |
 | `ldl`              | `number` | LDL / bad cholesterol (mg/dL)  |
 | `hdl`              | `number` | HDL / good cholesterol (mg/dL) |
+| `date`             | `string` | Tanggal pengecekan             |
 
 **Contoh Request:**
 
@@ -363,6 +374,74 @@ Base URL: `http://localhost:3001`
   "message": "Data detak jantung berhasil dihitung",
   "metadata": { "status": 200 },
   "data": { ... }
+}
+```
+
+---
+
+## 🎯 Health Goals (Saran Kesehatan)
+
+### Create Target & Dapatkan Saran
+**Endpoint:** `POST /api/health-goals`
+
+**Request Body (JSON):**
+
+| Field                  | Type     | Required | Keterangan                                  |
+| ---------------------- | -------- | -------- | ------------------------------------------- |
+| `targetLdlHdlRatio`    | `number` | ✅ Ya    | Target rasio LDL/HDL (misal: 2.5)           |
+| `targetWeeklyCalories` | `number` | ✅ Ya    | Target kalori per minggu (misal: 14000)     |
+| `targetExerciseMins`   | `number` | ✅ Ya    | Target olahraga menit/minggu (misal: 150)   |
+
+**Contoh Request:**
+```json
+{
+  "targetLdlHdlRatio": 2.5,
+  "targetWeeklyCalories": 14000,
+  "targetExerciseMins": 150
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "message": "Health goal dan saran kesehatan berhasil dibuat",
+  "metadata": { "status": 201 },
+  "data": {
+    "id": 1,
+    "userId": 1,
+    "targetLdlHdlRatio": 2.5,
+    "targetWeeklyCalories": 14000,
+    "targetExerciseMins": 150,
+    "dietaryAdvice": "Rasio LDL/HDL Anda berada di rentang optimal. Pertahankan diet seimbang yang kaya akan sayuran, buah, dan lemak sehat.",
+    "activityAdvice": "Target latihan Anda sudah memenuhi standar kesehatan (minimal 150 menit/minggu). Pertahankan konsistensi ini untuk kesehatan kardiovaskular yang prima.",
+    "createdAt": "2026-05-16T10:00:00.000Z"
+  }
+}
+```
+
+---
+
+### Get My Health Goals History
+**Endpoint:** `GET /api/health-goals/me`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Riwayat health goal berhasil diambil",
+  "metadata": { "status": 200 },
+  "data": [
+    {
+      "id": 2,
+      "targetLdlHdlRatio": 2.5,
+      "targetWeeklyCalories": 14000,
+      "targetExerciseMins": 150,
+      "dietaryAdvice": "...",
+      "activityAdvice": "...",
+      "createdAt": "2026-05-16T10:00:00.000Z"
+    }
+  ]
 }
 ```
 
