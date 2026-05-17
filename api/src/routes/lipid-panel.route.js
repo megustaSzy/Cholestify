@@ -20,9 +20,15 @@ router.get(
 // USER
 router.get("/me", authMiddleware, LipidPanelController.getLipidPanelByUserId);
 router.post("/", authMiddleware, LipidPanelController.createLipidPanel);
-router.patch("/", authMiddleware, LipidPanelController.updateLipidPanel);
 
 // ADMIN ONLY
+router.patch(
+  "/:id",
+  authMiddleware,
+  roleMiddleware("ADMIN"),
+  LipidPanelController.updateLipidPanel,
+);
+
 router.delete(
   "/:id",
   authMiddleware,

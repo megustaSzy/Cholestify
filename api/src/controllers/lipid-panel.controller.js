@@ -67,9 +67,9 @@ export const LipidPanelController = {
 
   async updateLipidPanel(req, res, next) {
     try {
-      const userId = req.user.id;
+      const id = Number(req.params.id);
 
-      const data = await LipidPanelService.updateByUserId(userId, req.body);
+      const data = await LipidPanelService.update(id, req.body);
 
       return res.status(HttpStatus.OK).json({
         success: true,
