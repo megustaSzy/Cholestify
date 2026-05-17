@@ -25,7 +25,6 @@ import {
   BarChart,
 } from "lucide-react";
 import { NavSecondary } from "./NavSecondary";
-import Link from "next/link";
 import { logout } from "@/lib/utils";
 
 const data = {
@@ -146,7 +145,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   );
