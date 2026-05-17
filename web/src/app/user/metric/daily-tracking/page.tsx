@@ -1,14 +1,18 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import DashboardContent from "@/components/user/dashboard/DashboardContent";
 import { Metadata } from "next";
+import React from "react";
+import HeaderSection from "@/components/user/metric/daily-tracking/HeaderSection";
+import DailyTrackingContent from "@/components/user/metric/daily-tracking/DailyTrackingContent";
 
 export const metadata: Metadata = {
-  title: "Dashboard - Cholestify",
+  title: "Cholestify - Daily Tracking",
+  description:
+    "Enter your daily health metrics to maintain an accurate clinical profile.",
 };
 
-export default function DashboardUserPage() {
+export default function DailyTrackingPage() {
   return (
     <SidebarProvider
       style={
@@ -23,7 +27,12 @@ export default function DashboardUserPage() {
         <SiteHeader />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
-            <DashboardContent />
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              <div className="px-4 lg:px-6 flex flex-col gap-6">
+                <HeaderSection />
+                <DailyTrackingContent />
+              </div>
+            </div>
           </div>
         </div>
       </SidebarInset>

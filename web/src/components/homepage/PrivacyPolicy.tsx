@@ -34,7 +34,7 @@ export default function PrivacyPolicyForm() {
         <CardContent className="overflow-y-auto p-6 md:p-8 space-y-6 text-sm text-gray-600 flex-1 bg-white custom-scrollbar">
           <section>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              1. Pendahuluan
+              Cholestify
             </h3>
             <p className="leading-relaxed">
               Selamat datang di Cholestify. Kami menghargai privasi Anda dan
@@ -46,9 +46,6 @@ export default function PrivacyPolicyForm() {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              2. Informasi yang Kami Kumpulkan
-            </h3>
             <p className="leading-relaxed">
               Kami dapat mengumpulkan berbagai jenis informasi, termasuk namun
               tidak terbatas pada informasi pribadi (seperti nama dan alamat
@@ -59,9 +56,6 @@ export default function PrivacyPolicyForm() {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              3. Penggunaan Informasi
-            </h3>
             <p className="leading-relaxed">
               Data yang kami kumpulkan digunakan secara eksklusif untuk
               memberikan analisis kesehatan yang akurat, meningkatkan akurasi
@@ -74,9 +68,6 @@ export default function PrivacyPolicyForm() {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              4. Keamanan Data
-            </h3>
             <p className="leading-relaxed">
               Kami menerapkan standar keamanan industri tertinggi untuk
               melindungi data Anda dari akses, pengubahan, atau penghancuran
@@ -87,9 +78,6 @@ export default function PrivacyPolicyForm() {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              5. Hak Pengguna
-            </h3>
             <p className="leading-relaxed">
               Anda memiliki hak penuh untuk mengakses, memperbarui, atau meminta
               penghapusan data pribadi Anda dari sistem kami kapan saja. Hal ini
@@ -100,9 +88,6 @@ export default function PrivacyPolicyForm() {
           </section>
 
           <section>
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              6. Perubahan Kebijakan
-            </h3>
             <p className="leading-relaxed">
               Kebijakan privasi ini dapat kami perbarui dari waktu ke waktu
               untuk menyesuaikan dengan regulasi terbaru atau perubahan pada

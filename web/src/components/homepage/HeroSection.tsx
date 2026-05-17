@@ -12,30 +12,30 @@ export default function HeroForm() {
           <div className="inline-flex items-center gap-2 border border-gray-300 rounded-full px-4 py-1.5 mb-7">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
             <span className="text-[11px] font-semibold text-gray-600 uppercase tracking-widest">
-              Clinical Grade Precision
+              Solusi Untuk Anda dalam memantau kadar kolesterol
             </span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-[1.1] tracking-tight text-slate-900 mb-6">
-            Monitor
+            Pantau
             <br className="hidden md:block" />
-            Cholesterol
+            Kolesterol
             <br />
-            with a Single Scan
+            Dalam Sekali Scan
           </h1>
 
           <p className="text-base text-gray-500 leading-relaxed mb-8 max-w-md">
-            Colestify uses advanced ocular imaging technology to detect lipid
-            markers instantly. Get hospital-grade insights from your smartphone
-            without the needles.
+            Colestify menggunakan teknologi pencitraan mata canggih untuk
+            mendeteksi kadar kolesterol secara instan. Dapatkan hasil tingkat
+            rumah sakit dari smartphone Anda tanpa jarum.
           </p>
 
           <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center md:justify-start gap-3 mb-8 w-full sm:w-auto">
             <Link
-              href="#"
+              href="/user/dashboard"
               className="inline-flex justify-center items-center gap-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-6 py-3 rounded-lg transition-all active:scale-95 shadow-sm w-full sm:w-auto"
             >
-              Get Started for Free
+              Mulai Sekarang
             </Link>
             <Link
               href="#"

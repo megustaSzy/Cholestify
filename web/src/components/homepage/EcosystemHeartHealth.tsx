@@ -10,17 +10,17 @@ export default function EcosystemHeratHealth() {
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-20 items-start">
           <div className="lg:w-72 flex-shrink-0">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 leading-snug mb-5">
-              The Complete Ecosystem for Heart Health
+              Ekosistem untuk Pemantauan Kesehatan Anda
             </h2>
             <p className="text-sm text-gray-500 leading-relaxed mb-6">
-              Beyond monitoring, Colestify provides the tools to manage and
-              improve your clinical outcomes every single day.
+              Selain pemantauan, Colestify menyediakan alat untuk mengelola gaya
+              hidup Anda setiap hari.
             </p>
             <Link
-              href="#"
+              href="/user/dashboard"
               className="inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:gap-3 transition-all duration-200"
             >
-              Explore all features <IconArrowRight />
+              Lihat semua fitur <IconArrowRight />
             </Link>
           </div>
 
@@ -33,13 +33,12 @@ export default function EcosystemHeratHealth() {
                       <IconActivity />
                     </span>
                     <span className="text-sm font-bold text-slate-900">
-                      Health Dashboard
+                      Dashboard Kesehatan
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 leading-relaxed">
-                    Monitor your scores with longitudinal tracking. See how your
-                    diet and activity impact your lipid level on a per-month
-                    basis.
+                    Pantau aktivitas harian anda untuk melihat bagaimana gaya
+                    hidup anda memengaruhi kadar kolesterol anda.
                   </p>
                 </div>
                 <Image
@@ -59,12 +58,13 @@ export default function EcosystemHeratHealth() {
                       <IconEye />
                     </span>
                     <span className="text-sm font-bold text-slate-900">
-                      Biometric Scan
+                      Pemindaian Biometrik
                     </span>
                   </div>
                   <p className="text-xs text-gray-500 leading-relaxed">
-                    Our proprietary ScanAI™ technology and lab-validated process
-                    to detect patterns in real-life and elevate health features.
+                    Teknologi Scan AI pada sistem kami akan membantu mendeteksi
+                    adanya indikasi kadar kolesterol tinggi pada scanning mata
+                    anda.
                   </p>
                 </div>
                 <Image
@@ -86,13 +86,12 @@ export default function EcosystemHeratHealth() {
                       <IconUtensils />
                     </span>
                     <span className="text-base font-bold text-slate-900">
-                      AI Food Directory
+                      Direktori Makanan
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
-                    Get real-time feedback on your meals. Scan labels or search
-                    our directory of 500,000+ heart-healthy recipes and
-                    ingredients.
+                    Periksa makananan sehari hari anda dengan mengecek kadar
+                    kolesterol pada makananan di halaman tabel makanan.
                   </p>
                 </div>
                 <div className="sm:w-[340px] flex-shrink-0">

@@ -6,12 +6,13 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// export const fetcher = (url: string) => API.get(url).then((res) => res.data);
+export const fetcher = (url: string) => API.get(url).then((res) => res.data);
 
 export const API = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+  baseURL: "/api-proxy",
   headers: {
     "Content-Type": "application/json",
+    "ngrok-skip-browser-warning": "69420",
   },
   withCredentials: true,
 });
@@ -20,19 +21,23 @@ API.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (
-      originalRequest.url.includes("/auth/") &&
-      originalRequest.url !== "/auth/logout"
-    ) {
+
+    if (!originalRequest) {
       return Promise.reject(error);
     }
 
-    // Jika access token expired, coba refresh
+    const requestUrl = originalRequest.url ?? "";
+
+    if (requestUrl.includes("/auth/") && !requestUrl.includes("/auth/logout")) {
+      return Promise.reject(error);
+    }
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
-        await API.get("/auth/refresh");
+        await API.post("/auth/refresh");
+
         return API(originalRequest);
       } catch (refreshError) {
         window.location.replace("/login");

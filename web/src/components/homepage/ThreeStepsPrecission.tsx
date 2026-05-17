@@ -7,11 +7,11 @@ export default function ThreeStepsPrecissionForm() {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-slate-900 mb-3">
-            Precision in Three Steps
+            Tiga Langkah Penting
           </h2>
           <p className="text-sm text-gray-400 max-w-md mx-auto leading-relaxed">
-            Our AI ultrascan technology bridges the gap between laboratory
-            accuracy and home convenience.
+            Pemindai AI kami menjembatani kesenjangan antara akurasi
+            laboratorium dan kenyamanan di rumah.
           </p>
         </div>
 
@@ -22,11 +22,12 @@ export default function ThreeStepsPrecissionForm() {
               <IconShield />
             </div>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
-              1. Secure Scan
+              1. Pemindaian Aman
             </p>
             <p className="text-sm text-gray-500 leading-relaxed">
-              Simply align your arm with the on-screen guide. Our AI camera
-              high-resolution scanner detects in seconds.
+              Cukup ikuti arahan penangkapan kamera pada mata dan sejajarkan
+              lengan anda dengan panduan di layar. Pemindai AI kami akan
+              mendeteksi dalam hitungan detik.
             </p>
           </div>
 
@@ -36,11 +37,12 @@ export default function ThreeStepsPrecissionForm() {
               <IconBrain />
             </div>
             <p className="text-xs font-semibold text-blue-200 uppercase tracking-widest mb-3">
-              2. AI Analysis
+              2. Analisis AI
             </p>
             <p className="text-sm text-blue-100 leading-relaxed">
-              Clinical algorithms process iris microvascular patterns to
-              estimate cholesterol and lipid markers with 94% accuracy.
+              Algoritma klinis memproses pola mikrovaskular iris untuk
+              memperkirakan kolesterol dan penanda lipid dengan akurasi yang
+              cukup tinggi.
             </p>
           </div>
 
@@ -50,11 +52,11 @@ export default function ThreeStepsPrecissionForm() {
               <IconBarChart />
             </div>
             <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">
-              3. Vital Insights
+              3. Wawasan Penting
             </p>
             <p className="text-sm text-gray-500 leading-relaxed">
-              Receive a comprehensive report and actionable lifestyle advice
-              curated by our team of cardiologists.
+              Anda akan menerima laporan dan saran kadar makanan yang dapat
+              ditindaklanjuti untuk mengontrol kadar kolesterol anda.
             </p>
           </div>
         </div>

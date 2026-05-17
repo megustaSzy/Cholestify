@@ -45,12 +45,12 @@ export function LoginForm({
     setError("");
 
     try {
-      const { data } = await API.post("/auth/login", { email, password });
+      const { data } = await API.post("/auth/login", { identifier: email, password });
       if (data.success) {
-        const role = data.user?.role;
+        const role = data.data?.role;
 
         if (role === "USER") {
-          router.replace("/homepage/user/dashboard");
+          router.replace("/user/dashboard");
         }
       }
     } catch (err: unknown) {

@@ -1,6 +1,8 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import HeaderSection from "@/components/user/food-table/HeaderSection";
+import BodySection from "@/components/user/food-table/BodySection";
 
 export default function FoodTablePage() {
   return (
@@ -13,15 +15,17 @@ export default function FoodTablePage() {
       }
     >
       <AppSidebar variant="inset" />
+
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <div className="px-4 lg:px-6">Halaman Food Table</div>
+        <main className="flex flex-1 flex-col bg-[#faf9ff]">
+          <div className="w-full px-6 py-6 lg:px-8 xl:px-10">
+            <div className="w-full max-w-none">
+              <HeaderSection />
+              <BodySection />
             </div>
           </div>
-        </div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );
