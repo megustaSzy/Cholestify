@@ -6,9 +6,11 @@ import { Card, CardContent } from "../../../ui/card";
 import { Label } from "../../../ui/label";
 import { Input } from "../../../ui/input";
 import { Button } from "../../../ui/button";
+import { useSWRConfig } from "swr";
+import { API } from "@/lib/utils";
+import axios from "axios";
 
-// Dummy initial
-const initialForm = {
+const initialForm: FormState = {
   date: "",
   totalCholesterol: "",
   triglycerides: "",
@@ -16,8 +18,25 @@ const initialForm = {
   hdl: "",
 };
 
+type FormState = {
+  date: string;
+  totalCholesterol: string;
+  triglycerides: string;
+  ldl: string;
+  hdl: string;
+};
+
+type MetricKey = Exclude<keyof FormState, "date">;
+type LipidPayload = {
+  totalCholesterol: number;
+  triglycerides: number;
+  ldl: number;
+  hdl: number;
+  date?: string;
+};
+
 type MetricField = {
-  key: keyof typeof initialForm;
+  key: MetricKey;
   label: string;
   sublabel?: string;
   target: string;
@@ -48,18 +67,91 @@ const metrics: MetricField[] = [
   },
 ];
 
+function getApiErrorMessage(error: unknown): string {
+  if (axios.isAxiosError<ApiErrorResponse>(error)) {
+    return (
+      error.response?.data?.message ||
+      "Gagal menyimpan data lipid panel. Silakan coba lagi."
+    );
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Gagal menyimpan data lipid panel. Silakan coba lagi.";
+}
+
+type ApiErrorResponse = {
+  success?: boolean;
+  message?: string;
+  metadata?: {
+    status?: number;
+  };
+};
+
 export function LogLipidPanelForm() {
-  const [form, setForm] = useState(initialForm);
+  const { mutate } = useSWRConfig();
+  const [form, setForm] = useState<FormState>(initialForm);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
-  const handleChange = (key: keyof typeof initialForm, value: string) => {
+  const handleChange = (key: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setErrorMessage("");
+    setSuccessMessage("");
   };
 
-  const handleCancel = () => setForm(initialForm);
-
-  const handleSave = () => {
-    console.log("Saved:", form);
+  const handleCancel = () => {
+    setForm(initialForm);
+    setErrorMessage("");
+    setSuccessMessage("");
   };
+
+  const handleSave = async () => {
+    setErrorMessage("");
+    setSuccessMessage("");
+
+    if (isFormInvalid) {
+      setErrorMessage(
+        "Semua nilai lipid panel wajib diisi dengan angka valid.",
+      );
+      return;
+    }
+
+    const payload: LipidPayload = {
+      totalCholesterol: getNumberValue("totalCholesterol"),
+      triglycerides: getNumberValue("triglycerides"),
+      ldl: getNumberValue("ldl"),
+      hdl: getNumberValue("hdl"),
+      ...(form.date ? { date: form.date } : {}),
+    };
+
+    try {
+      setIsSubmitting(true);
+
+      await API.post("/lipid-panels", payload);
+
+      setSuccessMessage("Data lipid panel berhasil disimpan.");
+      setForm(initialForm);
+
+      mutate("/health-summary");
+      mutate("/lipid-panels/me");
+      mutate("/health-recommendations/overview");
+    } catch (error: unknown) {
+      setErrorMessage(getApiErrorMessage(error));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getNumberValue = (key: MetricKey) => Number(form[key]);
+
+  const isFormInvalid = metrics.some(({ key }) => {
+    const value = form[key];
+    return value === "" || Number.isNaN(Number(value)) || Number(value) < 0;
+  });
 
   return (
     <div className="px-4 lg:px-6">
@@ -147,21 +239,35 @@ export function LogLipidPanelForm() {
               ))}
             </div>
 
+            {errorMessage && (
+              <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+                {errorMessage}
+              </p>
+            )}
+
+            {successMessage && (
+              <p className="mb-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-600">
+                {successMessage}
+              </p>
+            )}
+
             {/* Action Buttons */}
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-3">
               <Button
                 variant="outline"
                 onClick={handleCancel}
+                disabled={isSubmitting}
                 className="w-full sm:w-auto"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSave}
+                disabled={isSubmitting || isFormInvalid}
                 className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <SaveIcon className="w-4 h-4" />
-                Save Data
+                {isSubmitting ? "Saving..." : "Save Data"}
               </Button>
             </div>
           </CardContent>
