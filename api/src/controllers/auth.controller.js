@@ -2,6 +2,7 @@ import { COOKIE_CONFIG } from "../config/cookie.config.js";
 import { HttpStatus } from "../constants/http-status.constant.js";
 import { MESSAGE } from "../constants/message.constant.js";
 import { AuthService } from "../services/auth.service.js";
+import { UserService } from "../services/user.service.js";
 
 export const AuthController = {
   async register(req, res, next) {
@@ -128,6 +129,24 @@ export const AuthController = {
 
       // redirect bersih tanpa token di URL
       return res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getMe(req, res, next) {
+    try {
+      // Mengambil ID user dari authMiddleware (req.user.id)
+      const user = await UserService.getUsersById(req.user.id);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Berhasil mendapatkan profil user",
+        metadata: {
+          status: HttpStatus.OK,
+        },
+        data: user,
+      });
     } catch (error) {
       next(error);
     }

@@ -11,6 +11,7 @@ import {
 } from "../validations/auth.validation.js";
 import { forgotPasswordLimiter } from "../middlewares/rate-limit.middleware.js";
 import { validateQuery } from "../middlewares/validation-query.middleware.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 import passport from "passport";
 
 const router = Router();
@@ -19,6 +20,7 @@ router.post("/register", validate(authRegisterSchema), AuthController.register);
 router.post("/login", validate(authLoginSchema), AuthController.login);
 router.post("/refresh", AuthController.refresh);
 router.post("/logout", AuthController.logout);
+router.get("/me", authMiddleware, AuthController.getMe);
 
 router.post(
   "/forgot-password",
