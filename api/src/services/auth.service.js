@@ -20,6 +20,7 @@ import { BadRequestError } from "../exceptions/BadRequestError.js";
 import { AUTH_CONSTANT } from "../constants/auth.constant.js";
 import { generatePatientCode } from "../utils/generate-patient-code.util.js";
 import { InternalServerError } from "../exceptions/InternalServerError.js";
+import { NotFoundError } from "../exceptions/NotFoundError.js";
 
 export const AuthService = {
   async register(body) {
