@@ -65,4 +65,24 @@ export const MESSAGE = {
     REFRESH_NOT_FOUND: "Refresh token tidak ditemukan",
     REFRESH_INVALID: "Refresh token tidak valid",
   },
+
+  HEALTH_GOAL: {
+    CREATED: "Health goal berhasil dibuat",
+    HISTORY_FOUND: "Riwayat health goal berhasil diambil",
+    NOT_FOUND: "Data health goal tidak ditemukan",
+    PROGRESS_FOUND: "Progress health goal berhasil diambil",
+  },
+
+  HEALTH_RECOMMENDATION: {
+    OVERVIEW_FOUND: "Data overview berhasil diambil",
+    FOUND: "Data saran kesehatan berhasil diambil",
+    NOT_FOUND: "Data saran kesehatan tidak ditemukan",
+  },
+
+  DAILY_TRACKING: {
+    CREATED: "Daily tracking berhasil ditambahkan",
+    HISTORY_FOUND: "Riwayat daily tracking berhasil diambil",
+    NOT_FOUND: "Data daily tracking tidak ditemukan",
+    ALREADY_EXISTS: "Anda sudah mengisi daily tracking untuk hari ini",
+  },
 };

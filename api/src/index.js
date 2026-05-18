@@ -1,5 +1,4 @@
-import dotenv from "dotenv";
-dotenv.config();
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -16,7 +15,9 @@ import HeartRateRoute from "./routes/heart-rate.route.js";
 import HealthGoalRoute from "./routes/health-goal.route.js";
 import LipidPanelRoute from "./routes/lipid-panel.route.js";
 import HealthSummaryRoute from "./routes/health-summary.route.js";
+import HealthRecommendationRoute from "./routes/health-recommendation.route.js";
 import PredictRoute from "./routes/screening.route.js";
+import DailyTrackingRoute from "./routes/daily-tracking.route.js";
 
 const app = express();
 
@@ -47,10 +48,12 @@ app.use("/api/users", UserRoute);
 app.use("/api/auth", AuthRoute);
 app.use("/api/biometrics", BiometricRoute);
 app.use("/api/calculates", HeartRateRoute);
-app.use("/api/lipids", LipidPanelRoute);
+app.use("/api/lipid-panels", LipidPanelRoute);
 app.use("/api/health-summary", HealthSummaryRoute);
+app.use("/api/health-recommendations", HealthRecommendationRoute);
 app.use("/api/predict", PredictRoute);
 app.use("/api/health-goals", HealthGoalRoute);
+app.use("/api/daily-trackings", DailyTrackingRoute);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 

@@ -38,4 +38,22 @@ export const HealthGoalController = {
       next(error);
     }
   },
+
+  async getProgress(req, res, next) {
+    try {
+      const userId = req.user.id;
+      const data = await HealthGoalService.getProgress(userId);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGE.HEALTH_GOAL.PROGRESS_FOUND,
+        metadata: {
+          status: HttpStatus.OK,
+        },
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
