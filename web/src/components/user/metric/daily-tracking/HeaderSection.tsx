@@ -7,7 +7,8 @@ export default function HeaderSection() {
         Daily Tracking
       </h1>
       <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-        Enter your daily health metrics to maintain an accurate clinical profile.
+        Masukkan pengukuran kesehatan harian Anda untuk menjaga profil klinis
+        yang akurat.
       </p>
     </div>
   );

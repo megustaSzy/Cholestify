@@ -151,10 +151,10 @@ export default function LogBiometricsContent() {
           </div>
           <div>
             <CardTitle className="text-lg font-semibold">
-              Physical Dimensions
+              Ukuran Fisik
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
-              Standard Measurements
+              Masukkan tinggi dan berat badan Anda
             </CardDescription>
           </div>
         </div>
@@ -232,8 +232,8 @@ export default function LogBiometricsContent() {
         <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded-md px-3 py-2.5">
           <InfoIcon className="w-4 h-4 shrink-0 mt-0.5 text-primary/70" />
           <span>
-            Ensure measurements are taken without shoes and wearing light
-            clothing for optimal accuracy.
+            Pastikan pengukuran dilakukan tanpa sepatu dan mengenakan pakaian
+            tipis untuk akurasi optimal.
           </span>
         </div>
 

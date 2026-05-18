@@ -161,8 +161,8 @@ export function LogLipidPanelForm() {
           Log Lipid Panel
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-          Enter your latest blood work results to track your cardiovascular
-          health.
+          Masukkan hasil pemeriksaan darah terbaru Anda untuk memantau kesehatan
+          kardiovaskular Anda.
         </p>
       </div>
 
@@ -178,7 +178,7 @@ export function LogLipidPanelForm() {
                     htmlFor="date"
                     className="text-xs font-semibold text-muted-foreground uppercase tracking-wide"
                   >
-                    Date of Examination
+                    Tanggal Pemeriksaan
                   </Label>
                   <div className="relative">
                     <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
@@ -196,8 +196,8 @@ export function LogLipidPanelForm() {
                 <div className="flex lg:hidden items-start gap-2 rounded-lg border border-blue-100 bg-blue-50 p-3 text-xs text-muted-foreground w-full sm:max-w-[200px] sm:mt-7">
                   <InfoIcon className="w-3.5 h-3.5 text-blue-400 flex-shrink-0 mt-0.5" />
                   <span>
-                    Please enter the date the blood was drawn, not the date you
-                    received the results.
+                    Masukkan tanggal saat tes dilakukan, bukan tanggal saat Anda
+                    menerima hasilnya.
                   </span>
                 </div>
               </div>
@@ -279,8 +279,8 @@ export function LogLipidPanelForm() {
           <div className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-muted-foreground">
             <InfoIcon className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
             <span>
-              Please enter the date the blood was drawn, not the date you
-              received the results.
+              Masukkan tanggal saat tes dilakukan, bukan tanggal saat Anda
+              menerima hasilnya.
             </span>
           </div>
 
@@ -318,9 +318,6 @@ export function LogLipidPanelForm() {
                   <span className="text-right">&gt; 50 mg/dL</span>
                 </li>
               </ul>
-              <p className="text-[11px] text-muted-foreground/70 pt-1 border-t border-border">
-                Based on American Heart Association guidelines.
-              </p>
             </CardContent>
           </Card>
         </div>

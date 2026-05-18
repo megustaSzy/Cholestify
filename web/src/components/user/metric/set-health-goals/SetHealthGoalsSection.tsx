@@ -100,7 +100,7 @@ const goalCategories: GoalCategory[] = [
   },
   {
     key: "physical_activity",
-    title: "Physical Activity",
+    title: "Aktivitas Fisik",
     icon: <Activity className="h-4 w-4" />,
     iconBg: "text-blue-500",
     fields: [

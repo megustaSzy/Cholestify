@@ -7,8 +7,8 @@ export default function HeaderSection() {
         Log Biometrics
       </h1>
       <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-        Enter your most recent physical measurements to ensure your clinical
-        profile reflects accurate, up-to-date health data.
+        Masukkan pengukuran fisik terbaru Anda untuk memastikan profil klinis
+        Anda mencerminkan data kesehatan yang akurat dan terkini.
       </p>
     </div>
   );

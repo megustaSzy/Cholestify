@@ -2,17 +2,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
 
 const goals = [
-  { label: "Calories", value: "2,200 kcal", color: "bg-blue-500" },
-  { label: "Exercise", value: "60 min", color: "bg-blue-400" },
+  { label: "Kalori", value: "2,200 kcal", color: "bg-blue-500" },
+  { label: "Olahraga", value: "60 min", color: "bg-blue-400" },
 ];
 
 export default function TargetGoalsSidebar() {
   return (
     <div className="flex flex-col gap-4 w-full">
-      {/* Target Goals Card */}
+      {/* Target Goals Card
       <Card className="shadow-sm border border-border w-full">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold">Target Goals</CardTitle>
+          <CardTitle className="text-sm font-semibold">Target Tujuan</CardTitle>
         </CardHeader>
 
         <CardContent className="flex flex-col gap-2 pt-0">
@@ -30,7 +30,7 @@ export default function TargetGoalsSidebar() {
             </div>
           ))}
         </CardContent>
-      </Card>
+      </Card> */}
 
       {/* Motivational Image Card */}
       <Card className="shadow-sm border border-border overflow-hidden p-0 w-full h-[130px] sm:h-[150px] lg:h-[130px]">
@@ -47,7 +47,7 @@ export default function TargetGoalsSidebar() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
 
           <p className="absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight">
-            Consistent tracking leads to better clinical outcomes.
+            Konsisten dalam pencatatan akan memantau kesehatan Anda
           </p>
         </div>
       </Card>

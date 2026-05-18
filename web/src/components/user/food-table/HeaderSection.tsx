@@ -7,8 +7,8 @@ export default function HeaderSection() {
         Food Table
       </h1>
       <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-        Enter your most recent physical measurements to ensure your clinical
-        profile reflects accurate, up-to-date health data.
+        Berikut tabel makanan yang dikategorikan berdasarkan dampaknya
+        terhadap kolesterol, kandungan lemak, dan serat.
       </p>
     </div>
   );

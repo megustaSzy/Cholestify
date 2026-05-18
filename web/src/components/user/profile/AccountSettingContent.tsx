@@ -196,10 +196,10 @@ export default function AccountSettingContent() {
         <main className="flex-1 px-4 py-6 flex flex-col gap-4 max-w-2xl">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
-              Account Settings
+              Pengaturan Akun
             </h1>
             <p className="text-sm text-gray-500 mt-0.5">
-              Manage your clinical Account.
+              Kelola pengaturan akun Anda.
             </p>
           </div>
 
@@ -216,9 +216,7 @@ export default function AccountSettingContent() {
           )}
 
           <div className="bg-white border border-gray-200 rounded-2xl p-5">
-            <h3 className="font-semibold text-gray-900 mb-4">
-              Profile Picture
-            </h3>
+            <h3 className="font-semibold text-gray-900 mb-4">Foto Profil</h3>
             <div className="flex items-center gap-4">
               <Avatar nama={displayName || "User"} />
               <div className="flex gap-2">
@@ -247,7 +245,7 @@ export default function AccountSettingContent() {
 
           <div className="bg-white border border-gray-200 rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">Personal Details</h3>
+              <h3 className="font-semibold text-gray-900">Informasi Dasar</h3>
               <button
                 onClick={isEditing ? cancelChanges : startEditing}
                 disabled={isLoading || !user}
@@ -317,19 +315,19 @@ export default function AccountSettingContent() {
           </div>
 
           <div className="bg-white border border-gray-200 rounded-2xl p-5">
-            <h3 className="font-semibold text-gray-900 mb-4">Security</h3>
+            <h3 className="font-semibold text-gray-900 mb-4">Password Akun</h3>
 
             <div className="flex gap-3 items-end">
               <div className="flex-1">
                 <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">
-                  Current Password
+                  Password Saat Ini
                 </label>
                 <div className="relative">
                   <Input
                     type={showCurrentPw ? "text" : "password"}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Current password"
+                    placeholder="Password Saat Ini"
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 pr-9 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                   />
                   <button
@@ -358,14 +356,6 @@ export default function AccountSettingContent() {
               <button className="px-4 py-2 bg-gray-100 text-gray-500 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap">
                 Update Password
               </button>
-            </div>
-
-            <div className="mt-4 flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-4 py-2.5 text-xs text-gray-600">
-              <ShieldCheck size={15} className="text-blue-500 flex-shrink-0" />
-              <span>
-                Your account uses cookie-based authentication from the backend
-                session.
-              </span>
             </div>
           </div>
 

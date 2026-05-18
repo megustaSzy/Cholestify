@@ -7,8 +7,7 @@ export default function HeaderSection() {
         Set Health Goals
       </h1>
       <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-        Establish clinical targets to optimize your health outcomes. Consult
-        with your physician before committing to aggressive lifestyle changes.
+        Tetapkan target kesehatan Anda untuk hasil yang lebih optimal.
       </p>
     </div>
   );

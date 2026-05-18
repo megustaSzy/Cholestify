@@ -243,9 +243,11 @@ export default function HealthGoalsContent() {
         <main className="flex-1 px-4 py-6 flex flex-col gap-5 max-w-2xl">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Health Goals</h1>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Target Kesehatan
+              </h1>
               <p className="text-sm text-gray-500 mt-0.5">
-                Precision tracking for your cholesterol and vitality targets.
+                Pelacakan akurat untuk target kolesterol dan vitalitas Anda.
               </p>
             </div>
 
@@ -285,7 +287,7 @@ export default function HealthGoalsContent() {
             )}
 
           <div>
-            <SectionLabel>Active Targets</SectionLabel>
+            <SectionLabel>Target Kesehatan Saat ini</SectionLabel>
 
             {latestGoal ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -365,17 +367,12 @@ export default function HealthGoalsContent() {
           </div>
 
           <div>
-            <SectionLabel>Recommended for You</SectionLabel>
+            <SectionLabel>Rekomendasi Kesehatan</SectionLabel>
 
             <div className="bg-[#8B2E0F] rounded-2xl p-5 flex gap-4 relative overflow-hidden w-full">
               <div className="flex-1 flex flex-col gap-3 z-10">
-                <span className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 bg-white/20 text-white text-[9px] font-bold uppercase tracking-widest rounded-full">
-                  <Sparkles size={10} />
-                  AI INSIGHT BASED ON LABS
-                </span>
-
                 <h3 className="text-lg font-bold text-white leading-snug">
-                  Health Recommendation
+                  Rekomendasi Kesehatan
                 </h3>
 
                 <p className="text-sm text-orange-100 leading-relaxed">
@@ -415,7 +412,7 @@ export default function HealthGoalsContent() {
           </div>
 
           <div>
-            <SectionLabel>Past Goals</SectionLabel>
+            <SectionLabel>Riwayat Tujuan Kesehatan</SectionLabel>
 
             <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
               {pastGoals.length > 0 ? (

@@ -241,11 +241,9 @@ export default function ClinicalProfileContent() {
       <div className="flex flex-1 gap-0">
         <main className="flex-1 px-4 py-6 flex flex-col gap-4 max-w-3xl">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Patient Profile
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">Profil Klinis</h1>
             <p className="text-sm text-gray-500 mt-0.5">
-              Manage your clinical information and health metrics.
+              Kelola informasi klinis dan metrik kesehatan Anda.
             </p>
           </div>
 
@@ -377,7 +375,7 @@ export default function ClinicalProfileContent() {
           <div className="bg-white border border-gray-200 rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold text-gray-900">
-                Health Recommendation
+                Rekomendasi Kesehatan
               </h3>
 
               <span className="text-xs text-gray-400">
