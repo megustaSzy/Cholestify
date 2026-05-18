@@ -47,12 +47,12 @@ export const UserService = {
     return data;
   },
 
-  async getUsersById(id) {
-    badRequestId(id, MESSAGE.COMMON.BAD_REQUEST);
+  async getUsersById(userId) {
+    badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
     const data = await prisma.user.findUnique({
       where: {
-        id,
+        id: userId,
       },
       select: {
         id: true,

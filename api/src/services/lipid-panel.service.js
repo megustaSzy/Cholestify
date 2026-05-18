@@ -108,11 +108,12 @@ export const LipidPanelService = {
       },
     });
 
-    await HealthRecommendationService.generateFromLipidPanel(
+    // Dijalankan di background agar tidak memblokir response API
+    HealthRecommendationService.generateFromLipidPanel(
       userId,
       data.id,
       data
-    );
+    ).catch(err => console.error("[BackgroundAI] Failed to generate:", err));
 
     return data;
   },
@@ -139,11 +140,12 @@ export const LipidPanelService = {
       },
     });
 
-    await HealthRecommendationService.generateFromLipidPanel(
+    // Dijalankan di background
+    HealthRecommendationService.generateFromLipidPanel(
       existing.userId,
       updated.id,
       updated
-    );
+    ).catch(err => console.error("[BackgroundAI] Failed to update:", err));
 
     return updated;
   },

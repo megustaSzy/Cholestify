@@ -6,8 +6,8 @@ import { healthGoalSchema } from "../validations/health-goal.validation.js";
 
 const router = Router();
 
-// Endpoint ini pakai /me karena ambil user ID dari token
 router.get("/me", authMiddleware, HealthGoalController.getHistoryByUserId);
+router.get("/progress", authMiddleware, HealthGoalController.getProgress);
 
 router.post(
   "/",

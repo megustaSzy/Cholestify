@@ -23,7 +23,7 @@ export const HealthSummaryService = {
       prisma.lipidPanel.findFirst({
         where: { userId },
         orderBy: {
-          date: "desc",
+          createdAt: "desc",
         },
         select: {
           totalCholesterol: true,

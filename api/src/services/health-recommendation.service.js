@@ -5,7 +5,7 @@ import { generateHealthAdvice } from "../utils/generate-health-advice.util.js";
 
 export const HealthRecommendationService = {
   async generateFromLipidPanel(userId, lipidPanelId, lipidData) {
-    const { dietaryAdvice, activityAdvice } = generateHealthAdvice(
+    const { dietaryAdvice, activityAdvice } = await generateHealthAdvice(
       lipidData.totalCholesterol,
       lipidData.ldl,
       lipidData.hdl,
@@ -48,13 +48,15 @@ export const HealthRecommendationService = {
     const data = await prisma.healthRecommendation.findFirst({
       where: { userId },
       orderBy: { generatedAt: "desc" },
-      include: {
+      select: {
+        dietaryAdvice: true,
+        activityAdvice: true,
         lipidPanel: {
           select: {
+            date: true,
             totalCholesterol: true,
             ldl: true,
             hdl: true,
-            date: true,
           },
         },
       },
