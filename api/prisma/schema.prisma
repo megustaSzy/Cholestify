@@ -34,6 +34,7 @@ model User {
   recommendations HealthRecommendation[]
   screenings  Screening[]
   healthGoals HealthGoal[]
+  dailyTrackings DailyTracking[]
 }
 
 model Biometric {
@@ -115,13 +116,13 @@ model HealthGoal {
   id Int @id @default(autoincrement())
   userId Int
 
-  targetLdlHdlRatio Float
   targetWeeklyCalories Int
   targetExerciseMins Int
 
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  dailyTrackings DailyTracking[]
 }
 
 enum ScreeningResult {
@@ -163,4 +164,22 @@ model PasswordResetToken {
 enum Role {
   ADMIN
   USER
+}
+
+model DailyTracking {
+  id Int @id @default(autoincrement())
+  userId Int
+  healthGoalId Int
+
+  date DateTime @default(now())
+
+  calories Int
+  protein Int
+  exerciseMins Int
+  foodNotes String?
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  healthGoal HealthGoal @relation(fields: [healthGoalId], references: [id], onDelete: Cascade)
 }
