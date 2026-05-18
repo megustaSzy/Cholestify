@@ -40,9 +40,9 @@ export const UserController = {
 
   async getUsersById(req, res, next) {
     try {
-      const id = Number(req.params.id);
+      const userId = req.user.id;
 
-      const data = await UserService.getUsersById(id);
+      const data = await UserService.getUsersById(userId);
 
       return res.status(HttpStatus.OK).json({
         success: true,

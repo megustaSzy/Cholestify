@@ -18,12 +18,7 @@ router.get(
   roleMiddleware("ADMIN"),
   UserController.getUsers,
 );
-router.get(
-  "/:id",
-  authMiddleware,
-  ownerOrAdmin("id"),
-  UserController.getUsersById,
-);
+router.get("/me", authMiddleware, UserController.getUsersById);
 router.patch(
   "/:id",
   authMiddleware,
