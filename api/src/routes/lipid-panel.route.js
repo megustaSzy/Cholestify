@@ -5,6 +5,11 @@ import { LipidPanelController } from "../controllers/lipid-panel.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import { ownerOrAdmin } from "../middlewares/owner-or-admin.middleware.js";
 import { roleMiddleware } from "../middlewares/role.middleware.js";
+import { validate } from "../middlewares/validation.middleware.js";
+import {
+  createLipidPanelSchema,
+  updateLipidPanelSchema,
+} from "../validations/lipid-panel.validation.js";
 
 const router = Router();
 
@@ -19,13 +24,19 @@ router.get(
 
 // USER
 router.get("/me", authMiddleware, LipidPanelController.getLipidPanelByUserId);
-router.post("/", authMiddleware, LipidPanelController.createLipidPanel);
+router.post(
+  "/",
+  authMiddleware,
+  validate(createLipidPanelSchema),
+  LipidPanelController.createLipidPanel
+);
 
 // ADMIN ONLY
 router.patch(
   "/:id",
   authMiddleware,
   roleMiddleware("ADMIN"),
+  validate(updateLipidPanelSchema),
   LipidPanelController.updateLipidPanel,
 );
 
