@@ -239,196 +239,202 @@ export default function ClinicalProfileContent() {
   return (
     <div className="flex flex-1 flex-col bg-gray-50 min-h-screen">
       <div className="flex flex-1 gap-0">
-        <main className="flex-1 px-4 py-6 flex flex-col gap-4 max-w-3xl">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Profil Klinis</h1>
-            <p className="text-sm text-gray-500 mt-0.5">
-              Kelola informasi klinis dan metrik kesehatan Anda.
-            </p>
-          </div>
-
-          {(isUserLoading || isHealthLoading || isLipidHistoryLoading) && (
-            <div className="bg-white border border-gray-200 rounded-2xl p-5 text-sm text-gray-500">
-              Loading clinical profile...
+        <main className="flex-1 w-full px-4 sm:px-6 lg:px-10 py-8">
+          <div className="w-full max-w-[900px] mx-auto flex flex-col gap-5">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Profil Klinis
+              </h1>
+              <p className="text-sm text-gray-500 mt-0.5">
+                Kelola informasi klinis dan metrik kesehatan Anda.
+              </p>
             </div>
-          )}
 
-          {hasAuthError && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-sm text-red-600">
-              Sesi login berakhir. Silakan login ulang.
-            </div>
-          )}
-
-          {!hasAuthError && hasUnknownError && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-sm text-red-600">
-              Gagal mengambil data profile. Silakan coba lagi.
-            </div>
-          )}
-
-          {!hasAuthError &&
-            !hasUnknownError &&
-            (hasNoDataError || isClinicalDataEmpty) && (
-              <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-sm text-blue-700">
-                Buatlah terlebih dahulu metric data diri anda.
+            {(isUserLoading || isHealthLoading || isLipidHistoryLoading) && (
+              <div className="bg-white border border-gray-200 rounded-2xl p-5 text-sm text-gray-500">
+                Loading clinical profile...
               </div>
             )}
 
-          <div className="bg-white border border-gray-200 rounded-2xl p-5 flex items-center gap-4">
-            <Avatar name={patientName} />
-
-            <div className="flex-1 min-w-0">
-              <h2 className="text-xl font-bold text-gray-900">{patientName}</h2>
-
-              <p className="text-xs text-gray-400 mt-0.5">
-                Patient ID: {patientId}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-gray-500">
-                <span className="flex items-center gap-1">
-                  <Mail size={12} />
-                  {email}
-                </span>
-
-                <span className="flex items-center gap-1">
-                  <Phone size={12} />
-                  {phone}
-                </span>
+            {hasAuthError && (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-sm text-red-600">
+                Sesi login berakhir. Silakan login ulang.
               </div>
-            </div>
-          </div>
+            )}
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <StatCard
-              label="Height"
-              value={toDisplayNumber(biometrics?.height)}
-              unit="cm"
-              icon={<Ruler size={14} />}
-            />
+            {!hasAuthError && hasUnknownError && (
+              <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-sm text-red-600">
+                Gagal mengambil data profile. Silakan coba lagi.
+              </div>
+            )}
 
-            <StatCard
-              label="Weight"
-              value={toDisplayNumber(biometrics?.weight)}
-              unit="kg"
-              icon={<Weight size={14} />}
-            />
+            {!hasAuthError &&
+              !hasUnknownError &&
+              (hasNoDataError || isClinicalDataEmpty) && (
+                <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-sm text-blue-700">
+                  Buatlah terlebih dahulu metric data diri anda.
+                </div>
+              )}
 
-            <StatCard
-              label="BMI"
-              value={toDisplayNumber(biometrics?.bmi, 1)}
-              unit=""
-              icon={<Activity size={14} />}
-              extra={
-                biometrics?.bmiCategory ? (
-                  <span className="text-[10px] font-semibold text-green-500 bg-green-50 px-1.5 py-0.5 rounded ml-1 mb-0.5">
-                    {biometrics.bmiCategory}
+            <div className="bg-white border border-gray-200 rounded-2xl p-5 flex items-center gap-4">
+              <Avatar name={patientName} />
+
+              <div className="flex-1 min-w-0">
+                <h2 className="text-xl font-bold text-gray-900">
+                  {patientName}
+                </h2>
+
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Patient ID: {patientId}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-gray-500">
+                  <span className="flex items-center gap-1">
+                    <Mail size={12} />
+                    {email}
                   </span>
-                ) : null
-              }
-            />
-          </div>
 
-          <div className="bg-white border border-gray-200 rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                <HeartPulse size={16} className="text-blue-500" />
-                Recent Lipid Panel
-              </h3>
-
-              <span className="text-xs text-gray-400">{lastLipidDate}</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <LipidCard
-                label="TOTAL"
-                value={toDisplayNumber(lipidPanel?.totalCholesterol)}
-                unit="mg/dL"
-                optimal="< 200"
-                progressPercent={progress(lipidPanel?.totalCholesterol, 240)}
-              />
-
-              <LipidCard
-                label="TRIGLYCERIDES"
-                value={toDisplayNumber(lipidPanel?.triglycerides)}
-                unit="mg/dL"
-                optimal="< 150"
-                progressPercent={progress(lipidPanel?.triglycerides, 200)}
-              />
-
-              <LipidCard
-                label="LDL (BAD)"
-                value={toDisplayNumber(lipidPanel?.ldl)}
-                unit="mg/dL"
-                optimal="< 100"
-                progressPercent={progress(lipidPanel?.ldl, 190)}
-              />
-
-              <LipidCard
-                label="HDL (GOOD)"
-                value={toDisplayNumber(lipidPanel?.hdl)}
-                unit="mg/dL"
-                optimal="> 60"
-                progressPercent={progress(lipidPanel?.hdl, 100)}
-              />
-            </div>
-          </div>
-
-          <div className="bg-white border border-gray-200 rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-gray-900">
-                Rekomendasi Kesehatan
-              </h3>
-
-              <span className="text-xs text-gray-400">
-                {recommendationDate}
-              </span>
-            </div>
-
-            {recommendation ? (
-              <div className="flex flex-col gap-3">
-                <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-                  <div className="flex items-start gap-3">
-                    <Utensils
-                      size={18}
-                      className="text-blue-500 flex-shrink-0 mt-0.5"
-                    />
-
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">
-                        Dietary Advice
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                        {recommendation.dietaryAdvice ||
-                          "Belum ada saran pola makan."}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-xl border border-green-100 bg-green-50 p-4">
-                  <div className="flex items-start gap-3">
-                    <Dumbbell
-                      size={18}
-                      className="text-green-500 flex-shrink-0 mt-0.5"
-                    />
-
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">
-                        Activity Advice
-                      </p>
-                      <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                        {recommendation.activityAdvice ||
-                          "Belum ada saran aktivitas."}
-                      </p>
-                    </div>
-                  </div>
+                  <span className="flex items-center gap-1">
+                    <Phone size={12} />
+                    {phone}
+                  </span>
                 </div>
               </div>
-            ) : (
-              <p className="text-sm text-gray-500">
-                Belum ada rekomendasi kesehatan. Rekomendasi akan muncul setelah
-                data lipid panel tersedia.
-              </p>
-            )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <StatCard
+                label="Height"
+                value={toDisplayNumber(biometrics?.height)}
+                unit="cm"
+                icon={<Ruler size={14} />}
+              />
+
+              <StatCard
+                label="Weight"
+                value={toDisplayNumber(biometrics?.weight)}
+                unit="kg"
+                icon={<Weight size={14} />}
+              />
+
+              <StatCard
+                label="BMI"
+                value={toDisplayNumber(biometrics?.bmi, 1)}
+                unit=""
+                icon={<Activity size={14} />}
+                extra={
+                  biometrics?.bmiCategory ? (
+                    <span className="text-[10px] font-semibold text-green-500 bg-green-50 px-1.5 py-0.5 rounded ml-1 mb-0.5">
+                      {biometrics.bmiCategory}
+                    </span>
+                  ) : null
+                }
+              />
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                  <HeartPulse size={16} className="text-blue-500" />
+                  Recent Lipid Panel
+                </h3>
+
+                <span className="text-xs text-gray-400">{lastLipidDate}</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <LipidCard
+                  label="TOTAL"
+                  value={toDisplayNumber(lipidPanel?.totalCholesterol)}
+                  unit="mg/dL"
+                  optimal="< 200"
+                  progressPercent={progress(lipidPanel?.totalCholesterol, 240)}
+                />
+
+                <LipidCard
+                  label="TRIGLYCERIDES"
+                  value={toDisplayNumber(lipidPanel?.triglycerides)}
+                  unit="mg/dL"
+                  optimal="< 150"
+                  progressPercent={progress(lipidPanel?.triglycerides, 200)}
+                />
+
+                <LipidCard
+                  label="LDL (BAD)"
+                  value={toDisplayNumber(lipidPanel?.ldl)}
+                  unit="mg/dL"
+                  optimal="< 100"
+                  progressPercent={progress(lipidPanel?.ldl, 190)}
+                />
+
+                <LipidCard
+                  label="HDL (GOOD)"
+                  value={toDisplayNumber(lipidPanel?.hdl)}
+                  unit="mg/dL"
+                  optimal="> 60"
+                  progressPercent={progress(lipidPanel?.hdl, 100)}
+                />
+              </div>
+            </div>
+
+            <div className="bg-white border border-gray-200 rounded-2xl p-5">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-gray-900">
+                  Rekomendasi Kesehatan
+                </h3>
+
+                <span className="text-xs text-gray-400">
+                  {recommendationDate}
+                </span>
+              </div>
+
+              {recommendation ? (
+                <div className="flex flex-col gap-3">
+                  <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                    <div className="flex items-start gap-3">
+                      <Utensils
+                        size={18}
+                        className="text-blue-500 flex-shrink-0 mt-0.5"
+                      />
+
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          Dietary Advice
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                          {recommendation.dietaryAdvice ||
+                            "Belum ada saran pola makan."}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-green-100 bg-green-50 p-4">
+                    <div className="flex items-start gap-3">
+                      <Dumbbell
+                        size={18}
+                        className="text-green-500 flex-shrink-0 mt-0.5"
+                      />
+
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          Activity Advice
+                        </p>
+                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">
+                          {recommendation.activityAdvice ||
+                            "Belum ada saran aktivitas."}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">
+                  Belum ada rekomendasi kesehatan. Rekomendasi akan muncul
+                  setelah data lipid panel tersedia.
+                </p>
+              )}
+            </div>
           </div>
         </main>
       </div>

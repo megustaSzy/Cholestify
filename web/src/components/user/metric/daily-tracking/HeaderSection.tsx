@@ -2,7 +2,7 @@ import React from "react";
 
 export default function HeaderSection() {
   return (
-    <div className="mb-4 md:mb-6 text-start">
+    <div className="text-start">
       <h1 className="text-xl sm:text-2xl font-bold text-foreground">
         Daily Tracking
       </h1>

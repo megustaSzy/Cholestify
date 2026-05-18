@@ -191,14 +191,14 @@ export default function AccountSettingContent() {
     return values[key];
   };
   return (
-    <div className="flex flex-1 flex-col bg-gray-50 min-h-screen">
-      <div className="flex flex-1 gap-0">
-        <main className="flex-1 px-4 py-6 flex flex-col gap-4 max-w-2xl">
+    <div className="min-h-screen bg-gray-50">
+      <main className="w-full px-4 sm:px-6 lg:px-10 py-8">
+        <div className="w-full max-w-[900px] mx-auto flex flex-col gap-5">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900">
               Pengaturan Akun
             </h1>
-            <p className="text-sm text-gray-500 mt-0.5">
+            <p className="text-sm text-gray-500 mt-1">
               Kelola pengaturan akun Anda.
             </p>
           </div>
@@ -210,19 +210,22 @@ export default function AccountSettingContent() {
           )}
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-sm text-red-600">
+            <div className="bg-red-50 border border-red-200 rounded-2xl px-5 py-4 text-sm text-red-600">
               Gagal mengambil data user. Pastikan cookie login masih valid.
             </div>
           )}
 
-          <div className="bg-white border border-gray-200 rounded-2xl p-5">
-            <h3 className="font-semibold text-gray-900 mb-4">Foto Profil</h3>
-            <div className="flex items-center gap-4">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <h3 className="font-semibold text-gray-900 mb-5">Foto Profil</h3>
+
+            <div className="flex flex-col sm:flex-row sm:items-center gap-5">
               <Avatar nama={displayName || "User"} />
-              <div className="flex gap-2">
-                <label className="flex cursor-pointer items-center gap-1.5 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
+
+              <div className="flex flex-wrap gap-2">
+                <label className="h-10 flex cursor-pointer items-center gap-2 px-4 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
                   <Upload size={14} />
                   {isUploadingAvatar ? "Uploading..." : "Upload"}
+
                   <input
                     type="file"
                     accept="image/*"
@@ -231,10 +234,11 @@ export default function AccountSettingContent() {
                     disabled={isUploadingAvatar}
                   />
                 </label>
+
                 <button
                   onClick={handleRemoveAvatar}
                   disabled={isUploadingAvatar}
-                  className="flex items-center gap-1.5 px-4 py-2 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                  className="h-10 flex items-center gap-2 px-4 border border-gray-300 text-gray-600 text-sm font-medium rounded-lg hover:bg-gray-50 transition-colors disabled:cursor-not-allowed"
                 >
                   <Trash2 size={14} />
                   Remove
@@ -242,10 +246,10 @@ export default function AccountSettingContent() {
               </div>
             </div>
           </div>
-
-          <div className="bg-white border border-gray-200 rounded-2xl p-5">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <div className="flex items-center justify-between mb-5">
               <h3 className="font-semibold text-gray-900">Informasi Dasar</h3>
+
               <button
                 onClick={isEditing ? cancelChanges : startEditing}
                 disabled={isLoading || !user}
@@ -256,11 +260,12 @@ export default function AccountSettingContent() {
               </button>
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-4">
               <div>
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1.5">
                   Name
                 </label>
+
                 <Input
                   type="text"
                   value={inputValue("nama")}
@@ -269,15 +274,16 @@ export default function AccountSettingContent() {
                   }
                   disabled={!isEditing}
                   placeholder="Nama belum tersedia"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="h-11 w-full border border-gray-200 rounded-lg px-3 text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 />
               </div>
 
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1.5">
                     Email Address
                   </label>
+
                   <Input
                     type="email"
                     value={inputValue("email")}
@@ -289,13 +295,15 @@ export default function AccountSettingContent() {
                     }
                     disabled={!isEditing}
                     placeholder="Email belum tersedia"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    className="h-11 w-full border border-gray-200 rounded-lg px-3 text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                   />
                 </div>
-                <div className="flex-1">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">
+
+                <div>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1.5">
                     Phone Number
                   </label>
+
                   <Input
                     type="tel"
                     value={inputValue("notelp")}
@@ -307,29 +315,32 @@ export default function AccountSettingContent() {
                     }
                     disabled={!isEditing}
                     placeholder="Nomor telepon belum tersedia"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    className="h-11 w-full border border-gray-200 rounded-lg px-3 text-sm text-gray-800 bg-white disabled:bg-gray-50 disabled:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                   />
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-2xl p-5">
-            <h3 className="font-semibold text-gray-900 mb-4">Password Akun</h3>
+          {/* Password */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+            <h3 className="font-semibold text-gray-900 mb-5">Password Akun</h3>
 
-            <div className="flex gap-3 items-end">
-              <div className="flex-1">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 md:items-end">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1.5">
                   Password Saat Ini
                 </label>
+
                 <div className="relative">
                   <Input
                     type={showCurrentPw ? "text" : "password"}
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     placeholder="Password Saat Ini"
-                    className="w-full border border-gray-200 rounded-lg px-3 py-2 pr-9 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                    className="h-11 w-full border border-gray-200 rounded-lg px-3 pr-9 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                   />
+
                   <button
                     type="button"
                     onClick={() => setShowCurrentPw(!showCurrentPw)}
@@ -340,43 +351,50 @@ export default function AccountSettingContent() {
                 </div>
               </div>
 
-              <div className="flex-1">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1.5">
                   New Password
                 </label>
+
                 <Input
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Min. 8 characters"
-                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-800 placeholder-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  className="h-11 w-full border border-gray-200 rounded-lg px-3 text-sm text-gray-800 placeholder-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                 />
               </div>
 
-              <button className="px-4 py-2 bg-gray-100 text-gray-500 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap">
+              <button
+                onClick={updatePassword}
+                disabled={isSaving}
+                className="h-11 px-5 bg-gray-100 text-gray-500 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap disabled:cursor-not-allowed disabled:bg-gray-200"
+              >
                 Update Password
               </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-2 pb-6">
+          {/* Button bawah */}
+          <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-1 pb-8">
             <button
               onClick={cancelChanges}
               disabled={!isEditing || isSaving}
-              className="px-5 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors disabled:text-gray-400 disabled:cursor-not-allowed"
+              className="h-10 px-5 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors disabled:text-gray-400 disabled:cursor-not-allowed"
             >
               Cancel Changes
             </button>
+
             <button
               onClick={saveProfile}
               disabled={!isEditing || isSaving}
-              className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
+              className="h-10 px-6 bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
               {isSaving ? "Saving..." : "Save All Settings"}
             </button>
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
