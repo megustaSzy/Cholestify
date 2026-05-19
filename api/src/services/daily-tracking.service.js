@@ -20,11 +20,15 @@ export const DailyTrackingService = {
     }
 
     if (body.calories > healthGoal.targetWeeklyCalories) {
-      throw new BadRequestError(`Kalori harian (${body.calories} kcal) tidak boleh melebihi target goals (${healthGoal.targetWeeklyCalories} kcal)`);
+      throw new BadRequestError(
+        `Kalori harian (${body.calories} kcal) tidak boleh melebihi target goals (${healthGoal.targetWeeklyCalories} kcal)`,
+      );
     }
 
     if (body.exerciseMins > healthGoal.targetExerciseMins) {
-      throw new BadRequestError(`Durasi olahraga harian (${body.exerciseMins} menit) tidak boleh melebihi target goals (${healthGoal.targetExerciseMins} menit)`);
+      throw new BadRequestError(
+        `Durasi olahraga harian (${body.exerciseMins} menit) tidak boleh melebihi target goals (${healthGoal.targetExerciseMins} menit)`,
+      );
     }
 
     const today = new Date();
@@ -56,6 +60,15 @@ export const DailyTrackingService = {
         foodNotes: body.foodNotes,
         date: new Date(),
       },
+      select: {
+        id: true,
+        date: true,
+        calories: true,
+        protein: true,
+        exerciseMins: true,
+        foodNotes: true,
+        createdAt: true,
+      },
     });
 
     return data;
@@ -67,14 +80,21 @@ export const DailyTrackingService = {
     const data = await prisma.dailyTracking.findMany({
       where: { userId },
       orderBy: { date: "desc" },
-      include: {
+      select: {
+        id: true,
+        date: true,
+        calories: true,
+        protein: true,
+        exerciseMins: true,
+        foodNotes: true,
+        createdAt: true,
         healthGoal: {
           select: {
             targetWeeklyCalories: true,
-            targetExerciseMins: true
-          }
-        }
-      }
+            targetExerciseMins: true,
+          },
+        },
+      },
     });
 
     return data;

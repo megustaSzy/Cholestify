@@ -1,4 +1,3 @@
-// utils/resetToken.js
 import crypto from "crypto";
 
 export const generateResetToken = () => {

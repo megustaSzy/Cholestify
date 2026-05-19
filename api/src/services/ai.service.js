@@ -1,19 +1,34 @@
 import axios from "axios";
 import FormData from "form-data";
+import { InternalServerError } from "../exceptions/InternalServerError.js";
 
 export const predictEyeScan = async (fileBuffer, filename) => {
-  const formData = new FormData();
+  try {
+    const formData = new FormData();
+    formData.append("file", fileBuffer, filename);
 
-  formData.append("file", fileBuffer, filename);
+    const response = await axios.post(
+      process.env.FASTAPI_URL + "/predict",
+      formData,
+      {
+        headers: formData.getHeaders(),
+        maxBodyLength: Infinity,
+        timeout: 15000, // timeout 15s
+      },
+    );
 
-  const response = await axios.post(
-    process.env.FASTAPI_URL + "/predict",
-    formData,
-    {
-      headers: formData.getHeaders(),
-      maxBodyLength: Infinity,
-    },
-  );
+    return response.data;
+  } catch (error) {
+    if (error.code === "ECONNABORTED") {
+      throw new InternalServerError(
+        "Waktu request ke layanan AI habis (Timeout). Server sedang sibuk, silakan coba lagi.",
+      );
+    }
 
-  return response.data;
+    console.error("[AI Service Error]:", error.response?.data || error.message);
+
+    throw new InternalServerError(
+      "Layanan AI gagal memproses gambar. Pastikan server AI menyala dan gambar valid.",
+    );
+  }
 };

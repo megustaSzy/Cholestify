@@ -183,3 +183,45 @@ model DailyTracking {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   healthGoal HealthGoal @relation(fields: [healthGoalId], references: [id], onDelete: Cascade)
 }
+
+enum LdlGroup {
+  NORMAL
+  HIGH
+}
+
+enum FoodStatus {
+  OPTIMAL
+  NEUTRAL
+  LIMIT
+}
+
+model Food {
+  id        Int      @id @default(autoincrement())
+  name      String
+  calories  Float
+  proteins  Float
+  fat       Float
+  
+  classifications FoodClassification[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model FoodClassification {
+  id        Int      @id @default(autoincrement())
+  foodId    Int
+  ldlGroup  LdlGroup
+  status    FoodStatus
+  isRecommended Boolean
+
+  food      Food     @relation(fields: [foodId], references: [id], onDelete: Cascade)
+
+  @@unique([foodId, ldlGroup]) 
+}
+
+model TestUpload {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  createdAt DateTime @default(now())
+}
