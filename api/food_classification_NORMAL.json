@@ -1,0 +1,534 @@
+{
+  "ldl_group": "NORMAL",
+  "ldl_cutoff": 130,
+  "thresholds": {
+    "fat_soft_limit_g": 25,
+    "cal_downgrade": null
+  },
+  "ui_labels": {
+    "OPTIMAL": {
+      "label": "Maintain Health",
+      "desc": "Baik untuk kesehatan jangka panjang",
+      "warning_level": "none"
+    },
+    "NEUTRAL": {
+      "label": "Aman",
+      "desc": "Konsumsi normal, perhatikan total porsi",
+      "warning_level": "none"
+    },
+    "LIMIT": {
+      "label": "Perhatikan Asupan",
+      "desc": "Batasi frekuensi konsumsi",
+      "warning_level": "soft"
+    }
+  },
+  "generated_at": "2026-05-18",
+  "total": 100,
+  "summary": {
+    "OPTIMAL": 69,
+    "NEUTRAL": 25,
+    "LIMIT": 6
+  },
+  "foods": [
+    {
+      "id": 1,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 2,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 3,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 4,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 5,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 6,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 7,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 8,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 9,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 10,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 11,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 12,
+      "status": "LIMIT",
+      "is_recommended": 0
+    },
+    {
+      "id": 13,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 14,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 15,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 16,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 17,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 18,
+      "status": "LIMIT",
+      "is_recommended": 0
+    },
+    {
+      "id": 19,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 20,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 21,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 22,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 23,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 24,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 25,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 26,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 27,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 28,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 29,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 30,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 31,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 32,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 33,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 34,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 35,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 36,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 37,
+      "status": "LIMIT",
+      "is_recommended": 0
+    },
+    {
+      "id": 38,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 39,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 40,
+      "status": "LIMIT",
+      "is_recommended": 0
+    },
+    {
+      "id": 41,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 42,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 43,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 44,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 45,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 46,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 47,
+      "status": "LIMIT",
+      "is_recommended": 0
+    },
+    {
+      "id": 48,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 49,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 50,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 51,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 52,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 53,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 54,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 55,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 56,
+      "status": "LIMIT",
+      "is_recommended": 0
+    },
+    {
+      "id": 57,
+      "status": "NEUTRAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 58,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 59,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 60,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 61,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 62,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 63,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 64,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 65,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 66,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 67,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 68,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 69,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 70,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 71,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 72,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 73,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 74,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 75,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 76,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 77,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 78,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 79,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 80,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 81,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 82,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 83,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 84,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 85,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 86,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 87,
+      "status": "NEUTRAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 88,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 89,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 90,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 91,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 92,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 93,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 94,
+      "status": "NEUTRAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 95,
+      "status": "OPTIMAL",
+      "is_recommended": 1
+    },
+    {
+      "id": 96,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 97,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 98,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 99,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    },
+    {
+      "id": 100,
+      "status": "OPTIMAL",
+      "is_recommended": 0
+    }
+  ]
+}

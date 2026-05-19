@@ -1,0 +1,672 @@
+[
+  {
+    "id": 1,
+    "name": "Ampas Tahu",
+    "calories": 414.0,
+    "proteins": 26.6,
+    "fat": 18.3
+  },
+  {
+    "id": 2,
+    "name": "Anyang Sayur",
+    "calories": 126.0,
+    "proteins": 3.4,
+    "fat": 7.9
+  },
+  {
+    "id": 3,
+    "name": "Ares Sayur",
+    "calories": 113.0,
+    "proteins": 0.9,
+    "fat": 7.2
+  },
+  { "id": 4, "name": "Ayam", "calories": 302.0, "proteins": 18.2, "fat": 25.0 },
+  { "id": 5, "name": "Bakso", "calories": 76.0, "proteins": 4.1, "fat": 2.5 },
+  {
+    "id": 6,
+    "name": "Bayam Kukus",
+    "calories": 30.0,
+    "proteins": 1.3,
+    "fat": 0.7
+  },
+  {
+    "id": 7,
+    "name": "Bayam Merah",
+    "calories": 51.0,
+    "proteins": 4.6,
+    "fat": 0.5
+  },
+  {
+    "id": 8,
+    "name": "Bayam Rebus",
+    "calories": 23.0,
+    "proteins": 1.2,
+    "fat": 0.6
+  },
+  {
+    "id": 9,
+    "name": "Bayam Segar",
+    "calories": 36.0,
+    "proteins": 3.5,
+    "fat": 0.5
+  },
+  {
+    "id": 10,
+    "name": "Belut Goreng",
+    "calories": 417.0,
+    "proteins": 25.9,
+    "fat": 19.4
+  },
+  {
+    "id": 11,
+    "name": "Bihun Goreng",
+    "calories": 154.0,
+    "proteins": 3.0,
+    "fat": 4.5
+  },
+  { "id": 12, "name": "Bubur", "calories": 60.0, "proteins": 1.0, "fat": 60.0 },
+  {
+    "id": 13,
+    "name": "Bubur Sagu",
+    "calories": 167.0,
+    "proteins": 0.2,
+    "fat": 4.0
+  },
+  {
+    "id": 14,
+    "name": "Buncis Rebus",
+    "calories": 30.0,
+    "proteins": 2.2,
+    "fat": 0.2
+  },
+  {
+    "id": 15,
+    "name": "Cap Cai Sayur",
+    "calories": 97.0,
+    "proteins": 5.8,
+    "fat": 6.3
+  },
+  {
+    "id": 16,
+    "name": "Daging Sapi",
+    "calories": 207.0,
+    "proteins": 18.8,
+    "fat": 14.0
+  },
+  {
+    "id": 17,
+    "name": "Daun Singkong",
+    "calories": 73.0,
+    "proteins": 6.8,
+    "fat": 1.2
+  },
+  {
+    "id": 18,
+    "name": "Empal Goreng",
+    "calories": 590.0,
+    "proteins": 18.5,
+    "fat": 57.0
+  },
+  {
+    "id": 19,
+    "name": "Gadung Kukus",
+    "calories": 88.0,
+    "proteins": 0.8,
+    "fat": 0.3
+  },
+  {
+    "id": 20,
+    "name": "Getuk Goreng",
+    "calories": 360.0,
+    "proteins": 1.3,
+    "fat": 6.4
+  },
+  {
+    "id": 21,
+    "name": "Getuk Pisang",
+    "calories": 144.0,
+    "proteins": 1.1,
+    "fat": 0.4
+  },
+  {
+    "id": 22,
+    "name": "Gudeg Sayur",
+    "calories": 160.0,
+    "proteins": 3.3,
+    "fat": 9.2
+  },
+  {
+    "id": 23,
+    "name": "Ikan Bandeng",
+    "calories": 129.0,
+    "proteins": 20.0,
+    "fat": 4.8
+  },
+  {
+    "id": 24,
+    "name": "Ikan Bawal",
+    "calories": 96.0,
+    "proteins": 19.0,
+    "fat": 1.7
+  },
+  {
+    "id": 25,
+    "name": "Ikan Kembung",
+    "calories": 103.0,
+    "proteins": 22.0,
+    "fat": 1.0
+  },
+  {
+    "id": 26,
+    "name": "Ikan Layang",
+    "calories": 109.0,
+    "proteins": 22.0,
+    "fat": 1.7
+  },
+  {
+    "id": 27,
+    "name": "Ikan Lemuru",
+    "calories": 112.0,
+    "proteins": 20.0,
+    "fat": 3.0
+  },
+  {
+    "id": 28,
+    "name": "Ikan Mas",
+    "calories": 86.0,
+    "proteins": 16.0,
+    "fat": 2.0
+  },
+  {
+    "id": 29,
+    "name": "Ikan Pepetek",
+    "calories": 176.0,
+    "proteins": 32.0,
+    "fat": 4.4
+  },
+  {
+    "id": 30,
+    "name": "Ikan Segar",
+    "calories": 113.0,
+    "proteins": 17.0,
+    "fat": 4.5
+  },
+  {
+    "id": 31,
+    "name": "Ikan Tembang",
+    "calories": 204.0,
+    "proteins": 16.0,
+    "fat": 15.0
+  },
+  {
+    "id": 32,
+    "name": "Intip Goreng",
+    "calories": 474.0,
+    "proteins": 7.6,
+    "fat": 21.6
+  },
+  {
+    "id": 33,
+    "name": "Jagung Muda",
+    "calories": 35.0,
+    "proteins": 2.2,
+    "fat": 0.1
+  },
+  {
+    "id": 34,
+    "name": "Jagung Rebus",
+    "calories": 175.0,
+    "proteins": 1.8,
+    "fat": 1.8
+  },
+  {
+    "id": 35,
+    "name": "Jagung Titi",
+    "calories": 374.0,
+    "proteins": 9.4,
+    "fat": 2.2
+  },
+  {
+    "id": 36,
+    "name": "Kacang Arab",
+    "calories": 330.0,
+    "proteins": 23.8,
+    "fat": 1.4
+  },
+  {
+    "id": 37,
+    "name": "Kacang Atom",
+    "calories": 533.0,
+    "proteins": 27.8,
+    "fat": 38.1
+  },
+  {
+    "id": 38,
+    "name": "Kacang Ijo",
+    "calories": 345.0,
+    "proteins": 22.2,
+    "fat": 1.2
+  },
+  {
+    "id": 39,
+    "name": "Kacang Merah",
+    "calories": 336.0,
+    "proteins": 23.1,
+    "fat": 1.7
+  },
+  {
+    "id": 40,
+    "name": "Kacang Sukro",
+    "calories": 484.0,
+    "proteins": 8.8,
+    "fat": 26.1
+  },
+  {
+    "id": 41,
+    "name": "Kacang Telur",
+    "calories": 748.0,
+    "proteins": 20.8,
+    "fat": 20.8
+  },
+  {
+    "id": 42,
+    "name": "Kangkung",
+    "calories": 29.0,
+    "proteins": 3.0,
+    "fat": 0.3
+  },
+  {
+    "id": 43,
+    "name": "Katul Jagung",
+    "calories": 356.0,
+    "proteins": 9.0,
+    "fat": 8.5
+  },
+  {
+    "id": 44,
+    "name": "Kembang Tahu",
+    "calories": 380.0,
+    "proteins": 48.9,
+    "fat": 13.8
+  },
+  {
+    "id": 45,
+    "name": "Ketupat Tahu",
+    "calories": 109.6,
+    "proteins": 2.6,
+    "fat": 2.6
+  },
+  {
+    "id": 46,
+    "name": "Ledre Pisang",
+    "calories": 405.0,
+    "proteins": 4.8,
+    "fat": 5.1
+  },
+  {
+    "id": 47,
+    "name": "Lemak Ikan",
+    "calories": 372.0,
+    "proteins": 12.0,
+    "fat": 29.4
+  },
+  {
+    "id": 48,
+    "name": "Mie Ayam",
+    "calories": 102.0,
+    "proteins": 6.2,
+    "fat": 3.9
+  },
+  {
+    "id": 49,
+    "name": "Mie Bakso",
+    "calories": 114.0,
+    "proteins": 5.3,
+    "fat": 3.0
+  },
+  {
+    "id": 50,
+    "name": "Mie Basah",
+    "calories": 86.0,
+    "proteins": 0.6,
+    "fat": 3.3
+  },
+  {
+    "id": 51,
+    "name": "Mie Bendo",
+    "calories": 353.0,
+    "proteins": 0.3,
+    "fat": 0.0
+  },
+  {
+    "id": 52,
+    "name": "Mie Celon",
+    "calories": 102.0,
+    "proteins": 3.0,
+    "fat": 2.1
+  },
+  {
+    "id": 53,
+    "name": "Mie Goreng",
+    "calories": 468.0,
+    "proteins": 7.6,
+    "fat": 20.4
+  },
+  {
+    "id": 54,
+    "name": "Mie Kering",
+    "calories": 337.0,
+    "proteins": 7.9,
+    "fat": 11.8
+  },
+  {
+    "id": 55,
+    "name": "Mie Sagu",
+    "calories": 190.0,
+    "proteins": 0.2,
+    "fat": 0.4
+  },
+  {
+    "id": 56,
+    "name": "Minyak Ikan",
+    "calories": 902.0,
+    "proteins": 0.0,
+    "fat": 100.0
+  },
+  {
+    "id": 57,
+    "name": "Moon Tahu",
+    "calories": 128.0,
+    "proteins": 8.0,
+    "fat": 10.0
+  },
+  { "id": 58, "name": "Nasi", "calories": 180.0, "proteins": 3.0, "fat": 0.3 },
+  {
+    "id": 59,
+    "name": "Nasi Gemuk",
+    "calories": 192.0,
+    "proteins": 3.8,
+    "fat": 8.8
+  },
+  {
+    "id": 60,
+    "name": "Nasi Goreng",
+    "calories": 276.0,
+    "proteins": 3.2,
+    "fat": 3.2
+  },
+  {
+    "id": 61,
+    "name": "Nasi Gurih",
+    "calories": 190.0,
+    "proteins": 4.7,
+    "fat": 7.5
+  },
+  {
+    "id": 62,
+    "name": "Nasi Jagung",
+    "calories": 357.0,
+    "proteins": 8.8,
+    "fat": 0.5
+  },
+  {
+    "id": 63,
+    "name": "Nasi Minyak",
+    "calories": 207.0,
+    "proteins": 3.5,
+    "fat": 5.0
+  },
+  {
+    "id": 64,
+    "name": "Nasi Rames",
+    "calories": 155.0,
+    "proteins": 10.3,
+    "fat": 4.2
+  },
+  {
+    "id": 65,
+    "name": "Nasi Tim",
+    "calories": 120.0,
+    "proteins": 2.4,
+    "fat": 0.4
+  },
+  {
+    "id": 66,
+    "name": "Nasi Uduk",
+    "calories": 253.3,
+    "proteins": 4.3,
+    "fat": 21.0
+  },
+  {
+    "id": 67,
+    "name": "Oncom Goreng",
+    "calories": 363.3,
+    "proteins": 19.3,
+    "fat": 19.3
+  },
+  {
+    "id": 68,
+    "name": "Pepaya Lodeh",
+    "calories": 275.0,
+    "proteins": 11.6,
+    "fat": 11.6
+  },
+  {
+    "id": 69,
+    "name": "Pepaya Muda",
+    "calories": 26.0,
+    "proteins": 2.1,
+    "fat": 0.1
+  },
+  {
+    "id": 70,
+    "name": "Pepaya Segar",
+    "calories": 46.0,
+    "proteins": 0.5,
+    "fat": 12.0
+  },
+  {
+    "id": 71,
+    "name": "Petis Ikan",
+    "calories": 161.0,
+    "proteins": 20.0,
+    "fat": 0.2
+  },
+  {
+    "id": 72,
+    "name": "Pisang Ambon",
+    "calories": 99.0,
+    "proteins": 1.2,
+    "fat": 0.2
+  },
+  {
+    "id": 73,
+    "name": "Pisang Mas",
+    "calories": 127.0,
+    "proteins": 1.4,
+    "fat": 0.2
+  },
+  {
+    "id": 74,
+    "name": "Pisang Oli",
+    "calories": 134.0,
+    "proteins": 1.1,
+    "fat": 0.5
+  },
+  {
+    "id": 75,
+    "name": "Pisang Raja",
+    "calories": 120.0,
+    "proteins": 1.2,
+    "fat": 0.2
+  },
+  {
+    "id": 76,
+    "name": "Pundut Nasi",
+    "calories": 104.0,
+    "proteins": 1.9,
+    "fat": 4.1
+  },
+  {
+    "id": 77,
+    "name": "Sate Bandeng",
+    "calories": 283.0,
+    "proteins": 12.1,
+    "fat": 16.8
+  },
+  {
+    "id": 78,
+    "name": "Sate Kulit",
+    "calories": 110.0,
+    "proteins": 15.5,
+    "fat": 0.5
+  },
+  {
+    "id": 79,
+    "name": "Sate Usus",
+    "calories": 126.7,
+    "proteins": 14.0,
+    "fat": 7.3
+  },
+  {
+    "id": 80,
+    "name": "Sayur Asem",
+    "calories": 29.0,
+    "proteins": 0.7,
+    "fat": 0.6
+  },
+  {
+    "id": 81,
+    "name": "Sayur Garu",
+    "calories": 178.0,
+    "proteins": 2.6,
+    "fat": 13.9
+  },
+  {
+    "id": 82,
+    "name": "Sayur Lebui",
+    "calories": 64.0,
+    "proteins": 2.1,
+    "fat": 0.6
+  },
+  {
+    "id": 83,
+    "name": "Sayur Ndusuk",
+    "calories": 49.0,
+    "proteins": 3.1,
+    "fat": 2.5
+  },
+  {
+    "id": 84,
+    "name": "Sayur Sop",
+    "calories": 27.0,
+    "proteins": 1.3,
+    "fat": 2.0
+  },
+  {
+    "id": 85,
+    "name": "Suweg Kukus",
+    "calories": 90.0,
+    "proteins": 1.5,
+    "fat": 0.1
+  },
+  { "id": 86, "name": "Tahu", "calories": 68.0, "proteins": 7.8, "fat": 4.6 },
+  {
+    "id": 87,
+    "name": "Tahu Goreng",
+    "calories": 115.0,
+    "proteins": 9.7,
+    "fat": 8.5
+  },
+  {
+    "id": 88,
+    "name": "Tahu Telur",
+    "calories": 328.0,
+    "proteins": 12.6,
+    "fat": 19.9
+  },
+  {
+    "id": 89,
+    "name": "Tales Kukus",
+    "calories": 120.0,
+    "proteins": 1.5,
+    "fat": 0.3
+  },
+  {
+    "id": 90,
+    "name": "Taoge Goreng",
+    "calories": 88.0,
+    "proteins": 3.2,
+    "fat": 2.1
+  },
+  {
+    "id": 91,
+    "name": "Telur Ayam",
+    "calories": 162.0,
+    "proteins": 12.8,
+    "fat": 11.5
+  },
+  {
+    "id": 92,
+    "name": "Telur Penyu",
+    "calories": 144.0,
+    "proteins": 12.0,
+    "fat": 10.2
+  },
+  {
+    "id": 93,
+    "name": "Tempe Gembus",
+    "calories": 73.0,
+    "proteins": 5.7,
+    "fat": 1.3
+  },
+  {
+    "id": 94,
+    "name": "Tempe Goreng",
+    "calories": 328.0,
+    "proteins": 18.4,
+    "fat": 23.2
+  },
+  {
+    "id": 95,
+    "name": "Tempe Sayur",
+    "calories": 240.0,
+    "proteins": 6.0,
+    "fat": 2.7
+  },
+  {
+    "id": 96,
+    "name": "Tepung Ikan",
+    "calories": 316.0,
+    "proteins": 60.1,
+    "fat": 6.5
+  },
+  {
+    "id": 97,
+    "name": "Terong Kukus",
+    "calories": 23.0,
+    "proteins": 1.8,
+    "fat": 0.1
+  },
+  {
+    "id": 98,
+    "name": "Toge Goreng",
+    "calories": 93.6,
+    "proteins": 4.4,
+    "fat": 1.8
+  },
+  {
+    "id": 99,
+    "name": "Wortel Kukus",
+    "calories": 37.0,
+    "proteins": 1.0,
+    "fat": 0.6
+  },
+  {
+    "id": 100,
+    "name": "Wortel Rebus",
+    "calories": 28.0,
+    "proteins": 0.7,
+    "fat": 0.5
+  }
+]
