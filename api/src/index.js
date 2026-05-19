@@ -18,6 +18,8 @@ import HealthSummaryRoute from "./routes/health-summary.route.js";
 import HealthRecommendationRoute from "./routes/health-recommendation.route.js";
 import PredictRoute from "./routes/screening.route.js";
 import DailyTrackingRoute from "./routes/daily-tracking.route.js";
+import FoodRoute from "./routes/food.route.js";
+import TestRoute from "./routes/test.route.js";
 
 const app = express();
 
@@ -54,6 +56,8 @@ app.use("/api/health-recommendations", HealthRecommendationRoute);
 app.use("/api/predict", PredictRoute);
 app.use("/api/health-goals", HealthGoalRoute);
 app.use("/api/daily-trackings", DailyTrackingRoute);
+app.use("/api/foods", FoodRoute);
+app.use("/api/tests", TestRoute);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
