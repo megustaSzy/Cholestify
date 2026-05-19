@@ -1,4 +1,3 @@
-// src/services/auth.service.js
 import { prisma } from "../lib/prisma.js";
 import { checkConflictUser } from "../utils/check-conflict-user.util.js";
 import { emailExist } from "../utils/email-exist.util.js";

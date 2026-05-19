@@ -1,4 +1,3 @@
-// src/middlewares/validation-query.middleware.js
 import { BadRequestError } from "../exceptions/BadRequestError.js";
 
 export const validateQuery = (schema) => {

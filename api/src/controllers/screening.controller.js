@@ -18,7 +18,6 @@ export const ScreeningController = {
         throw new BadRequestError(MESSAGE.SCREENING.IMAGE_REQUIRED);
       }
 
-      // 1. Predict via FastAPI
       const aiResponse = await predictEyeScan(
         req.file.buffer,
         req.file.originalname,
@@ -26,10 +25,8 @@ export const ScreeningController = {
 
       const result = aiResponse.result;
 
-      // 2. Upload ke Cloudinary
       const cloudinaryResult = await uploadToCloudinary(req.file.buffer);
 
-      // 3. Simpan ke Database
       const screening = await prisma.screening.create({
         data: {
           userId: req.user.id,
@@ -48,7 +45,6 @@ export const ScreeningController = {
         },
       });
 
-      // 4. Response
       return res.status(HttpStatus.CREATED).json({
         success: true,
         message: MESSAGE.SCREENING.CREATED,

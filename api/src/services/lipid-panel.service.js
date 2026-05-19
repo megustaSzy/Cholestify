@@ -108,7 +108,6 @@ export const LipidPanelService = {
       },
     });
 
-    // Dijalankan di background agar tidak memblokir response API
     HealthRecommendationService.generateFromLipidPanel(
       userId,
       data.id,

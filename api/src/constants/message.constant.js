@@ -85,4 +85,8 @@ export const MESSAGE = {
     NOT_FOUND: "Data daily tracking tidak ditemukan",
     ALREADY_EXISTS: "Anda sudah mengisi daily tracking untuk hari ini",
   },
+
+  FOOD: {
+    FOUND: "Data daftar makanan berhasil diambil",
+  },
 };
