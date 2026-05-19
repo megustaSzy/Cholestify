@@ -6,8 +6,8 @@ export const FoodController = {
   async getFoodsByUserId(req, res, next) {
     try {
       const userId = req.user.id;
-      const { page, limit } = req.query;
-      const result = await FoodService.getFoodsByUserId(userId, page, limit);
+      const { page, limit, search, status } = req.query;
+      const result = await FoodService.getFoodsByUserId(userId, page, limit, search, status);
 
       return res.status(HttpStatus.OK).json({
         success: true,

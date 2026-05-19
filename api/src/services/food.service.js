@@ -8,7 +8,7 @@ import {
 } from "../utils/pagination.util.js";
 
 export const FoodService = {
-  async getFoodsByUserId(userId, pageQuery = 1, limitQuery = 10) {
+  async getFoodsByUserId(userId, pageQuery = 1, limitQuery = 10, search, status) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
     const { page, limit, skip } = getPaginationOptions(pageQuery, limitQuery);
@@ -24,9 +24,28 @@ export const FoodService = {
       currentLdlGroup = latestLipid.ldl > 130 ? "HIGH" : "NORMAL";
     }
 
+    const whereCondition = {};
+
+    if (search) {
+      whereCondition.name = {
+        contains: search,
+        mode: "insensitive",
+      };
+    }
+
+    if (status) {
+      whereCondition.classifications = {
+        some: {
+          ldlGroup: currentLdlGroup,
+          status: status.toUpperCase(),
+        },
+      };
+    }
+
     const [totalItems, foods] = await Promise.all([
-      prisma.food.count(),
+      prisma.food.count({ where: whereCondition }),
       prisma.food.findMany({
+        where: whereCondition,
         skip,
         take: limit,
         include: {
@@ -46,7 +65,11 @@ export const FoodService = {
       }),
     ]);
 
-    const paginationMeta = getPaginationMetadata(page, limit, totalItems);
+    let extraQueries = "";
+    if (search) extraQueries += `&search=${encodeURIComponent(search)}`;
+    if (status) extraQueries += `&status=${encodeURIComponent(status)}`;
+
+    const paginationMeta = getPaginationMetadata(page, limit, totalItems, extraQueries);
 
     const formattedData = foods.map((food) => {
       const classification = food.classifications[0];

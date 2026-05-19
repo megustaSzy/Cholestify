@@ -6,7 +6,7 @@ export const getPaginationOptions = (pageQuery = 1, limitQuery = 10) => {
   return { page, limit, skip };
 };
 
-export const getPaginationMetadata = (page, limit, totalItems) => {
+export const getPaginationMetadata = (page, limit, totalItems, extraQueries = "") => {
   const totalPages = Math.ceil(totalItems / limit);
 
   return {
@@ -14,7 +14,7 @@ export const getPaginationMetadata = (page, limit, totalItems) => {
     limit,
     totalItems,
     totalPages,
-    prev: page > 1 ? `?page=${page - 1}&limit=${limit}` : null,
-    next: page < totalPages ? `?page=${page + 1}&limit=${limit}` : null,
+    prev: page > 1 ? `?page=${page - 1}&limit=${limit}${extraQueries}` : null,
+    next: page < totalPages ? `?page=${page + 1}&limit=${limit}${extraQueries}` : null,
   };
 };
