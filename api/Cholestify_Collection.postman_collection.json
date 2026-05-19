@@ -537,6 +537,82 @@
           }
         }
       ]
+    },
+    {
+      "name": "Food Recommendation",
+      "item": [
+        {
+          "name": "Get Foods with Pagination & Filter",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/foods?page=1&limit=10&search=&status=",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "foods"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": ""
+                },
+                {
+                  "key": "status",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Testing",
+      "item": [
+        {
+          "name": "Test Cloudinary Upload",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/tests/upload",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "tests",
+                "upload"
+              ]
+            }
+          }
+        }
+      ]
     }
   ]
 }
