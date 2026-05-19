@@ -30,6 +30,10 @@ Base URL: `http://localhost:3001`
 | `GET`   | `/api/health-goals/me`      | 🍪   | Ambil riwayat target kesehatan                     |
 | `GET`   | `/api/health-recommendations/overview` | 🍪 | **Widget Overview** — Lipid Panel & Saran Terbaru |
 | `GET`   | `/api/health-recommendations/me` | 🍪 | Ambil riwayat saran kesehatan saja                 |
+| `POST`  | `/api/daily-trackings`      | 🍪   | Catat aktivitas & kalori harian                    |
+| `GET`   | `/api/daily-trackings/history` | 🍪 | Ambil riwayat pencatatan harian                   |
+| `GET`   | `/api/foods`                 | 🍪   | **Rekomendasi Makanan** — Menu diet sesuai LDL    |
+| `POST`  | `/api/tests/upload`          | ❌   | *Testing* — Upload gambar ke Cloudinary            |
 
 > 🍪 = Token dikirim otomatis via HTTP-only Cookie, **tidak perlu set header manual**.
 
@@ -508,6 +512,130 @@ Base URL: `http://localhost:3001`
       "dietaryAdvice": "Batasi asupan makanan berlemak tinggi, gorengan, dan bersantan...",
       "activityAdvice": "Yuk, tingkatkan aktivitas fisik Anda! Mulailah dengan menambahkan 20 hingga 30 menit...",
       "generatedAt": "2023-10-24T10:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+## 📅 Daily Tracking API
+
+Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
+
+### Create Daily Tracking
+**Endpoint:** `POST /api/daily-trackings`
+
+**Deskripsi:** Menyimpan data kalori, protein, durasi olahraga, dan catatan makanan untuk hari ini.
+
+**Body Request:**
+```json
+{
+  "calories": 2000,
+  "protein": 60,
+  "exerciseMins": 45,
+  "foodNotes": "Ayam bakar dan sayur"
+}
+```
+
+**Response (201):**
+```json
+{
+  "success": true,
+  "message": "Daily tracking berhasil ditambahkan",
+  "metadata": { "status": 201 },
+  "data": {
+    "id": 1,
+    "date": "2026-05-18T09:59:09.853Z",
+    "calories": 2000,
+    "protein": 60,
+    "exerciseMins": 45,
+    "foodNotes": "Ayam bakar dan sayur",
+    "createdAt": "2026-05-18T09:59:09.854Z"
+  }
+}
+```
+
+---
+
+### Get My Daily Tracking History
+**Endpoint:** `GET /api/daily-trackings/history`
+
+**Deskripsi:** Mengambil semua riwayat pencatatan harian milik user yang sedang login beserta target goals pada saat itu.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Riwayat daily tracking berhasil diambil",
+  "metadata": { "status": 200 },
+  "data": [
+    {
+      "id": 1,
+      "date": "2026-05-18T09:59:09.853Z",
+      "calories": 2000,
+      "protein": 60,
+      "exerciseMins": 45,
+      "foodNotes": "Ayam bakar dan sayur",
+      "healthGoal": {
+        "targetWeeklyCalories": 15000,
+        "targetExerciseMins": 150
+      }
+    }
+  ]
+}
+```
+
+---
+
+## 🥗 Food Recommendation API
+
+Berisi endpoint untuk mendapatkan rekomendasi dan batasan makanan berdasarkan hasil cek profil lipid (LDL) milik pengguna.
+
+### Get Food List (Paginated)
+**Endpoint:** `GET /api/foods`
+
+**Query Parameters (Opsional):**
+- `page` (number): Halaman yang ingin diambil (default: 1)
+- `limit` (number): Jumlah data per halaman (default: 10)
+
+**Contoh Request:** `GET /api/foods?page=1&limit=10`
+
+**Deskripsi:** Mengambil daftar makanan master beserta klasifikasinya (`OPTIMAL`, `NEUTRAL`, `LIMIT`) yang ditentukan secara dinamis berdasarkan nilai LDL terakhir pengguna.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Data daftar makanan berhasil diambil",
+  "metadata": {
+    "status": 200,
+    "ldlGroup": "NORMAL",
+    "page": 1,
+    "limit": 10,
+    "totalItems": 150,
+    "totalPages": 15,
+    "prev": null,
+    "next": "?page=2&limit=10"
+  },
+  "data": [
+    {
+      "id": 1,
+      "name": "Ampas Tahu",
+      "calories": 414,
+      "proteins": 26.6,
+      "fat": 18.3,
+      "status": "LIMIT",
+      "isRecommended": false
+    },
+    {
+      "id": 2,
+      "name": "Oats (Steel-cut)",
+      "calories": 150,
+      "proteins": 4,
+      "fat": 0.3,
+      "status": "OPTIMAL",
+      "isRecommended": true
     }
   ]
 }
