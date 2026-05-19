@@ -31,7 +31,7 @@ Base URL: `http://localhost:3001`
 | `GET`   | `/api/health-goals/me`      | 🍪   | Ambil riwayat target & saran kesehatan             |
 | `POST`  | `/api/daily-trackings`      | 🍪   | Catat aktivitas & kalori harian                    |
 | `GET`   | `/api/daily-trackings/history` | 🍪 | Ambil riwayat pencatatan harian                   |
-| `GET`   | `/api/foods`                 | 🍪   | **Rekomendasi Makanan** — Menu diet sesuai LDL    |
+| `GET`   | `/api/foods?page=&limit=&search=&status=` | 🍪   | **Rekomendasi Makanan** — Menu diet sesuai LDL    |
 | `POST`  | `/api/tests/upload`          | ❌   | *Testing* — Upload gambar ke Cloudinary            |
 
 > 🍪 = Token dikirim otomatis via HTTP-only Cookie, **tidak perlu set header manual**.
@@ -574,6 +574,13 @@ Berisi endpoint untuk mendapatkan rekomendasi dan batasan makanan berdasarkan ha
 **Contoh Request:** `GET /api/foods?page=1&limit=10&search=ayam&status=OPTIMAL`
 
 **Deskripsi:** Mengambil daftar makanan master beserta klasifikasinya (`OPTIMAL`, `NEUTRAL`, `LIMIT`) yang ditentukan secara dinamis berdasarkan nilai LDL terakhir pengguna.
+
+**Skenario Pengujian Frontend (Best Practices):**
+- **Awal Buka:** `GET /api/foods?page=1&limit=10`
+- **Pencarian Kata:** `GET /api/foods?page=1&limit=10&search=susu` *(setiap user mengetik pencarian baru, paksa reset ke `page=1`)*.
+- **Pindah Halaman:** Gunakan nilai `next` di JSON `metadata`. URL `next` otomatis mengingat query pencarianmu (contoh: `?page=2&limit=10&search=susu`). Jika `next` bernilai `null`, data sudah habis.
+- **Filter Tab Kategori:** `GET /api/foods?page=1&limit=10&status=OPTIMAL` *(setiap pindah tab, paksa reset ke `page=1`)*.
+- **Kombinasi Pencarian & Tab:** `GET /api/foods?page=1&limit=10&search=daging&status=LIMIT`
 
 **Response (200):**
 ```json
