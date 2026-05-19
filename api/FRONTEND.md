@@ -568,8 +568,10 @@ Berisi endpoint untuk mendapatkan rekomendasi dan batasan makanan berdasarkan ha
 **Query Parameters (Opsional):**
 - `page` (number): Halaman yang ingin diambil (default: 1)
 - `limit` (number): Jumlah data per halaman (default: 10)
+- `search` (string): Mencari makanan berdasarkan nama (contoh: "ayam")
+- `status` (string): Filter berdasarkan status makanan (`OPTIMAL`, `NEUTRAL`, `LIMIT`)
 
-**Contoh Request:** `GET /api/foods?page=1&limit=10`
+**Contoh Request:** `GET /api/foods?page=1&limit=10&search=ayam&status=OPTIMAL`
 
 **Deskripsi:** Mengambil daftar makanan master beserta klasifikasinya (`OPTIMAL`, `NEUTRAL`, `LIMIT`) yang ditentukan secara dinamis berdasarkan nilai LDL terakhir pengguna.
 
