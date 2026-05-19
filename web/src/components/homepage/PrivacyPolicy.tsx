@@ -21,7 +21,7 @@ export default function PrivacyPolicyForm() {
   return (
     <div className="flex min-h-svh w-full items-center justify-center bg-slate-50/50 p-6 md:p-10">
       <Card className="w-full max-w-3xl flex flex-col max-h-[85vh] shadow-lg border-gray-200">
-        <CardHeader className="border-b border-gray-100 bg-white rounded-t-xl shrink-0">
+        <CardHeader className="border-b border-gray-100 bg-white rounded-t-xl shrink-0 text-center">
           <CardTitle className="text-2xl font-bold text-blue-600">
             Kebijakan Privasi
           </CardTitle>

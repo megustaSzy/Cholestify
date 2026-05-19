@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { CloudUpload, HelpCircle, ScanEye } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default function EyeScanForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -50,7 +51,7 @@ export default function EyeScanForm() {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
-        <input
+        <Input
           ref={fileInputRef}
           type="file"
           accept="image/jpeg,image/png"

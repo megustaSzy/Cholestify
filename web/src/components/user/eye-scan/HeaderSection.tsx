@@ -15,9 +15,9 @@ export default function Header() {
         </p>
       </div>
       {/* Disclaimer */}
-      <Alert className="border border-red-200 bg-red-50">
-        <AlertTriangle className="h-4 w-4 text-red-500 mt-0.5 shrink-0" />
-        <AlertDescription className="text-red-600 font-medium text-sm">
+      <Alert className="bg-amber-50 border border-amber-200 rounded-2xl">
+        <AlertTriangle className="h-4 w-4 text-amber-800 mt-0.5 shrink-0" />
+        <AlertDescription className="text-amber-600 font-medium text-sm">
           <span className="font-bold">Disclaimer:</span> Analisis ini tidak 100%
           akurat dan hanya berfungsi sebagai alat bantu. Silakan berkonsultasi
           dengan profesional medis untuk diagnosis yang pasti.

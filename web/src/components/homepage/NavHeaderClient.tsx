@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Input } from "../ui/input";
 
 type NavHeaderClientProps = {
   hasToken: boolean;
@@ -26,14 +27,14 @@ export default function NavHeaderClient({ hasToken }: NavHeaderClientProps) {
 
   const menus = [
     { label: "Home", href: "/" },
-    { label: "Food Directory", href: "/user/food-table" },
+    { label: "Food Directory", href: "/food-directory" },
     { label: "Eye Scan", href: "/user/eye-scan" },
     { label: "Calculator HDR", href: "/calculator-hdr" },
   ];
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm group/nav">
-      <input type="checkbox" id="mobile-menu" className="hidden" />
+      <Input type="checkbox" id="mobile-menu" className="hidden" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 h-16 flex items-center justify-between">
         <span className="text-3xl font-extrabold text-blue-600 tracking-tight select-none">
