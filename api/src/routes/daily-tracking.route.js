@@ -1,14 +1,22 @@
-import express from "express";
-import { validate } from "../middlewares/validation.middleware.js";
+import { Router } from "express";
 import { DailyTrackingController } from "../controllers/daily-tracking.controller.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { validate } from "../middlewares/validation.middleware.js";
 import { createDailyTrackingValidation } from "../validations/daily-tracking.validation.js";
-import { requireAuth } from "../middlewares/auth.middleware.js";
 
-const router = express.Router();
+const router = Router();
 
-router.use(requireAuth);
+router.post(
+  "/",
+  authMiddleware,
+  validate(createDailyTrackingValidation),
+  DailyTrackingController.create,
+);
 
-router.post("/", validate(createDailyTrackingValidation), DailyTrackingController.create);
-router.get("/history", DailyTrackingController.getHistoryByUserId);
+router.get(
+  "/history",
+  authMiddleware,
+  DailyTrackingController.getHistoryByUserId,
+);
 
 export default router;
