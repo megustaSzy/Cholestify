@@ -3,6 +3,22 @@ import { MESSAGE } from "../constants/message.constant.js";
 import { FoodService } from "../services/food.service.js";
 
 export const FoodController = {
+  async getPublicFoods(req, res, next) {
+    try {
+      const { page, limit, search } = req.query;
+      const result = await FoodService.getPublicFoods(page, limit, search);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Data makanan publik berhasil diambil",
+        metadata: result.paginationMeta,
+        data: result.foods,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
   async getFoodsByUserId(req, res, next) {
     try {
       const userId = req.user.id;

@@ -31,6 +31,7 @@ Base URL: `http://localhost:3001`
 | `GET`   | `/api/health-goals/me`      | 🍪   | Ambil riwayat target & saran kesehatan             |
 | `POST`  | `/api/daily-trackings`      | 🍪   | Catat aktivitas & kalori harian                    |
 | `GET`   | `/api/daily-trackings/history` | 🍪 | Ambil riwayat pencatatan harian                   |
+| `GET`   | `/api/foods/public`         | ❌   | **Public Foods** — Daftar kalori makanan tanpa auth|
 | `GET`   | `/api/foods?page=&limit=&search=&status=` | 🍪   | **Rekomendasi Makanan** — Menu diet sesuai LDL    |
 | `POST`  | `/api/tests/upload`          | ❌   | *Testing* — Upload gambar ke Cloudinary            |
 
@@ -558,11 +559,48 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 
 ---
 
-## 🥗 Food Recommendation API
+## 🍎 Food Recommendations
 
-Berisi endpoint untuk mendapatkan rekomendasi dan batasan makanan berdasarkan hasil cek profil lipid (LDL) milik pengguna.
+### Get Public Food List (No Auth)
+**Endpoint:** `GET /api/foods/public`
 
-### Get Food List (Paginated)
+**Query Parameters (Opsional):**
+- `page` (number): Halaman (default: 1)
+- `limit` (number): Jumlah data (default: 10)
+- `search` (string): Mencari makanan berdasarkan nama (contoh: "ayam")
+
+**Contoh Request:** `GET /api/foods/public?page=1&limit=10&search=ayam`
+
+**Deskripsi:** Mengambil daftar makanan publik (ID, nama, kalori, protein, lemak) tanpa rekomendasi status. Endpoint ini terbuka bebas tanpa token.
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Data makanan publik berhasil diambil",
+  "metadata": {
+    "page": 1,
+    "limit": 10,
+    "totalItems": 150,
+    "totalPages": 15,
+    "prev": null,
+    "next": "?page=2&limit=10"
+  },
+  "data": [
+    {
+      "id": 1,
+      "name": "Ampas Tahu",
+      "calories": 414,
+      "proteins": 26.6,
+      "fat": 18.3
+    }
+  ]
+}
+```
+
+---
+
+### Get Food Recommendation List (Paginated & Filtered)
 **Endpoint:** `GET /api/foods`
 
 **Query Parameters (Opsional):**
