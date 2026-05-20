@@ -4,6 +4,7 @@ import { FoodController } from "../controllers/food.controller.js";
 
 const router = Router();
 
+router.get("/public", FoodController.getPublicFoods);
 router.get("/", authMiddleware, FoodController.getFoodsByUserId);
 
 export default router;
