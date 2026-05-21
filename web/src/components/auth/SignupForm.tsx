@@ -1,4 +1,6 @@
 "use client";
+
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -28,52 +30,40 @@ import {
   ComboboxItem,
   ComboboxList,
 } from "../ui/combobox";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { Calendar } from "../ui/calendar";
 import { API } from "@/lib/utils";
 import { toast } from "sonner";
 import axios from "axios";
 import { signupSchema } from "@/lib/ValidationAuth";
+import { ArrowLeft, CalendarIcon, Loader2 } from "lucide-react";
+import { Calendar } from "../ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 
-export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+export function SignupForm({
+  className,
+  ...props
+}: React.ComponentProps<"div">) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
-  const [date, setDate] = useState<Date>();
+
   const [error, setError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
 
   const golDarah = [
-    {
-      code: "A",
-      label: "A",
-    },
-    {
-      code: "B",
-      label: "B",
-    },
-    {
-      code: "AB",
-      label: "AB",
-    },
-    {
-      code: "O",
-      label: "O",
-    },
+    { code: "A", label: "A" },
+    { code: "B", label: "B" },
+    { code: "AB", label: "AB" },
+    { code: "O", label: "O" },
   ] as const;
 
   const [form, setForm] = useState({
     nama: "",
     email: "",
     password: "",
-    confirmPassword: "",
     notelp: "",
     golDarah: "",
     dob: "",
   });
-
-  const passwordMatch = form.password === form.confirmPassword;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -87,7 +77,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
 
     setForm(updatedForm);
 
-    // realtime validation
     const result = signupSchema.safeParse(updatedForm);
 
     if (!result.success) {
@@ -96,7 +85,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       result.error.issues.forEach((issue) => {
         const field = issue.path[0] as string;
 
-        // ambil error pertama
         if (!fieldErrors[field]) {
           fieldErrors[field] = issue.message;
         }
@@ -136,33 +124,6 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
       toast.error(message);
       return;
     }
-    // validasi FE
-    // if (form.password !== form.confirmPassword) {
-    //   const message = "Password dan konfirmasi password tidak sama";
-    //   // console.log("VALIDATION FAILED:", message);
-    //   setError(message);
-    //   toast.error(message);
-    //   return;
-    // }
-
-    // if (form.password.length < 8) {
-    //   const message = "Password minimal 8 karakter";
-    //   // console.log("VALIDATION FAILED:", message);
-    //   setError(message);
-    //   toast.error(message);
-    //   return;
-    // }
-
-    // if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/.test(form.password)) {
-    //   const message =
-    //     "Password harus mengandung huruf besar, huruf kecil, angka, dan simbol";
-    //   // console.log("VALIDATION FAILED:", message);
-    //   setError(message);
-    //   toast.error(message);
-    //   return;
-    // }
-
-    // console.log("All validations passed, sending API request...");
 
     try {
       setLoading(true);
@@ -172,7 +133,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         email: form.email,
         password: form.password,
         notelp: form.notelp,
-        ...(date && { dob: date.toISOString().split("T")[0] }),
+        ...(form.dob && { dob: form.dob }),
         ...(form.golDarah && { bloodType: form.golDarah }),
       });
 
@@ -185,22 +146,23 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         nama: "",
         email: "",
         password: "",
-        confirmPassword: "",
         notelp: "",
         golDarah: "",
         dob: "",
       });
-      // redirect setelah sukses
+
       toast.success("Registrasi berhasil, silakan login");
       router.replace("/login");
     } catch (err) {
       console.error("API error:", err);
+
       if (axios.isAxiosError(err)) {
         const msg = err.response?.data?.message || "Registrasi gagal";
         setError(msg);
         toast.error(msg);
         return;
       }
+
       setError("Terjadi kesalahan");
       toast.error("Terjadi kesalahan");
     } finally {
@@ -209,190 +171,308 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   };
 
   return (
-    <Card {...props}>
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-semibold text-blue-600">
-          Registrasi Akun
-        </CardTitle>
-        <CardDescription>Daftarkan Akun Anda Sebelum Login</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit}>
-          <FieldGroup>
+    <section className={cn("w-full max-w-2xl mx-auto", className)} {...props}>
+      <Card className="w-full shadow-lg border border-slate-200 py-4 rounded-2xl">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold text-slate-900">
+            Registrasi
+          </CardTitle>
+
+          <CardDescription className="text-slate-600">
+            Daftarkan akun Anda sebelum login
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent className="pt-4 pb-4">
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-2 gap-3"
+            aria-busy={loading}
+          >
+            {/* ERROR */}
             {error && (
-              <p className="mb-4 rounded-md bg-red-50 px-4 py-2 text-sm text-red-600 border border-red-200">
-                {error}
-              </p>
-            )}
-            <Field>
-              <FieldLabel htmlFor="nama">Nama Lengkap</FieldLabel>
-              <Input
-                id="nama"
-                type="text"
-                placeholder="John Doe"
-                value={form.nama}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                required
-              />
-              {touched.nama && errors.nama && (
-                <p className="text-xs text-red-500 mt-1">{errors.nama}</p>
-              )}
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                value={form.email}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                required
-              />
-              {touched.email && errors.email && (
-                <p className="text-xs text-red-500 mt-1">{errors.email}</p>
-              )}
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="notelp">No Telepon</FieldLabel>
-              <Input
-                id="notelp"
-                type="tel"
-                placeholder="08xxxxxxxxxx"
-                maxLength={13}
-                minLength={10}
-                value={form.notelp}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                required
-              />
-              {touched.notelp && errors.notelp && (
-                <p className="text-xs text-red-500 mt-1">{errors.notelp}</p>
-              )}
-            </Field>
-            <Field className="grid grid-cols-2">
-              <FieldLabel htmlFor="tanggalLahir">Tanggal Lahir</FieldLabel>
-              <Popover open={open} onOpenChange={setOpen}>
-                <PopoverTrigger
-                  render={
-                    <Button
-                      variant="outline"
-                      id="tanggalLahir"
-                      className="w-32 justify-between bg-white hover:bg-white"
-                    >
-                      <span className={date ? "" : "text-gray-500"}>
-                        {date
-                          ? date.toISOString().split("T")[0]
-                          : "Pilih Tanggal"}
-                      </span>
-                    </Button>
-                  }
-                ></PopoverTrigger>
-                <PopoverContent className="w-auto overflow-hidden p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    captionLayout="dropdown"
-                    disabled={{ after: new Date() }}
-                    onSelect={(date) => {
-                      setDate(date);
-                      setOpen(false);
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-              <FieldLabel htmlFor="golDarah">Gol. Darah</FieldLabel>
-              <Combobox
-                items={golDarah}
-                value={form.golDarah}
-                onValueChange={(val) =>
-                  setForm((prev) => ({ ...prev, golDarah: val as string }))
-                }
+              <div
+                className="
+                  col-span-2
+                  rounded-md border border-red-200
+                  bg-red-50 px-3 py-2
+                  text-sm text-red-700
+                  flex items-center gap-2
+                "
               >
-                <ComboboxInput placeholder="Pilih Gol. Darah" />
-                <ComboboxContent>
-                  <ComboboxEmpty>Golongan Darah Tidak DItemukan.</ComboboxEmpty>
-                  <ComboboxList>
-                    {golDarah.map((item) => (
-                      <ComboboxItem key={item.code} value={item.label}>
-                        {item.label}
-                      </ComboboxItem>
-                    ))}
-                  </ComboboxList>
-                </ComboboxContent>
-              </Combobox>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <HidePasswordInput
-                id="password"
-                placeholder="••••••••"
-                minLength={8}
-                value={form.password}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                required
-              />
-              <div className="flex items-center justify-between">
-                <FieldDescription>Minimal 8 karakter</FieldDescription>
-                {errors.password && touched.password && (
-                  <p className="text-xs text-red-500 mt-1">{errors.password}</p>
-                )}
+                <span>⚠️</span>
+                <span>{error}</span>
               </div>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="confirmPassword">
-                Konfirmasi Password
-              </FieldLabel>
-              <HidePasswordInput
-                id="confirmPassword"
-                placeholder="••••••••"
-                minLength={8}
-                value={form.confirmPassword}
-                onChange={handleChange}
-                required
-              />
-              <div className="flex items-center justify-between">
-                <FieldDescription>
-                  Masukkan Ulang Password Anda.
-                </FieldDescription>
-                {!passwordMatch && form.confirmPassword && (
-                  <p className="text-xs text-red-500 mt-1 px-2">
-                    Password tidak sama
-                  </p>
-                )}
-              </div>
-            </Field>
+            )}
+
+            {/* NAMA + EMAIL */}
             <FieldGroup>
               <Field>
-                <Button
-                  className="bg-blue-600 hover:bg-blue-700 text-white border-none"
-                  type="submit"
-                  disabled={loading}
+                <FieldLabel
+                  htmlFor="nama"
+                  className="text-sm font-semibold text-slate-700"
                 >
-                  Daftar
-                </Button>
-                <FieldSeparator className="my-2 [&>span]:bg-card">
-                  Atau
-                </FieldSeparator>
-                <Button
-                  className="hover:bg-gray-200"
-                  variant="outline"
-                  type="button"
-                  onClick={handleGoogleSignup}
+                  Nama Lengkap
+                </FieldLabel>
+                <Input
+                  id="nama"
+                  type="text"
+                  placeholder="John Doe"
+                  value={form.nama}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
                   disabled={loading}
-                >
-                  Daftar Menggunakan Google
-                </Button>
-                <FieldDescription className="px-6 text-center">
-                  Sudah Punya Akun? <Link href="/login">Login Disini</Link>
-                </FieldDescription>
+                  required
+                />
+                {touched.nama && errors.nama && (
+                  <p className="text-sm text-red-600 mt-1">{errors.nama}</p>
+                )}
               </Field>
             </FieldGroup>
-          </FieldGroup>
-        </form>
-      </CardContent>
-    </Card>
+
+            <FieldGroup>
+              <Field>
+                <FieldLabel
+                  htmlFor="email"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Email
+                </FieldLabel>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="email@example.com"
+                  value={form.email}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  disabled={loading}
+                  required
+                />
+                {touched.email && errors.email && (
+                  <p className="text-sm text-red-600 mt-1">{errors.email}</p>
+                )}
+              </Field>
+            </FieldGroup>
+
+            {/* PASSWORD + NOTELP */}
+            <FieldGroup>
+              <Field>
+                <FieldLabel
+                  htmlFor="password"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  Password
+                </FieldLabel>
+                <HidePasswordInput
+                  id="password"
+                  placeholder="••••••••"
+                  minLength={8}
+                  value={form.password}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  disabled={loading}
+                  required
+                />
+                <div className="flex items-center justify-between">
+                  <FieldDescription>Minimal 8 karakter</FieldDescription>
+                  {errors.password && touched.password && (
+                    <p className="text-xs text-red-500 mt-1">
+                      {errors.password}
+                    </p>
+                  )}
+                </div>
+              </Field>
+            </FieldGroup>
+
+            <FieldGroup>
+              <Field>
+                <FieldLabel
+                  htmlFor="notelp"
+                  className="text-sm font-semibold text-slate-700"
+                >
+                  No Telepon
+                </FieldLabel>
+                <Input
+                  id="notelp"
+                  type="tel"
+                  placeholder="08xxxxxxxxxx"
+                  maxLength={13}
+                  minLength={10}
+                  value={form.notelp}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  disabled={loading}
+                  required
+                />
+                {touched.notelp && errors.notelp && (
+                  <p className="text-sm text-red-600 mt-1">{errors.notelp}</p>
+                )}
+              </Field>
+            </FieldGroup>
+
+            {/* TANGGAL LAHIR + GOL DARAH */}
+            <FieldGroup>
+              <Field>
+                <FieldLabel className="text-sm font-semibold text-slate-700">
+                  Tanggal Lahir
+                </FieldLabel>
+                <Popover>
+                  <PopoverTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        type="button"
+                        disabled={loading}
+                        className="
+              w-full justify-start
+              bg-white hover:bg-slate-50
+              border-slate-300
+              text-slate-700 font-normal cursor-pointer
+            "
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4 text-slate-400" />
+                        <span
+                          className={
+                            form.dob ? "text-slate-700" : "text-slate-400"
+                          }
+                        >
+                          {form.dob
+                            ? new Date(form.dob).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })
+                            : "Pilih Tanggal"}
+                        </span>
+                      </Button>
+                    }
+                  />
+                  <PopoverContent
+                    className="w-auto overflow-hidden p-0"
+                    align="start"
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={form.dob ? new Date(form.dob) : undefined}
+                      captionLayout="dropdown"
+                      disabled={{ after: new Date() }}
+                      onSelect={(date) => {
+                        setForm((prev) => ({
+                          ...prev,
+                          dob: date ? date.toISOString().split("T")[0] : "",
+                        }));
+                        setTouched((prev) => ({ ...prev, dob: true }));
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
+                {touched.dob && errors.dob && (
+                  <p className="text-sm text-red-600 mt-1">{errors.dob}</p>
+                )}
+              </Field>
+            </FieldGroup>
+
+            <FieldGroup>
+              <Field>
+                <FieldLabel className="text-sm font-semibold text-slate-700">
+                  Golongan Darah
+                </FieldLabel>
+                <Combobox
+                  items={golDarah}
+                  value={form.golDarah}
+                  onValueChange={(val) =>
+                    setForm((prev) => ({ ...prev, golDarah: val as string }))
+                  }
+                >
+                  <ComboboxInput placeholder="Pilih Gol. Darah" />
+                  <ComboboxContent>
+                    <ComboboxEmpty>
+                      Golongan Darah Tidak Ditemukan.
+                    </ComboboxEmpty>
+                    <ComboboxList>
+                      {golDarah.map((item) => (
+                        <ComboboxItem key={item.code} value={item.label}>
+                          {item.label}
+                        </ComboboxItem>
+                      ))}
+                    </ComboboxList>
+                  </ComboboxContent>
+                </Combobox>
+              </Field>
+            </FieldGroup>
+
+            {/* REGISTER BUTTON */}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="col-span-2
+                w-full mt-2
+                bg-blue-600 hover:bg-blue-700
+                text-white font-medium cursor-pointer
+              "
+            >
+              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {loading ? "Loading..." : "Daftar"}
+            </Button>
+
+            {/* SEPARATOR */}
+            <FieldSeparator className="col-span-2 my-2 [&>span]:bg-card">
+              Atau
+            </FieldSeparator>
+
+            {/* GOOGLE SIGNUP */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleGoogleSignup}
+              disabled={loading}
+              className="col-span-2
+                w-full
+                border border-slate-300
+                bg-white
+                hover:bg-slate-50
+                text-slate-700
+                font-medium cursor-pointer
+              "
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 48 48"
+                className="mr-2 h-5 w-5"
+              >
+                <path
+                  fill="#FFC107"
+                  d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 3l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"
+                />
+                <path
+                  fill="#FF3D00"
+                  d="M6.3 14.7l6.6 4.8C14.7 16 19 12 24 12c3 0 5.7 1.1 7.8 3l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"
+                />
+                <path
+                  fill="#4CAF50"
+                  d="M24 44c5.2 0 10-2 13.5-5.3l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.5 5C9.5 39.5 16.2 44 24 44z"
+                />
+                <path
+                  fill="#1976D2"
+                  d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.1-3.3 5.5-6 7l6.2 5.2C39.2 36.7 44 31 44 24c0-1.3-.1-2.3-.4-3.5z"
+                />
+              </svg>
+              Daftar Menggunakan Google
+            </Button>
+
+            {/* LOGIN */}
+            <div className="col-span-2 text-center text-sm text-neutral-600">
+              Sudah punya akun?{" "}
+              <Link
+                href="/login"
+                className="text-blue-600 hover:text-blue-700 hover:underline"
+              >
+                Login
+              </Link>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </section>
   );
 }
