@@ -1,8 +1,10 @@
 "use client";
 
+import type { ReactNode } from "react";
 import {
   Activity,
   AlertTriangle,
+  CalendarDays,
   Dumbbell,
   Flame,
   NotebookText,
@@ -42,20 +44,19 @@ type SummaryCardProps = {
   title: string;
   value: string;
   description: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
 };
 
 type LogMetricCardProps = {
   label: string;
   value: string;
   description: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   progress?: number;
 };
 
-const formatNumber = (value?: number) => {
+const formatNumber = (value?: number | null) => {
   if (typeof value !== "number" || Number.isNaN(value)) return "-";
-
   return value.toLocaleString("id-ID");
 };
 
@@ -78,31 +79,81 @@ const getAverage = (values: number[]) => {
   if (values.length === 0) return 0;
 
   const total = values.reduce((sum, value) => sum + value, 0);
-
   return Math.round(total / values.length);
 };
 
 const getProgress = (value: number, target?: number) => {
   if (!target || target <= 0) return 0;
-
   return Math.min(100, Math.round((value / target) * 100));
 };
 
-function SummaryCard({ title, value, description, icon }: SummaryCardProps) {
+const getProgressColor = (progress?: number) => {
+  if (typeof progress !== "number") return "bg-gray-300";
+  if (progress >= 100) return "bg-emerald-500";
+  if (progress >= 70) return "bg-blue-600";
+  return "bg-amber-500";
+};
+
+function PageState({
+  variant = "default",
+  title,
+  description,
+}: {
+  variant?: "default" | "error";
+  title: string;
+  description: string;
+}) {
   return (
-    <Card className="rounded-xl border-gray-200 bg-white shadow-sm">
-      <CardContent className="flex items-center gap-4 p-5">
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-          {icon}
+    <Card
+      className={`rounded-3xl shadow-sm ${
+        variant === "error"
+          ? "border-red-200 bg-red-50"
+          : "border-gray-200 bg-white"
+      }`}
+    >
+      <CardContent className="flex flex-col items-center justify-center px-6 py-12 text-center">
+        <div
+          className={`mb-4 flex size-12 items-center justify-center rounded-2xl ${
+            variant === "error"
+              ? "bg-red-100 text-red-600"
+              : "bg-blue-50 text-blue-600"
+          }`}
+        >
+          <AlertTriangle className="size-6" />
         </div>
 
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {title}
-          </p>
-          <p className="mt-1 text-2xl font-bold text-gray-950">{value}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+        <h3 className="text-base font-semibold text-gray-950">{title}</h3>
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+          {description}
+        </p>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SummaryCard({ title, value, description, icon }: SummaryCardProps) {
+  return (
+    <Card className="rounded-3xl border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              {title}
+            </p>
+
+            <p className="mt-2 truncate text-2xl font-bold tracking-tight text-gray-950">
+              {value}
+            </p>
+          </div>
+
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+            {icon}
+          </div>
         </div>
+
+        <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+          {description}
+        </p>
       </CardContent>
     </Card>
   );
@@ -116,24 +167,37 @@ function LogMetricCard({
   progress,
 }: LogMetricCardProps) {
   return (
-    <div className="rounded-lg border bg-[#f7f7fb] px-4 py-3">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-700">
-          {icon}
-          {label}
+    <div className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-white text-blue-600 shadow-sm">
+            {icon}
+          </div>
+
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-gray-600">
+              {label}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          </div>
         </div>
 
-        <p className="text-sm font-bold text-gray-950">{value}</p>
+        <p className="shrink-0 text-sm font-bold text-gray-950">{value}</p>
       </div>
 
-      <p className="text-xs text-muted-foreground">{description}</p>
-
       {typeof progress === "number" && (
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-gray-200">
-          <div
-            className="h-full rounded-full bg-blue-600"
-            style={{ width: `${progress}%` }}
-          />
+        <div className="mt-4">
+          <div className="mb-1.5 flex items-center justify-between text-xs">
+            <span className="text-muted-foreground">Progress</span>
+            <span className="font-semibold text-gray-700">{progress}%</span>
+          </div>
+
+          <div className="h-2 overflow-hidden rounded-full bg-gray-200">
+            <div
+              className={`h-full rounded-full ${getProgressColor(progress)}`}
+              style={{ width: `${progress}%` }}
+            />
+          </div>
         </div>
       )}
     </div>
@@ -175,45 +239,86 @@ export default function ActivityTargetHistoryContent() {
   );
 
   const caloriesAdherence = getProgress(averageCalories, dailyCaloriesTarget);
-
   const exerciseAdherence = getProgress(averageExercise, dailyExerciseTarget);
 
+  const latestCaloriesProgress = latestLog
+    ? getProgress(latestLog.calories, dailyCaloriesTarget)
+    : 0;
+
+  const latestExerciseProgress = latestLog
+    ? getProgress(latestLog.exerciseMins, dailyExerciseTarget)
+    : 0;
+
+  const latestTargetMet =
+    latestCaloriesProgress >= 90 && latestExerciseProgress >= 100;
+
   return (
-    <section className="w-full">
-      <header className="mb-5">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-950">
-          History Target Aktivitas
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Tinjau kembali hasil aktivitas harian historis Anda dibandingkan
-          dengan tujuan klinis yang telah ditetapkan untuk melacak kepatuhan
-          jangka panjang.
-        </p>
-      </header>
+    <section className="w-full space-y-6">
+      <div className="rounded-3xl border border-gray-200 bg-gradient-to-br from-white via-white to-blue-50/70 px-5 py-4 shadow-sm sm:px-6 sm:py-5">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
+              History Target Aktivitas
+            </h1>
+
+            <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+              Tinjau kembali aktivitas harian Anda seperti kalori, protein,
+              olahraga, dan catatan makanan untuk melihat konsistensi terhadap
+              target kesehatan.
+            </p>
+          </div>
+
+          {latestLog && (
+            <div className="rounded-2xl border border-white/70 bg-white/80 p-4 shadow-sm backdrop-blur">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Log Terakhir
+              </p>
+
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                <Badge
+                  variant="outline"
+                  className={
+                    latestTargetMet
+                      ? "rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700"
+                      : "rounded-full border-amber-200 bg-amber-50 px-3 py-1 text-amber-700"
+                  }
+                >
+                  {latestTargetMet ? "Target Met" : "Need Attention"}
+                </Badge>
+
+                <span className="text-xs text-muted-foreground">
+                  {formatDate(latestLog.date)}
+                </span>
+              </div>
+
+              <p className="mt-2 max-w-xs text-xs leading-relaxed text-muted-foreground">
+                Status ini dihitung dari progres kalori dan olahraga harian
+                dibandingkan target yang tersedia.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
 
       {isLoading ? (
-        <Card className="rounded-xl border-gray-200 bg-white shadow-sm">
-          <CardContent className="p-6 text-sm text-muted-foreground">
-            Memuat riwayat daily tracking...
-          </CardContent>
-        </Card>
+        <PageState
+          title="Memuat riwayat daily tracking..."
+          description="Mohon tunggu sebentar, data aktivitas Anda sedang dimuat."
+        />
       ) : error ? (
-        <Card className="rounded-xl border-red-200 bg-red-50 shadow-sm">
-          <CardContent className="flex items-start gap-3 p-6 text-sm text-red-600">
-            <AlertTriangle className="mt-0.5 size-4 shrink-0" />
-            Gagal mengambil riwayat daily tracking.
-          </CardContent>
-        </Card>
+        <PageState
+          variant="error"
+          title="Gagal mengambil riwayat daily tracking"
+          description="Pastikan sesi login masih valid, lalu coba muat ulang halaman."
+        />
       ) : sortedLogs.length === 0 ? (
-        <Card className="rounded-xl border-gray-200 bg-white shadow-sm">
-          <CardContent className="p-6 text-sm text-muted-foreground">
-            Belum ada riwayat daily tracking. Silakan isi daily tracking
-            terlebih dahulu.
-          </CardContent>
-        </Card>
+        <PageState
+          title="Belum ada riwayat daily tracking"
+          description="Silakan isi daily tracking terlebih dahulu agar histori aktivitas dapat ditampilkan."
+        />
       ) : (
-        <div className="flex flex-col gap-5">
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+        <>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
             <SummaryCard
               title="Average Calories"
               value={`${formatNumber(averageCalories)} kcal`}
@@ -222,7 +327,7 @@ export default function ActivityTargetHistoryContent() {
                   ? `${caloriesAdherence}% dari target harian ${formatNumber(
                       dailyCaloriesTarget,
                     )} kcal`
-                  : "Target kalori belum tersedia"
+                  : "Target kalori harian belum tersedia"
               }
               icon={<Flame className="size-5" />}
             />
@@ -242,7 +347,7 @@ export default function ActivityTargetHistoryContent() {
                   ? `${exerciseAdherence}% dari target harian ${formatNumber(
                       dailyExerciseTarget,
                     )} min`
-                  : "Target olahraga belum tersedia"
+                  : "Target olahraga harian belum tersedia"
               }
               icon={<Dumbbell className="size-5" />}
             />
@@ -269,20 +374,29 @@ export default function ActivityTargetHistoryContent() {
             />
           </div>
 
-          <Card className="overflow-hidden rounded-xl border-gray-200 bg-white shadow-sm">
-            <CardHeader className="border-b bg-[#f7f7fb] px-5 py-4">
-              <div>
-                <h2 className="text-sm font-semibold text-gray-950">
-                  Daily Logs
-                </h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  History daily tracking
-                </p>
+          <Card className="overflow-hidden rounded-3xl border-gray-200 bg-white shadow-sm">
+            <CardHeader className="border-b bg-gray-50/80 px-5 py-5 sm:px-6">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-lg font-bold tracking-tight text-gray-950">
+                    Daily Logs
+                  </h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Riwayat daily tracking berdasarkan tanggal terbaru.
+                  </p>
+                </div>
+
+                <Badge
+                  variant="outline"
+                  className="w-fit rounded-full border-blue-200 bg-blue-50 px-3 py-1 text-blue-700"
+                >
+                  {sortedLogs.length} data
+                </Badge>
               </div>
             </CardHeader>
 
-            <CardContent className="p-0">
-              {sortedLogs.map((log, index) => {
+            <CardContent className="divide-y p-0">
+              {sortedLogs.map((log) => {
                 const logDailyCaloriesTarget = log.healthGoal
                   ? Math.round(log.healthGoal.targetWeeklyCalories / 7)
                   : dailyCaloriesTarget;
@@ -305,32 +419,37 @@ export default function ActivityTargetHistoryContent() {
                   caloriesProgress >= 90 && exerciseProgress >= 100;
 
                 return (
-                  <div
-                    key={log.id}
-                    className={
-                      index !== sortedLogs.length - 1
-                        ? "border-b px-5 py-6"
-                        : "px-5 py-6"
-                    }
-                  >
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                      <h3 className="text-sm font-bold text-gray-950">
-                        {formatDate(log.date)}
-                      </h3>
+                  <article key={log.id} className="px-4 py-5 sm:px-6">
+                    <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-start gap-3">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
+                          <CalendarDays className="size-5" />
+                        </div>
+
+                        <div>
+                          <h3 className="text-sm font-bold text-gray-950 sm:text-base">
+                            {formatDate(log.date)}
+                          </h3>
+                          <p className="mt-1 text-xs text-muted-foreground">
+                            Kalori, protein, olahraga, target, dan catatan
+                            makanan.
+                          </p>
+                        </div>
+                      </div>
 
                       <Badge
-                        variant="secondary"
+                        variant="outline"
                         className={
                           isTargetMet
-                            ? "bg-emerald-50 text-emerald-700 hover:bg-emerald-50"
-                            : "bg-red-50 text-red-600 hover:bg-red-50"
+                            ? "w-fit rounded-full border-emerald-200 bg-emerald-50 px-3 py-1 text-emerald-700"
+                            : "w-fit rounded-full border-amber-200 bg-amber-50 px-3 py-1 text-amber-700"
                         }
                       >
-                        {isTargetMet ? "Target Met" : "Missed Target"}
+                        {isTargetMet ? "Target Met" : "Need Attention"}
                       </Badge>
                     </div>
 
-                    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                       <LogMetricCard
                         label="Calories"
                         value={`${formatNumber(log.calories)} kcal`}
@@ -342,14 +461,14 @@ export default function ActivityTargetHistoryContent() {
                             : "Target kalori belum tersedia"
                         }
                         progress={caloriesProgress}
-                        icon={<Flame className="size-3.5" />}
+                        icon={<Flame className="size-4" />}
                       />
 
                       <LogMetricCard
                         label="Protein"
                         value={`${formatNumber(log.protein)} g`}
                         description="Jumlah protein yang tercatat"
-                        icon={<Utensils className="size-3.5" />}
+                        icon={<Utensils className="size-4" />}
                       />
 
                       <LogMetricCard
@@ -363,7 +482,7 @@ export default function ActivityTargetHistoryContent() {
                             : "Target exercise belum tersedia"
                         }
                         progress={exerciseProgress}
-                        icon={<Dumbbell className="size-3.5" />}
+                        icon={<Dumbbell className="size-4" />}
                       />
 
                       <LogMetricCard
@@ -372,7 +491,7 @@ export default function ActivityTargetHistoryContent() {
                           log.healthGoal?.targetWeeklyCalories,
                         )} kcal`}
                         description="Target kalori mingguan"
-                        icon={<Target className="size-3.5" />}
+                        icon={<Target className="size-4" />}
                       />
 
                       <LogMetricCard
@@ -381,7 +500,7 @@ export default function ActivityTargetHistoryContent() {
                           log.healthGoal?.targetExerciseMins,
                         )} min`}
                         description="Target exercise dari health goal"
-                        icon={<Activity className="size-3.5" />}
+                        icon={<Activity className="size-4" />}
                       />
 
                       <LogMetricCard
@@ -390,15 +509,15 @@ export default function ActivityTargetHistoryContent() {
                         description={
                           log.foodNotes || "Tidak ada catatan makanan."
                         }
-                        icon={<NotebookText className="size-3.5" />}
+                        icon={<NotebookText className="size-4" />}
                       />
                     </div>
-                  </div>
+                  </article>
                 );
               })}
             </CardContent>
           </Card>
-        </div>
+        </>
       )}
     </section>
   );
