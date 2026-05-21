@@ -352,235 +352,220 @@ export default function ReportsContent() {
     lipidHistory.length === 0;
 
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as CSSProperties
-      }
-    >
-      <AppSidebar variant="inset" />
+    <div className="flex min-h-screen flex-1 flex-col bg-gray-50">
+      <main className="flex w-full flex-1 flex-col gap-5 px-4 py-6 sm:px-6 lg:mx-auto lg:max-w-5xl lg:px-0">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Laporan Kesehatan
+          </h1>
+          <p className="mt-1 text-sm text-gray-500">
+            Laporan dan jalur perawatan personal Anda
+          </p>
+        </div>
 
-      <SidebarInset>
-        <SiteHeader />
+        {isLoading && (
+          <div className="rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-500">
+            Memuat laporan kesehatan...
+          </div>
+        )}
 
-        <div className="flex min-h-screen flex-1 flex-col bg-gray-50">
-          <main className="flex w-full flex-1 flex-col gap-5 px-4 py-6 sm:px-6 lg:mx-auto lg:max-w-5xl lg:px-0">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                Laporan Kesehatan
-              </h1>
-              <p className="mt-1 text-sm text-gray-500">
-                Laporan dan jalur perawatan personal Anda
-              </p>
+        {hasAuthError && (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-600">
+            Sesi login berakhir. Silakan login ulang.
+          </div>
+        )}
+
+        {!hasAuthError && hasUnknownError && (
+          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-600">
+            Gagal mengambil data laporan. Silakan coba lagi.
+          </div>
+        )}
+
+        {!hasAuthError &&
+          !hasUnknownError &&
+          (hasNoDataError || isReportDataEmpty) && (
+            <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm text-blue-700">
+              Buatlah terlebih dahulu metric data diri anda.
             </div>
+          )}
 
-            {isLoading && (
-              <div className="rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-500">
-                Memuat laporan kesehatan...
-              </div>
-            )}
-
-            {hasAuthError && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-600">
-                Sesi login berakhir. Silakan login ulang.
-              </div>
-            )}
-
-            {!hasAuthError && hasUnknownError && (
-              <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-600">
-                Gagal mengambil data laporan. Silakan coba lagi.
-              </div>
-            )}
-
-            {!hasAuthError &&
-              !hasUnknownError &&
-              (hasNoDataError || isReportDataEmpty) && (
-                <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm text-blue-700">
-                  Buatlah terlebih dahulu metric data diri anda.
+        <div className="flex flex-col gap-4 lg:flex-row">
+          <Card className="flex-1 border-gray-200 bg-white py-5">
+            <CardHeader className="px-5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <CardTitle>Lipid Panel Overview</CardTitle>
+                  <CardDescription className="text-xs">
+                    Berdasarkan catatan {formatDate(lipidPanel?.date)}
+                  </CardDescription>
                 </div>
-              )}
 
-            <div className="flex flex-col gap-4 lg:flex-row">
-              <Card className="flex-1 border-gray-200 bg-white py-5">
-                <CardHeader className="px-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <CardTitle>Lipid Panel Overview</CardTitle>
-                      <CardDescription className="text-xs">
-                        Berdasarkan catatan {formatDate(lipidPanel?.date)}
-                      </CardDescription>
+                <Badge
+                  variant="outline"
+                  className={`text-[10px] ${lipidStatus.className}`}
+                >
+                  {lipidStatus.isWarning && <AlertTriangle size={10} />}
+                  {lipidStatus.label}
+                </Badge>
+              </div>
+            </CardHeader>
+
+            <CardContent className="px-5">
+              <CholesterolGauge value={lipidPanel?.totalCholesterol} />
+
+              <div className="mt-2 grid grid-cols-3 gap-3 px-2">
+                <div>
+                  <p className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
+                    LDL (BAD)
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {toDisplayNumber(lipidPanel?.ldl)}{" "}
+                    <span className="text-sm font-normal text-gray-400">
+                      mg/dL
+                    </span>
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
+                    HDL (GOOD)
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {toDisplayNumber(lipidPanel?.hdl)}{" "}
+                    <span className="text-sm font-normal text-gray-400">
+                      mg/dL
+                    </span>
+                  </p>
+                </div>
+
+                <div>
+                  <p className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
+                    TRIGLYCERIDES
+                  </p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {toDisplayNumber(lipidPanel?.triglycerides)}{" "}
+                    <span className="text-sm font-normal text-gray-400">
+                      mg/dL
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-3 flex justify-end">
+                <TrendingUp
+                  size={22}
+                  className={
+                    lipidStatus.isWarning ? "text-red-400" : "text-blue-500"
+                  }
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <HealthAdviceCard
+            dietaryAdvice={recommendation?.dietaryAdvice}
+            activityAdvice={recommendation?.activityAdvice}
+          />
+        </div>
+
+        <div className="flex flex-col gap-4 lg:flex-row">
+          <Card className="flex-1 border-gray-200 bg-white py-5">
+            <CardHeader className="px-5">
+              <div className="flex items-center justify-between">
+                <CardTitle>Laporan Clinical</CardTitle>
+                <Button variant="link" size="sm" className="font-semibold">
+                  VIEW ALL
+                </Button>
+              </div>
+            </CardHeader>
+
+            <CardContent className="flex flex-col gap-3 px-5">
+              {lipidHistory.length > 0 ? (
+                lipidHistory.slice(0, 3).map((report) => (
+                  <div
+                    key={report.id ?? report.date}
+                    className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3 transition-colors hover:bg-gray-100"
+                  >
+                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-red-100">
+                      <FileText size={16} className="text-red-500" />
                     </div>
 
-                    <Badge
-                      variant="outline"
-                      className={`text-[10px] ${lipidStatus.className}`}
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold text-gray-800">
+                        Lipid Panel Report
+                      </p>
+                      <p className="mt-0.5 text-[10px] text-gray-400">
+                        {formatDate(report.date)} / Total{" "}
+                        {toDisplayNumber(report.totalCholesterol)} mg/dL
+                      </p>
+                    </div>
+
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      disabled
+                      className="flex-shrink-0 text-blue-500 hover:text-blue-700"
+                      aria-label="Download belum tersedia"
+                      title="Endpoint download report belum tersedia"
                     >
-                      {lipidStatus.isWarning && <AlertTriangle size={10} />}
-                      {lipidStatus.label}
-                    </Badge>
-                  </div>
-                </CardHeader>
-
-                <CardContent className="px-5">
-                  <CholesterolGauge value={lipidPanel?.totalCholesterol} />
-
-                  <div className="mt-2 grid grid-cols-3 gap-3 px-2">
-                    <div>
-                      <p className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
-                        LDL (BAD)
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {toDisplayNumber(lipidPanel?.ldl)}{" "}
-                        <span className="text-sm font-normal text-gray-400">
-                          mg/dL
-                        </span>
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
-                        HDL (GOOD)
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {toDisplayNumber(lipidPanel?.hdl)}{" "}
-                        <span className="text-sm font-normal text-gray-400">
-                          mg/dL
-                        </span>
-                      </p>
-                    </div>
-
-                    <div>
-                      <p className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
-                        TRIGLYCERIDES
-                      </p>
-                      <p className="text-2xl font-bold text-gray-900">
-                        {toDisplayNumber(lipidPanel?.triglycerides)}{" "}
-                        <span className="text-sm font-normal text-gray-400">
-                          mg/dL
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-3 flex justify-end">
-                    <TrendingUp
-                      size={22}
-                      className={
-                        lipidStatus.isWarning ? "text-red-400" : "text-blue-500"
-                      }
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <HealthAdviceCard
-                dietaryAdvice={recommendation?.dietaryAdvice}
-                activityAdvice={recommendation?.activityAdvice}
-              />
-            </div>
-
-            <div className="flex flex-col gap-4 lg:flex-row">
-              <Card className="flex-1 border-gray-200 bg-white py-5">
-                <CardHeader className="px-5">
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Laporan Clinical</CardTitle>
-                    <Button variant="link" size="sm" className="font-semibold">
-                      VIEW ALL
+                      <Download size={16} />
                     </Button>
                   </div>
-                </CardHeader>
+                ))
+              ) : (
+                <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm text-gray-500">
+                  Belum ada riwayat lipid panel.
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
-                <CardContent className="flex flex-col gap-3 px-5">
-                  {lipidHistory.length > 0 ? (
-                    lipidHistory.slice(0, 3).map((report) => (
-                      <div
-                        key={report.id ?? report.date}
-                        className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3 transition-colors hover:bg-gray-100"
-                      >
-                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-red-100">
-                          <FileText size={16} className="text-red-500" />
-                        </div>
+          <Card className="flex-1 border-gray-200 bg-white py-5">
+            <CardHeader className="px-5">
+              <CardTitle>Biometrics Terkini</CardTitle>
+            </CardHeader>
 
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-semibold text-gray-800">
-                            Lipid Panel Report
-                          </p>
-                          <p className="mt-0.5 text-[10px] text-gray-400">
-                            {formatDate(report.date)} / Total{" "}
-                            {toDisplayNumber(report.totalCholesterol)} mg/dL
-                          </p>
-                        </div>
+            <CardContent className="px-5">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <BiometricsItem
+                  icon={<Ruler size={15} />}
+                  label="Height"
+                  value={toDisplayNumber(biometrics?.height)}
+                  unit="cm"
+                />
 
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          disabled
-                          className="flex-shrink-0 text-blue-500 hover:text-blue-700"
-                          aria-label="Download belum tersedia"
-                          title="Endpoint download report belum tersedia"
-                        >
-                          <Download size={16} />
-                        </Button>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm text-gray-500">
-                      Belum ada riwayat lipid panel.
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+                <BiometricsItem
+                  icon={<Weight size={15} />}
+                  label="Weight"
+                  value={toDisplayNumber(biometrics?.weight)}
+                  unit="kg"
+                />
 
-              <Card className="flex-1 border-gray-200 bg-white py-5">
-                <CardHeader className="px-5">
-                  <CardTitle>Biometrics Terkini</CardTitle>
-                </CardHeader>
+                <BiometricsItem
+                  icon={<Activity size={15} />}
+                  label="BMI"
+                  value={toDisplayNumber(biometrics?.bmi, 1)}
+                  unit=""
+                />
+              </div>
 
-                <CardContent className="px-5">
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <BiometricsItem
-                      icon={<Ruler size={15} />}
-                      label="Height"
-                      value={toDisplayNumber(biometrics?.height)}
-                      unit="cm"
-                    />
-
-                    <BiometricsItem
-                      icon={<Weight size={15} />}
-                      label="Weight"
-                      value={toDisplayNumber(biometrics?.weight)}
-                      unit="kg"
-                    />
-
-                    <BiometricsItem
-                      icon={<Activity size={15} />}
-                      label="BMI"
-                      value={toDisplayNumber(biometrics?.bmi, 1)}
-                      unit=""
-                    />
-                  </div>
-
-                  <div className="mt-4 flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-gray-600">
-                    <Info
-                      size={15}
-                      className="mt-0.5 flex-shrink-0 text-blue-500"
-                    />
-                    <span>
-                      Status BMI:{" "}
-                      <span className="font-semibold text-blue-700">
-                        {biometrics?.bmiCategory ?? "Belum tersedia"}
-                      </span>
-                      . Data ini diambil dari ringkasan kesehatan terbaru.
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </main>
+              <div className="mt-4 flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-gray-600">
+                <Info
+                  size={15}
+                  className="mt-0.5 flex-shrink-0 text-blue-500"
+                />
+                <span>
+                  Status BMI:{" "}
+                  <span className="font-semibold text-blue-700">
+                    {biometrics?.bmiCategory ?? "Belum tersedia"}
+                  </span>
+                  . Data ini diambil dari ringkasan kesehatan terbaru.
+                </span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+      </main>
+    </div>
   );
 }
