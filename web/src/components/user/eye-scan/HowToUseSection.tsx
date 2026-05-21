@@ -1,4 +1,4 @@
-import { Camera, Eye, EyeOff, Hand, Lightbulb, Upload } from "lucide-react";
+import { Camera, Eye, EyeOff, Hand, Image, Lightbulb, Upload } from "lucide-react";
 import React from "react";
 
 export default function HowToUse() {
@@ -10,7 +10,7 @@ export default function HowToUse() {
         "Ambil foto mata Anda dengan resolusi tinggi dan tidak berbayang untuk hasil maksimal",
     },
     {
-      icon: <Eye className="w-6 h-6 text-blue-600" />,
+      icon: <Image className="w-6 h-6 text-blue-600" />,
       title: "Lihat Kualitas Gambar",
       description:
         "Pastikan kembali mata iris dan kornea terlihat jelas tanpa silau untuk deteksi yang akurat.",
@@ -37,7 +37,7 @@ export default function HowToUse() {
         "Pegang ponsel Anda sejajar dengan mata dan tahan sebisa mungkin agar tidak bergerak",
     },
     {
-      icon: <EyeOff className="w-6 h-6 text-blue-600" />,
+      icon: <Eye className="w-6 h-6 text-blue-600" />,
       title: "Lepas Accessories",
       description:
         "Lepaskan kacamata atau lensa kontak berwarna sebelum memulai pemindaian kamera.",
