@@ -1,9 +1,9 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import ActivityTargetHistoryContent from "@/components/user/history/ActivityTarget";
+import LipidPanelHistoryContent from "@/components/user/history/LipidPanel";
 
-export default function ActivityTargetHistoryPage() {
+export default function LipidPanelHistoryPage() {
   return (
     <SidebarProvider
       style={
@@ -19,9 +19,8 @@ export default function ActivityTargetHistoryPage() {
         <SiteHeader />
         <main className="flex flex-1 flex-col bg-[#faf9ff]">
           <div className="w-full px-6 py-6 lg:px-8 xl:px-10">
-            <div className="w-full max-w-none">
-              <ActivityTargetHistoryContent />
-            </div>
+            <div className="w-full max-w-none"></div>
+            <LipidPanelHistoryContent />
           </div>
         </main>
       </SidebarInset>
