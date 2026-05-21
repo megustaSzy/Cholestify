@@ -1,7 +1,7 @@
 import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import ActivityTarget from "@/components/user/history/ActivityTarget";
+import ActivityTargetHistoryContent from "@/components/user/history/ActivityTarget";
 
 export default function ActivityTargetHistoryPage() {
   return (
@@ -20,7 +20,7 @@ export default function ActivityTargetHistoryPage() {
         <main className="flex flex-1 flex-col bg-[#faf9ff]">
           <div className="w-full px-6 py-6 lg:px-8 xl:px-10">
             <div className="w-full max-w-none">
-              <ActivityTarget/>
+              <ActivityTargetHistoryContent />
             </div>
           </div>
         </main>
