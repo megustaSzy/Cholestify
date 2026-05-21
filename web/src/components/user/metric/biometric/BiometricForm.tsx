@@ -144,15 +144,13 @@ export default function LogBiometricsContent() {
 
   return (
     <Card className="shadow-sm border border-border w-full mx-auto max-w-3xl">
-      <CardHeader className="pb-4">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary">
-            <RulerIcon className="w-5 h-5" />
-          </div>
+      <CardHeader>
+        <div className="flex w-full justify-center text-center">
           <div>
             <CardTitle className="text-lg font-semibold">
               Ukuran Fisik
             </CardTitle>
+
             <CardDescription className="text-xs text-muted-foreground">
               Masukkan tinggi dan berat badan Anda
             </CardDescription>
