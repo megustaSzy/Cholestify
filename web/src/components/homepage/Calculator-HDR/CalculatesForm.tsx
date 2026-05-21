@@ -1,22 +1,52 @@
 "use client";
 
-import React from "react";
-import { API } from "@/lib/utils";
 import { useState } from "react";
+import axios from "axios";
+import { CalendarDays, HeartPulse, UserRound, Activity } from "lucide-react";
+
+import { API } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+type Gender = "MALE" | "FEMALE";
+type ActivityLevel = "INACTIVE" | "LIGHTLY_ACTIVE" | "ACTIVE" | "ATHLETE";
+
+const genderLabel: Record<Gender, string> = {
+  MALE: "Pria",
+  FEMALE: "Wanita",
+};
+
+const activityLabel: Record<ActivityLevel, string> = {
+  INACTIVE: "Tidak aktif",
+  LIGHTLY_ACTIVE: "Ringan",
+  ACTIVE: "Aktif",
+  ATHLETE: "Atlet",
+};
 
 type CalculatePayload = {
   dob: string;
-  gender: "MALE" | "FEMALE";
+  gender: Gender;
   restingHeartRate: number;
-  activityLevel: "INACTIVE" | "LIGHTLY_ACTIVE" | "ACTIVE" | "ATHLETE";
+  activityLevel: ActivityLevel;
 };
 
-type CalculateResult = {
-  minHeartRate?: number;
-  maxHeartRate?: number;
-  zone?: string;
-  recommendation?: string;
-};
+// type CalculateResult = {
+//   minHeartRate?: number;
+//   maxHeartRate?: number;
+//   zone?: string;
+//   recommendation?: string;
+// };
+
+type CalculateResult = Record<string, unknown>;
 
 type CalculateResponse = {
   success: boolean;
@@ -27,271 +57,268 @@ type CalculateResponse = {
   data?: CalculateResult;
 };
 
+type ApiErrorResponse = {
+  success?: boolean;
+  message?: string;
+  metadata?: {
+    status?: number;
+  };
+};
+
+const getApiErrorMessage = (error: unknown) => {
+  if (axios.isAxiosError<ApiErrorResponse>(error)) {
+    return (
+      error.response?.data?.message ?? "Terjadi kesalahan saat menghitung."
+    );
+  }
+
+  return "Terjadi kesalahan saat menghitung.";
+};
+
+const formatResultLabel = (key: string) => {
+  const labels: Record<string, string> = {
+    minHeartRate: "Minimum Heart Rate",
+    maxHeartRate: "Maximum Heart Rate",
+    zone: "Zona",
+    recommendation: "Rekomendasi",
+    restingHeartRate: "Resting Heart Rate",
+    activityLevel: "Aktivitas",
+    gender: "Jenis Kelamin",
+    age: "Usia",
+  };
+
+  return (
+    labels[key] ??
+    key
+      .replace(/([A-Z])/g, " $1")
+      .replace(/_/g, " ")
+      .replace(/^./, (char) => char.toUpperCase())
+  );
+};
+
+const formatResultValue = (value: unknown) => {
+  if (value === null || value === undefined || value === "") return "-";
+
+  if (typeof value === "string" || typeof value === "number") {
+    return String(value);
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Ya" : "Tidak";
+  }
+
+  return JSON.stringify(value);
+};
+
 export default function CalculatesForm() {
   const [tanggalLahir, setTanggalLahir] = useState("");
-  const [jenisKelamin, setJenisKelamin] = useState("");
+  const [jenisKelamin, setJenisKelamin] = useState<Gender | "">("");
   const [rhr, setRhr] = useState("");
-  const [aktivitas, setAktivitas] = useState("");
-  const [hasil, setHasil] = useState("");
+  const [aktivitas, setAktivitas] = useState<ActivityLevel | "">("");
   const [loading, setLoading] = useState(false);
+  // const [hasil, setHasil] = useState("");
+  const [message, setMessage] = useState("");
+  const [calculationResult, setCalculationResult] =
+    useState<CalculateResult | null>(null);
+
+  const handleGenderChange = (value: Gender | "" | null) => {
+    if (value === "MALE" || value === "FEMALE") {
+      setJenisKelamin(value);
+    }
+  };
+
+  const handleActivityChange = (value: ActivityLevel | "" | null) => {
+    if (
+      value === "INACTIVE" ||
+      value === "LIGHTLY_ACTIVE" ||
+      value === "ACTIVE" ||
+      value === "ATHLETE"
+    ) {
+      setAktivitas(value);
+    }
+  };
 
   const handleHitung = async () => {
+    setMessage("");
+    setCalculationResult(null);
+
     if (!tanggalLahir || !jenisKelamin || !rhr || !aktivitas) {
-      setHasil("Harap lengkapi semua field terlebih dahulu.");
+      setMessage("Harap lengkapi semua field terlebih dahulu.");
       return;
     }
 
     const rhrNum = Number(rhr);
 
     if (Number.isNaN(rhrNum) || rhrNum < 30 || rhrNum > 220) {
-      setHasil("Nilai RHR tidak valid. Masukkan antara 30-220 bpm.");
+      setMessage("Nilai RHR tidak valid. Masukkan antara 30-220 bpm.");
       return;
     }
 
     const payload: CalculatePayload = {
       dob: tanggalLahir,
-      gender: jenisKelamin as CalculatePayload["gender"],
+      gender: jenisKelamin,
       restingHeartRate: rhrNum,
-      activityLevel: aktivitas as CalculatePayload["activityLevel"],
+      activityLevel: aktivitas,
     };
 
     try {
       setLoading(true);
-      setHasil("");
 
       const response = await API.post<CalculateResponse>(
         "/calculates",
         payload,
       );
 
-      const result = response.data.data;
-
-      if (!result) {
-        setHasil(response.data.message || "Perhitungan berhasil.");
-        return;
-      }
-
-      setHasil(
-        [
-          response.data.message,
-          typeof result.minHeartRate === "number" &&
-          typeof result.maxHeartRate === "number"
-            ? `Target detak jantung: ${result.minHeartRate} - ${result.maxHeartRate} bpm`
-            : null,
-          result.zone ? `Zona: ${result.zone}` : null,
-          result.recommendation
-            ? `Rekomendasi: ${result.recommendation}`
-            : null,
-        ]
-          .filter(Boolean)
-          .join("\n"),
-      );
+      setMessage(response.data.message || "Perhitungan berhasil.");
+      setCalculationResult(response.data.data ?? null);
     } catch (error) {
       console.error(error);
-      setHasil("Terjadi kesalahan saat mengambil hasil dari backend.");
+      setMessage("Terjadi kesalahan saat mengambil hasil dari backend.");
+      setCalculationResult(null);
     } finally {
       setLoading(false);
     }
   };
+
   return (
-    <>
-      {/* Calculator Card */}
-      <div className="lg:w-[420px] flex-shrink-0">
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-8">
-          <h2 className="text-xl font-semibold text-gray-800 mb-6">
-            Kalkulator Detak Jantung Istirahat (RHR)
-          </h2>
+    <Card className="w-full lg:w-[420px] flex-shrink-0 rounded-2xl border border-gray-200 shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-xl font-semibold text-gray-800">
+          Kalkulator Detak Jantung Istirahat (RHR)
+        </CardTitle>
+      </CardHeader>
 
-          <div className="space-y-4">
-            {/* Tanggal Lahir */}
-            <div className="flex items-center gap-3 border border-gray-300 rounded-lg px-4 py-3 focus-within:border-[#1E90FF] transition-colors">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                className="text-[#1E90FF] flex-shrink-0"
-              >
-                <rect
-                  x="2"
-                  y="4"
-                  width="16"
-                  height="14"
-                  rx="2"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                />
-                <path d="M2 8h16" stroke="currentColor" strokeWidth="1.5" />
-                <path
-                  d="M6 2v4M14 2v4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <input
-                type="date"
-                value={tanggalLahir}
-                onChange={(e) => setTanggalLahir(e.target.value)}
-                className="flex-1 outline-none text-sm text-gray-500 bg-transparent"
-                placeholder="dd/mm/yyyy"
-              />
-            </div>
-
-            {/* Jenis Kelamin */}
-            <div className="flex items-center gap-3 border border-gray-300 rounded-lg px-4 py-3 focus-within:border-[#1E90FF] transition-colors">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                className="text-[#1E90FF] flex-shrink-0"
-              >
-                <circle
-                  cx="8"
-                  cy="12"
-                  r="4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                />
-                <path
-                  d="M8 8V4M8 4H11M8 4L11 7"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-                <circle
-                  cx="13"
-                  cy="7"
-                  r="3"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                />
-              </svg>
-              <select
-                value={jenisKelamin}
-                onChange={(e) => setJenisKelamin(e.target.value)}
-                className="flex-1 outline-none text-sm text-gray-500 bg-transparent appearance-none cursor-pointer"
-              >
-                <option value="" disabled>
-                  Pilih Jenis Kelamin
-                </option>
-                <option value="MALE">Pria</option>
-                <option value="FEMALE">Wanita</option>
-              </select>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-                className="text-gray-400 flex-shrink-0"
-              >
-                <path
-                  d="M3 5l4 4 4-4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-
-            {/* RHR Input */}
-            <div className="flex items-center gap-3 border border-gray-300 rounded-lg px-4 py-3 focus-within:border-[#1E90FF] transition-colors">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                className="text-[#1E90FF] flex-shrink-0"
-              >
-                <path
-                  d="M2 10h3l2-4 3 8 2-5 1.5 1H18"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <input
-                type="number"
-                value={rhr}
-                onChange={(e) => setRhr(e.target.value)}
-                className="flex-1 outline-none text-sm text-gray-500 bg-transparent"
-                placeholder="Detak Jantung Istirahat (bpm)"
-                min={20}
-                max={220}
-              />
-            </div>
-
-            {/* Aktivitas Harian */}
-            <div className="flex items-center gap-3 border border-gray-300 rounded-lg px-4 py-3 focus-within:border-[#1E90FF] transition-colors">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-                className="text-[#1E90FF] flex-shrink-0"
-              >
-                <circle
-                  cx="10"
-                  cy="5"
-                  r="2"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                />
-                <path
-                  d="M7 9l-2 6M13 9l2 6M7 9h6M8 12l4 0"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-              <select
-                value={aktivitas}
-                onChange={(e) => setAktivitas(e.target.value)}
-                className="flex-1 outline-none text-sm text-gray-500 bg-transparent appearance-none cursor-pointer"
-              >
-                <option value="" disabled>
-                  Aktivitas Harian
-                </option>
-                <option value="INACTIVE">Sedentary (Tidak aktif)</option>
-                <option value="LIGHTLY_ACTIVE">Ringan (1-3 hari/minggu)</option>
-                <option value="ACTIVE">Sedang (3-5 hari/minggu)</option>
-                <option value="ATHLETE">Aktif (6-7 hari/minggu)</option>
-                <option value="INTENSE_ACTIVITY">Sangat Aktif (Atlet)</option>
-              </select>
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-                className="text-gray-400 flex-shrink-0"
-              >
-                <path
-                  d="M3 5l4 4 4-4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </div>
-
-            {/* Hitung Button */}
-            <button
-              onClick={handleHitung}
-              disabled={loading}
-              className="w-full bg-[#1E90FF] hover:bg-[#1478e0] text-white font-semibold py-3 rounded-lg transition-colors text-sm"
-            >
-              {loading ? "Menghitung..." : "Hitung"}
-            </button>
-
-            {/* Result */}
-            <div className="whitespace-pre-line border border-gray-200 rounded-lg px-4 py-3 min-h-[44px] text-sm text-gray-600 bg-gray-50">
-              {hasil}
-            </div>
+      <CardContent className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="dob">Tanggal Lahir</Label>
+          <div className="relative">
+            <CalendarDays className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-blue-500" />
+            <Input
+              id="dob"
+              type="date"
+              value={tanggalLahir}
+              onChange={(event) => setTanggalLahir(event.target.value)}
+              className="h-11 pl-10"
+            />
           </div>
         </div>
-      </div>
-    </>
+
+        <div className="space-y-2">
+          <Label>Jenis Kelamin</Label>
+          <div className="relative">
+            <UserRound className="absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-blue-500" />
+            <Select value={jenisKelamin} onValueChange={handleGenderChange}>
+              <SelectTrigger className="h-11 pl-10">
+                <span
+                  className={
+                    jenisKelamin ? "text-gray-950" : "text-muted-foreground"
+                  }
+                >
+                  {jenisKelamin
+                    ? genderLabel[jenisKelamin]
+                    : "Pilih Jenis Kelamin"}
+                </span>
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="MALE">Pria</SelectItem>
+                <SelectItem value="FEMALE">Wanita</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="rhr">Detak Jantung Istirahat</Label>
+          <div className="relative">
+            <HeartPulse className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-blue-500" />
+            <Input
+              id="rhr"
+              type="number"
+              value={rhr}
+              onChange={(event) => setRhr(event.target.value)}
+              placeholder="Detak Jantung Istirahat (bpm)"
+              min={30}
+              max={220}
+              className="h-11 pl-10"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Aktivitas Harian</Label>
+          <div className="relative">
+            <Activity className="absolute left-3 top-1/2 z-10 size-4 -translate-y-1/2 text-blue-500" />
+            <Select value={aktivitas} onValueChange={handleActivityChange}>
+              <SelectTrigger className="h-11 pl-10">
+                <span
+                  className={
+                    aktivitas ? "text-gray-950" : "text-muted-foreground"
+                  }
+                >
+                  {aktivitas ? activityLabel[aktivitas] : "Aktivitas Harian"}
+                </span>
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="INACTIVE">Tidak aktif</SelectItem>
+                <SelectItem value="LIGHTLY_ACTIVE">Ringan</SelectItem>
+                <SelectItem value="ACTIVE">Aktif</SelectItem>
+                <SelectItem value="ATHLETE">Atlet</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          onClick={handleHitung}
+          disabled={loading}
+          className="h-11 w-full bg-blue-600 font-semibold text-white hover:bg-blue-700"
+        >
+          {loading ? "Menghitung..." : "Hitung"}
+        </Button>
+
+        {/* <div className="min-h-[72px] whitespace-pre-line rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-relaxed text-gray-600">
+          {hasil || "Hasil perhitungan akan muncul di sini."}
+        </div> */}
+        <div className="rounded-lg border border-gray-200 bg-gray-50 px-4 py-4 text-sm text-gray-700">
+          {message || calculationResult ? (
+            <div className="space-y-4">
+              {message && (
+                <p className="font-medium text-gray-900">{message}</p>
+              )}
+
+              {calculationResult &&
+              Object.keys(calculationResult).length > 0 ? (
+                <div className="grid gap-3">
+                  {Object.entries(calculationResult).map(([key, value]) => (
+                    <div
+                      key={key}
+                      className="rounded-md border border-gray-200 bg-white px-3 py-2"
+                    >
+                      <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                        {formatResultLabel(key)}
+                      </p>
+                      <p className="mt-1 font-semibold text-gray-900">
+                        {formatResultValue(value)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Detail hasil belum dikirim dari backend.
+                </p>
+              )}
+            </div>
+          ) : (
+            <span className="text-muted-foreground">
+              Hasil perhitungan akan muncul di sini.
+            </span>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

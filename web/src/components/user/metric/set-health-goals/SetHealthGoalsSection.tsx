@@ -140,22 +140,38 @@ function GoalCard({
   category,
   values,
   onChange,
+  className,
 }: {
   category: GoalCategory;
   values: FieldValues;
   onChange: (id: GoalFieldId, value: string) => void;
+  className?: string;
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-5 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-center gap-2">
+    <div
+      className={cn(
+        "rounded-2xl border border-border bg-card p-5 flex flex-col gap-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md",
+        className,
+      )}
+    >
+      <div className="flex items-start gap-3">
         <span
-          className={cn("flex items-center justify-center", category.iconBg)}
+          className={cn(
+            "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted",
+            category.iconBg,
+          )}
         >
           {category.icon}
         </span>
-        <h3 className="font-semibold text-base text-foreground">
-          {category.title}
-        </h3>
+
+        <div>
+          <h3 className="font-semibold text-base text-foreground">
+            {category.title}
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            Atur target sesuai kebutuhan kesehatan Anda.
+          </p>
+        </div>
       </div>
 
       {category.fields.map((field) => (
@@ -167,7 +183,7 @@ function GoalCard({
             {field.label}
           </Label>
 
-          <div className="flex items-center rounded-lg border border-input bg-background overflow-hidden focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-0">
+          <div className="flex items-center rounded-xl border border-input bg-background overflow-hidden focus-within:ring-2 focus-within:ring-ring">
             <Input
               id={field.id}
               type="number"
@@ -179,19 +195,17 @@ function GoalCard({
                 onChange(field.id, e.target.value);
               }}
               onKeyDown={(e) => {
-                if (e.key === "-") {
-                  e.preventDefault();
-                }
+                if (e.key === "-") e.preventDefault();
               }}
-              className="border-0 shadow-none focus-visible:ring-0 bg-transparent text-sm flex-1 min-w-0"
+              className="h-11 border-0 bg-transparent shadow-none focus-visible:ring-0 text-sm"
             />
 
-            <span className="px-3 text-xs text-muted-foreground whitespace-nowrap border-l border-input h-full flex items-center bg-muted/40">
+            <span className="h-11 px-3 text-xs text-muted-foreground whitespace-nowrap border-l border-input flex items-center bg-muted/40">
               {field.unit}
             </span>
           </div>
 
-          <p className="text-xs text-muted-foreground leading-snug">
+          <p className="text-xs text-muted-foreground leading-relaxed">
             {field.hint}
           </p>
         </div>
@@ -262,37 +276,50 @@ export default function SetHealthGoalsSection() {
     isInvalidNumber(fieldValues.exercise_mins);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex-1 rounded-2xl border border-border bg-card shadow-sm p-5 md:p-7 flex flex-col gap-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {goalCategories.map((cat) => (
-            <GoalCard
-              key={cat.key}
-              category={cat}
-              values={fieldValues}
-              onChange={handleChange}
-            />
-          ))}
+    <div className="w-full">
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="border-b border-border px-5 py-5 md:px-6">
+          <h2 className="text-base font-semibold text-foreground">
+            Target Kesehatan
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Masukkan target utama yang akan digunakan untuk pemantauan kesehatan
+            harian Anda.
+          </p>
         </div>
 
-        {errorMessage && (
-          <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
-            {errorMessage}
-          </p>
-        )}
+        <div className="p-5 md:p-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {goalCategories.map((cat, index) => (
+              <GoalCard
+                key={cat.key}
+                category={cat}
+                values={fieldValues}
+                onChange={handleChange}
+                className={cn(index === 2 && "md:col-span-2 xl:col-span-1")}
+              />
+            ))}
+          </div>
 
-        {successMessage && (
-          <p className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-600">
-            {successMessage}
-          </p>
-        )}
+          {errorMessage && (
+            <p className="mt-5 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+              {errorMessage}
+            </p>
+          )}
 
-        <div className="flex justify-end gap-3">
+          {successMessage && (
+            <p className="mt-5 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-600">
+              {successMessage}
+            </p>
+          )}
+        </div>
+
+        <div className="flex flex-col-reverse gap-3 border-t border-border bg-muted/20 px-5 py-4 sm:flex-row sm:justify-end md:px-6">
           <Button
             variant="outline"
             onClick={handleCancel}
             disabled={isSubmitting}
-            className="min-w-[90px]"
+            className="w-full sm:w-auto sm:min-w-[90px]"
           >
             Cancel
           </Button>
@@ -300,7 +327,7 @@ export default function SetHealthGoalsSection() {
           <Button
             onClick={handleSave}
             disabled={isSubmitting || isFormInvalid}
-            className="min-w-[110px] bg-blue-600 hover:bg-blue-700"
+            className="w-full bg-blue-600 hover:bg-blue-700 sm:w-auto sm:min-w-[110px]"
           >
             {isSubmitting ? "Saving..." : "Save Goals"}
           </Button>

@@ -117,6 +117,12 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     }));
   };
 
+  const handleGoogleSignup = () => {
+    const baseURL = API.defaults.baseURL ?? "";
+
+    window.location.href = `${baseURL}/auth/google`;
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
@@ -374,6 +380,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                   className="hover:bg-gray-200"
                   variant="outline"
                   type="button"
+                  onClick={handleGoogleSignup}
+                  disabled={loading}
                 >
                   Daftar Menggunakan Google
                 </Button>

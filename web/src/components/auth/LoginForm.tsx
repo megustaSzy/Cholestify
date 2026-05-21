@@ -1,4 +1,5 @@
 "use client";
+
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,22 +21,43 @@ import Link from "next/link";
 import { HidePasswordInput } from "../HidePasswordInput";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import axios from "axios";
 import { API } from "@/lib/utils";
 
-interface ApiError {
-  response: {
-    data: {
-      message: string;
-    };
+type LoginResponse = {
+  success: boolean;
+  message: string;
+  metadata?: {
+    status?: number;
   };
-}
+  data?: {
+    role?: string;
+  };
+};
+
+type ApiErrorResponse = {
+  success?: boolean;
+  message?: string;
+  metadata?: {
+    status?: number;
+  };
+};
+
+const getApiErrorMessage = (error: unknown) => {
+  if (axios.isAxiosError<ApiErrorResponse>(error)) {
+    return error.response?.data?.message ?? "Login gagal";
+  }
+
+  return "Login gagal";
+};
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -44,52 +66,66 @@ export function LoginForm({
     e.preventDefault();
     setError("");
 
-    try {
-      const { data } = await API.post("/auth/login", { identifier: email, password });
-      if (data.success) {
-        const role = data.data?.role;
+    if (!identifier.trim() || !password.trim()) {
+      setError("Email/no telepon dan password wajib diisi.");
+      return;
+    }
 
-        if (role === "USER") {
-          router.replace("/user/dashboard");
-        }
+    try {
+      setIsLoading(true);
+
+      const response = await API.post<LoginResponse>("/auth/login", {
+        identifier: identifier.trim(),
+        password,
+      });
+
+      if (response.data.success) {
+        router.replace("/user/dashboard");
       }
     } catch (err: unknown) {
-      const error = err as ApiError;
-      setError(error.response?.data?.message || "Login gagal");
+      setError(getApiErrorMessage(err));
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleGoogleLogin = () => {
+    const baseURL = API.defaults.baseURL ?? "";
+    window.location.href = `${baseURL}/auth/google`;
+  };
+
   return (
     <section className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className=" text-2xl font-semibold text-blue-600">
+          <CardTitle className="text-2xl font-semibold text-blue-600">
             Login Akun
           </CardTitle>
           <CardDescription>Silahkan Login Akun Anda</CardDescription>
         </CardHeader>
+
         <CardContent>
           <form onSubmit={handleSubmit}>
             <FieldGroup>
-              {/* Error Message */}
               {error && (
                 <div className="p-3 mb-4 text-sm text-red-800 bg-red-100 rounded-lg">
                   {error}
                 </div>
               )}
+
               <Field>
-                <FieldLabel htmlFor="email">Email</FieldLabel>
+                <FieldLabel htmlFor="identifier">Email / No Telepon</FieldLabel>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="m@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  id="identifier"
+                  type="text"
+                  placeholder="Masukkan Email atau No Telepon Anda"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
                   disabled={isLoading}
                   required
                 />
               </Field>
+
               <Field>
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Password</FieldLabel>
@@ -115,7 +151,7 @@ export function LoginForm({
                   type="submit"
                   disabled={isLoading}
                 >
-                  Login
+                  {isLoading ? "Memproses..." : "Login"}
                 </Button>
                 <FieldSeparator className="my-2 [&>span]:bg-card">
                   Atau
@@ -124,6 +160,8 @@ export function LoginForm({
                   className="hover:bg-gray-200"
                   variant="outline"
                   type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={isLoading}
                 >
                   Login Menggunakan Google
                 </Button>
