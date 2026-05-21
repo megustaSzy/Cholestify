@@ -23,6 +23,7 @@ import {
   Eye,
   UtensilsCrossed,
   BarChart,
+  HistoryIcon,
 } from "lucide-react";
 import { NavSecondary } from "./NavSecondary";
 import { logout } from "@/lib/utils";
@@ -95,6 +96,25 @@ const data = {
         {
           title: "Daily Tracking",
           url: "/user/metric/daily-tracking",
+        },
+      ],
+    },
+    {
+      name: "History",
+      // url: "",
+      icon: <HistoryIcon />,
+      items: [
+        {
+          title: "Target Aktifitas",
+          url: "/user/history/activity-target",
+        },
+        {
+          title: "Eye Scan",
+          url: "/user/history/eye-scan",
+        },
+        {
+          title: "Lipid Panel",
+          url: "/user/history/lipid-panel",
         },
       ],
     },
