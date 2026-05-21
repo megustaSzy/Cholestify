@@ -1,16 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  AlertTriangle,
+  CheckCircle2,
+  Minus,
+  Search,
+  TriangleAlert,
+} from "lucide-react";
+
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, Minus, Search, TriangleAlert } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Pagination,
@@ -21,8 +21,16 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { getPaginationItems } from "@/hooks/usePagination";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useFetchListFood } from "@/hooks/useFetchListFood";
+import { getPaginationItems } from "@/hooks/usePagination";
 
 type Food = {
   id: number;
@@ -33,6 +41,61 @@ type Food = {
   status: "OPTIMAL" | "NEUTRAL" | "LIMIT";
   isRecommended: boolean;
 };
+
+type ApiErrorResponse = {
+  success?: boolean;
+  message?: string;
+  metadata?: {
+    status?: number;
+  };
+};
+
+type FoodTableStateProps = {
+  title: string;
+  description: string;
+};
+
+const getFoodErrorState = (error: unknown): FoodTableStateProps => {
+  if (axios.isAxiosError<ApiErrorResponse>(error)) {
+    const status =
+      error.response?.data?.metadata?.status ?? error.response?.status;
+
+    const message = error.response?.data?.message ?? "";
+
+    if (status === 404) {
+      return {
+        title: "Data makanan tidak ditemukan",
+        description: "Belum ada data makanan yang cocok dengan pencarian Anda.",
+      };
+    }
+
+    return {
+      title: "Data makanan gagal dimuat",
+      description: message || "Terjadi kesalahan saat mengambil data makanan.",
+    };
+  }
+
+  return {
+    title: "Data makanan gagal dimuat",
+    description: "Terjadi kesalahan saat mengambil data makanan.",
+  };
+};
+
+function FoodTableState({ title, description }: FoodTableStateProps) {
+  return (
+    <div className="mx-auto flex max-w-md flex-col items-center justify-center py-10 text-center">
+      <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-amber-50">
+        <AlertTriangle className="size-6 text-amber-600" />
+      </div>
+
+      <h3 className="text-base font-semibold text-gray-950">{title}</h3>
+
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        {description}
+      </p>
+    </div>
+  );
+}
 
 export default function FoodDirectoryContent() {
   const [search, setSearch] = useState("");
@@ -49,6 +112,9 @@ export default function FoodDirectoryContent() {
     limit: 10,
     search,
   });
+
+  const foodErrorState = error ? getFoodErrorState(error) : null;
+  const shouldShowPagination = !foodErrorState && foods.length > 0;
 
   const handlePrev = () => {
     if (page > 1) setPage(page - 1);
@@ -143,10 +209,10 @@ export default function FoodDirectoryContent() {
         <Card className="w-full overflow-hidden rounded-2xl border-gray-200 bg-white shadow-sm">
           <CardContent className="p-0">
             <div className="w-full overflow-x-auto pb-2">
-              <Table className="min-w-[560px] table-fixed">
+              <Table className="min-w-[680px] table-fixed">
                 <TableHeader>
                   <TableRow className="bg-[#f7f7fb] hover:bg-[#f7f7fb]">
-                    <TableHead className="h-14 w-[50%] px-3 text-[11px] font-bold uppercase tracking-wide text-gray-950">
+                    <TableHead className="h-14 w-[40%] px-3 text-[11px] font-bold uppercase tracking-wide text-gray-950">
                       Food Item
                     </TableHead>
 
@@ -154,11 +220,11 @@ export default function FoodDirectoryContent() {
                       Calories
                     </TableHead>
 
-                    <TableHead className="h-14 w-[25%] px-3 text-right text-[11px] font-bold uppercase tracking-wide text-gray-950">
+                    <TableHead className="h-14 w-[20%] px-3 text-right text-[11px] font-bold uppercase tracking-wide text-gray-950">
                       Protein (g)
                     </TableHead>
 
-                    <TableHead className="h-14 w-[25%] px-3 text-right text-[11px] font-bold uppercase tracking-wide text-gray-950">
+                    <TableHead className="h-14 w-[20%] px-3 text-right text-[11px] font-bold uppercase tracking-wide text-gray-950">
                       Fat (g)
                     </TableHead>
                   </TableRow>
@@ -174,13 +240,10 @@ export default function FoodDirectoryContent() {
                         Memuat data makanan...
                       </TableCell>
                     </TableRow>
-                  ) : error ? (
+                  ) : foodErrorState ? (
                     <TableRow>
-                      <TableCell
-                        colSpan={4}
-                        className="h-32 text-center text-sm text-red-500"
-                      >
-                        Data Makanan Gagal Dimuat.
+                      <TableCell colSpan={4} className="h-56">
+                        <FoodTableState {...foodErrorState} />
                       </TableCell>
                     </TableRow>
                   ) : foods.length > 0 ? (
@@ -207,11 +270,11 @@ export default function FoodDirectoryContent() {
                     ))
                   ) : (
                     <TableRow>
-                      <TableCell
-                        colSpan={4}
-                        className="h-32 text-center text-sm text-muted-foreground"
-                      >
-                        Data makanan tidak ditemukan.
+                      <TableCell colSpan={4} className="h-56">
+                        <FoodTableState
+                          title="Data makanan tidak ditemukan"
+                          description="Belum ada data makanan yang sesuai dengan pencarian Anda."
+                        />
                       </TableCell>
                     </TableRow>
                   )}
@@ -221,55 +284,57 @@ export default function FoodDirectoryContent() {
           </CardContent>
         </Card>
 
-        <div className="mt-3 flex justify-center">
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={handlePrev}
-                  aria-disabled={page === 1}
-                  className={
-                    page === 1
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-
-              {getPaginationItems(page, totalPages).map((pageItem, index) => (
-                <PaginationItem key={`${pageItem}-${index}`}>
-                  {pageItem === "..." ? (
-                    <PaginationEllipsis />
-                  ) : (
-                    <PaginationLink
-                      href={`?page=${pageItem}`}
-                      isActive={page === pageItem}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        setPage(pageItem);
-                      }}
-                      className="cursor-pointer"
-                    >
-                      {pageItem}
-                    </PaginationLink>
-                  )}
+        {shouldShowPagination && (
+          <div className="mt-3 flex justify-center">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={handlePrev}
+                    aria-disabled={page === 1}
+                    className={
+                      page === 1
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
                 </PaginationItem>
-              ))}
 
-              <PaginationItem>
-                <PaginationNext
-                  onClick={handleNext}
-                  aria-disabled={page === totalPages}
-                  className={
-                    page === totalPages
-                      ? "pointer-events-none opacity-50"
-                      : "cursor-pointer"
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+                {getPaginationItems(page, totalPages).map((pageItem, index) => (
+                  <PaginationItem key={`${pageItem}-${index}`}>
+                    {pageItem === "..." ? (
+                      <PaginationEllipsis />
+                    ) : (
+                      <PaginationLink
+                        href={`?page=${pageItem}`}
+                        isActive={page === pageItem}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          setPage(pageItem);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        {pageItem}
+                      </PaginationLink>
+                    )}
+                  </PaginationItem>
+                ))}
+
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={handleNext}
+                    aria-disabled={page === totalPages}
+                    className={
+                      page === totalPages
+                        ? "pointer-events-none opacity-50"
+                        : "cursor-pointer"
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </div>
     </div>
   );
