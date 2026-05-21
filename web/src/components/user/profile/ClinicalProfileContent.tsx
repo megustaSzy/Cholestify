@@ -111,17 +111,13 @@ function LipidCard({
   label,
   value,
   unit,
-  optimal,
-  progressPercent,
 }: {
   label: string;
   value: string | number;
   unit: string;
-  optimal: string;
-  progressPercent: number;
 }) {
   return (
-    <div className="bg-blue-50/60 rounded-xl p-4 min-w-0">
+    <div className="bg-blue-50/80 rounded-xl p-4 min-w-0">
       <p className="text-[9px] font-bold uppercase tracking-widest text-gray-400 mb-1">
         {label}
       </p>
@@ -130,15 +126,6 @@ function LipidCard({
         <span className="text-2xl font-bold text-gray-900">{value}</span>
         <span className="text-xs text-gray-500 mb-0.5">{unit}</span>
       </div>
-
-      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-        <div
-          className="h-full bg-green-400 rounded-full"
-          style={{ width: `${progressPercent}%` }}
-        />
-      </div>
-
-      <p className="text-[9px] text-gray-400 mt-1">Optimal: {optimal}</p>
     </div>
   );
 }
@@ -307,24 +294,21 @@ export default function ClinicalProfileContent() {
                 label="Height"
                 value={toDisplayNumber(biometrics?.height)}
                 unit="cm"
-                icon={<Ruler size={14} />}
               />
 
               <StatCard
                 label="Weight"
                 value={toDisplayNumber(biometrics?.weight)}
                 unit="kg"
-                icon={<Weight size={14} />}
               />
 
               <StatCard
                 label="BMI"
                 value={toDisplayNumber(biometrics?.bmi, 1)}
                 unit=""
-                icon={<Activity size={14} />}
                 extra={
                   biometrics?.bmiCategory ? (
-                    <span className="text-[10px] font-semibold text-green-500 bg-green-50 px-1.5 py-0.5 rounded ml-1 mb-0.5">
+                    <span className="text-[10px] font-semibold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded ml-1 mb-0.5">
                       {biometrics.bmiCategory}
                     </span>
                   ) : null
@@ -335,11 +319,10 @@ export default function ClinicalProfileContent() {
             <div className="bg-white border border-gray-200 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <HeartPulse size={16} className="text-blue-500" />
                   Recent Lipid Panel
                 </h3>
 
-                <span className="text-xs text-gray-400">{lastLipidDate}</span>
+                <span className="text-xs text-gray-500">{lastLipidDate}</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -347,93 +330,26 @@ export default function ClinicalProfileContent() {
                   label="TOTAL"
                   value={toDisplayNumber(lipidPanel?.totalCholesterol)}
                   unit="mg/dL"
-                  optimal="< 200"
-                  progressPercent={progress(lipidPanel?.totalCholesterol, 240)}
                 />
 
                 <LipidCard
                   label="TRIGLYCERIDES"
                   value={toDisplayNumber(lipidPanel?.triglycerides)}
                   unit="mg/dL"
-                  optimal="< 150"
-                  progressPercent={progress(lipidPanel?.triglycerides, 200)}
                 />
 
                 <LipidCard
-                  label="LDL (BAD)"
+                  label="LDL (Jahat)"
                   value={toDisplayNumber(lipidPanel?.ldl)}
                   unit="mg/dL"
-                  optimal="< 100"
-                  progressPercent={progress(lipidPanel?.ldl, 190)}
                 />
 
                 <LipidCard
-                  label="HDL (GOOD)"
+                  label="HDL (Baik)"
                   value={toDisplayNumber(lipidPanel?.hdl)}
                   unit="mg/dL"
-                  optimal="> 60"
-                  progressPercent={progress(lipidPanel?.hdl, 100)}
                 />
               </div>
-            </div>
-
-            <div className="bg-white border border-gray-200 rounded-2xl p-5">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">
-                  Rekomendasi Kesehatan
-                </h3>
-
-                <span className="text-xs text-gray-400">
-                  {recommendationDate}
-                </span>
-              </div>
-
-              {recommendation ? (
-                <div className="flex flex-col gap-3">
-                  <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-                    <div className="flex items-start gap-3">
-                      <Utensils
-                        size={18}
-                        className="text-blue-500 flex-shrink-0 mt-0.5"
-                      />
-
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">
-                          Dietary Advice
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                          {recommendation.dietaryAdvice ||
-                            "Belum ada saran pola makan."}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-xl border border-green-100 bg-green-50 p-4">
-                    <div className="flex items-start gap-3">
-                      <Dumbbell
-                        size={18}
-                        className="text-green-500 flex-shrink-0 mt-0.5"
-                      />
-
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">
-                          Activity Advice
-                        </p>
-                        <p className="text-sm text-gray-600 mt-1 leading-relaxed">
-                          {recommendation.activityAdvice ||
-                            "Belum ada saran aktivitas."}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500">
-                  Belum ada rekomendasi kesehatan. Rekomendasi akan muncul
-                  setelah data lipid panel tersedia.
-                </p>
-              )}
             </div>
           </div>
         </main>

@@ -63,7 +63,7 @@ const metrics: MetricField[] = [
     key: "hdl",
     label: "HDL",
     sublabel: "(good cholesterol)",
-    target: "> 40 mg/dL (men) or > 50 mg/dL (women)",
+    target: "> 40 mg/dL (Pria) dan > 50 mg/dL (Wanita)",
   },
 ];
 
@@ -233,7 +233,7 @@ export function LogLipidPanelForm() {
                     />
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Target: {target}
+                    Ideal: {target}
                   </p>
                 </div>
               ))}
@@ -288,7 +288,7 @@ export function LogLipidPanelForm() {
           <Card className="border border-border">
             <CardContent className="p-5 space-y-4">
               <p className="text-sm font-semibold text-foreground">
-                Normal Reference Ranges
+                Referensi Lipid Normal
               </p>
               <ul className="space-y-3 text-xs text-muted-foreground">
                 <li className="flex justify-between gap-2">
@@ -308,12 +308,12 @@ export function LogLipidPanelForm() {
                   <span className="text-right">&lt; 100 mg/dL</span>
                 </li>
                 <li className="flex justify-between gap-2">
-                  <span className="font-medium text-foreground">HDL (men)</span>
+                  <span className="font-medium text-foreground">HDL (Pria)</span>
                   <span className="text-right">&gt; 40 mg/dL</span>
                 </li>
                 <li className="flex justify-between gap-2">
                   <span className="font-medium text-foreground">
-                    HDL (women)
+                    HDL (Wanita)
                   </span>
                   <span className="text-right">&gt; 50 mg/dL</span>
                 </li>
