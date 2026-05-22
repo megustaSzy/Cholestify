@@ -4,6 +4,7 @@ import { BadRequestError } from "../exceptions/BadRequestError.js";
 import { prisma } from "../lib/prisma.js";
 import { predictEyeScan } from "../services/ai.service.js";
 import { uploadToCloudinary } from "../services/cloudinary.service.js";
+import { io } from "../server.js";
 
 const RESULT_MAP = {
   Normal: "NORMAL",
@@ -18,9 +19,16 @@ export const ScreeningController = {
         throw new BadRequestError(MESSAGE.SCREENING.IMAGE_REQUIRED);
       }
 
+      const { socketId } = req.body;
+
+      if (socketId) {
+        io.to(socketId).emit("scan_progress", { message: "Mengunggah gambar ke server...", progress: 10 });
+      }
+
       const aiResponse = await predictEyeScan(
         req.file.buffer,
         req.file.originalname,
+        socketId
       );
 
       const result = aiResponse.result;
