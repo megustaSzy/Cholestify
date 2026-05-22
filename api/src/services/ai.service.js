@@ -1,11 +1,20 @@
 import axios from "axios";
 import FormData from "form-data";
 import { InternalServerError } from "../exceptions/InternalServerError.js";
+import { io } from "../server.js";
 
-export const predictEyeScan = async (fileBuffer, filename) => {
+export const predictEyeScan = async (fileBuffer, filename, socketId) => {
   try {
+    if (socketId) {
+      io.to(socketId).emit("scan_progress", { message: "Menganalisis pola retina mata...", progress: 30 });
+    }
+
     const formData = new FormData();
     formData.append("file", fileBuffer, filename);
+
+    if (socketId) {
+      io.to(socketId).emit("scan_progress", { message: "Mengekstraksi indikasi lipid dengan Model AI...", progress: 60 });
+    }
 
     const response = await axios.post(
       process.env.FASTAPI_URL + "/predict",
@@ -16,6 +25,10 @@ export const predictEyeScan = async (fileBuffer, filename) => {
         timeout: 15000, // timeout 15s
       },
     );
+
+    if (socketId) {
+      io.to(socketId).emit("scan_progress", { message: "Selesai! Menampilkan hasil...", progress: 100 });
+    }
 
     return response.data;
   } catch (error) {
