@@ -112,16 +112,6 @@ function PageState({
       }`}
     >
       <CardContent className="flex flex-col items-center justify-center px-6 py-12 text-center">
-        <div
-          className={`mb-4 flex size-12 items-center justify-center rounded-2xl ${
-            variant === "error"
-              ? "bg-red-100 text-red-600"
-              : "bg-blue-50 text-blue-600"
-          }`}
-        >
-          <AlertTriangle className="size-6" />
-        </div>
-
         <h3 className="text-base font-semibold text-gray-950">{title}</h3>
         <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
           {description}
@@ -258,7 +248,7 @@ export default function ActivityTargetHistoryContent() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
-              History Target Aktivitas
+              Riwayat Target Aktivitas
             </h1>
 
             <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
@@ -302,19 +292,19 @@ export default function ActivityTargetHistoryContent() {
 
       {isLoading ? (
         <PageState
-          title="Memuat riwayat daily tracking..."
+          title="Memuat riwayat aktivitas..."
           description="Mohon tunggu sebentar, data aktivitas Anda sedang dimuat."
         />
       ) : error ? (
         <PageState
           variant="error"
-          title="Gagal mengambil riwayat daily tracking"
+          title="Gagal mengambil riwayat aktivitas"
           description="Pastikan sesi login masih valid, lalu coba muat ulang halaman."
         />
       ) : sortedLogs.length === 0 ? (
         <PageState
-          title="Belum ada riwayat daily tracking"
-          description="Silakan isi daily tracking terlebih dahulu agar histori aktivitas dapat ditampilkan."
+          title="Belum ada riwayat aktivitas"
+          description="Silakan isi aktivitas terlebih dahulu agar histori aktivitas dapat ditampilkan."
         />
       ) : (
         <>

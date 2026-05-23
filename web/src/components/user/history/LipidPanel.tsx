@@ -148,10 +148,6 @@ function EmptyState({
 }) {
   return (
     <div className="mx-auto flex max-w-md flex-col items-center justify-center px-6 py-12 text-center">
-      <div className="mb-4 flex size-12 items-center justify-center rounded-full bg-amber-50">
-        <AlertTriangle className="size-6 text-amber-600" />
-      </div>
-
       <h3 className="text-base font-semibold text-gray-950">{title}</h3>
       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
         {description}
@@ -315,7 +311,7 @@ export default function LipidPanelHistoryContent() {
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-gray-950 sm:text-3xl">
-              Lipid Panel History
+              Riwayat Lipid Panel
             </h1>
 
             <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
@@ -399,12 +395,8 @@ export default function LipidPanelHistoryContent() {
       <Card className="overflow-hidden rounded-3xl border-gray-200 bg-white shadow-sm">
         <CardHeader className="border-b bg-white px-5 py-6 sm:px-6">
           <div className="mx-auto flex max-w-xl flex-col items-center text-center">
-            <div className="mb-3 flex size-11 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
-              <TrendingUp className="size-5" />
-            </div>
-
             <h2 className="text-xl font-bold tracking-tight text-gray-950 sm:text-2xl">
-              Histori Data Lipid
+              Tabel Riwayat Data
             </h2>
 
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
