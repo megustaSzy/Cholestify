@@ -60,7 +60,7 @@ export const BiometricService = {
     return data;
   },
 
-  async getBiometricByUserId(userId) {
+  async getMyBiometrics(userId) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
     const data = await prisma.biometric.findUnique({

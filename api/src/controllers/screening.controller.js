@@ -5,6 +5,7 @@ import { prisma } from "../lib/prisma.js";
 import { predictEyeScan } from "../services/ai.service.js";
 import { uploadToCloudinary } from "../services/cloudinary.service.js";
 import { io } from "../server.js";
+import { ScreeningService } from "../services/screening.service.js";
 
 const RESULT_MAP = {
   Normal: "NORMAL",
@@ -22,14 +23,36 @@ export const ScreeningController = {
       const { socketId } = req.body;
 
       if (socketId) {
-        io.to(socketId).emit("scan_progress", { message: "Mengunggah gambar ke server...", progress: 10 });
+        io.to(socketId).emit("scan_progress", {
+          message: "Mengunggah gambar ke server...",
+          progress: 10,
+        });
       }
 
       const aiResponse = await predictEyeScan(
         req.file.buffer,
         req.file.originalname,
-        socketId
+        socketId,
       );
+
+      if (
+        !aiResponse.success ||
+        aiResponse.result.status === "Tidak Dapat Dianalisis"
+      ) {
+        if (socketId) {
+          io.to(socketId).emit("scan_progress", {
+            message: "Gambar Ditolak oleh AI.",
+            progress: 100,
+          });
+        }
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message:
+            aiResponse.result.keterangan ||
+            "Gambar tidak valid atau kualitas foto kurang.",
+          recommendation: aiResponse.result.rekomendasi,
+        });
+      }
 
       const result = aiResponse.result;
 
@@ -62,6 +85,25 @@ export const ScreeningController = {
         },
 
         data: screening,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async getMyScreenings(req, res, next) {
+    try {
+      const userId = req.user.id;
+
+      const data = await ScreeningService.getMyScreenings(userId);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGE.SCREENING.FOUND,
+        metadata: {
+          status: HttpStatus.OK,
+        },
+        data: data,
       });
     } catch (error) {
       next(error);

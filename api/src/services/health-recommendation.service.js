@@ -25,7 +25,7 @@ export const HealthRecommendationService = {
     return recommendation;
   },
 
-  async getRecommendationsByUserId(userId) {
+  async getMyRecommendations(userId) {
     const data = await prisma.healthRecommendation.findMany({
       where: { userId },
       orderBy: { generatedAt: "desc" },

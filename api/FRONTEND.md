@@ -33,6 +33,8 @@ Base URL: `http://localhost:3001`
 | `GET`   | `/api/daily-trackings/history` | 🍪 | Ambil riwayat pencatatan harian                   |
 | `GET`   | `/api/foods/public`         | ❌   | **Public Foods** — Daftar kalori makanan tanpa auth|
 | `GET`   | `/api/foods?page=&limit=&search=&status=` | 🍪   | **Rekomendasi Makanan** — Menu diet sesuai LDL    |
+| `POST`  | `/api/screenings`           | 🍪   | **AI Eye Scan** — Analisis gambar retina mata      |
+| `GET`   | `/api/screenings/me`        | 🍪   | Ambil riwayat hasil scan mata (pribadi)            |
 | `POST`  | `/api/tests/upload`          | ❌   | *Testing* — Upload gambar ke Cloudinary            |
 
 > 🍪 = Token dikirim otomatis via HTTP-only Cookie, **tidak perlu set header manual**.
@@ -653,6 +655,85 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
       "fat": 0.3,
       "status": "OPTIMAL",
       "isRecommended": true
+    }
+  ]
+}
+```
+
+---
+
+## 👁️ AI Eye Scan (Screening)
+
+### Upload & Analyze Eye Image
+**Endpoint:** `POST /api/screenings`
+
+**Headers:** `Content-Type: multipart/form-data`
+
+**Request Body (FormData):**
+| Field      | Type   | Required | Keterangan                                                                 |
+| ---------- | ------ | -------- | -------------------------------------------------------------------------- |
+| `file`     | `file` | ✅ Ya    | Gambar mata (JPG/PNG). Maksimal 10MB.                                      |
+| `socketId` | `string`| ❌ Tidak | ID dari koneksi `Socket.io` untuk menerima *real-time progress tracking*.  |
+
+**Contoh Response (201 Created):**
+```json
+{
+  "success": true,
+  "message": "Screening berhasil",
+  "metadata": { "status": 201 },
+  "data": {
+    "id": 1,
+    "userId": 6,
+    "imageUrl": "https://res.cloudinary.com/.../image.jpg",
+    "result": "INDIKASI_KUAT",
+    "confidence": 88.79,
+    "description": "Endapan lipid signifikan terdeteksi.",
+    "recommendation": "Konsultasi dokter segera, lakukan cek lipid panel.",
+    "probabilities": {
+      "normal": 9.05,
+      "beresiko": 2.16,
+      "kolesterol": 88.79
+    },
+    "createdAt": "2026-05-22T17:20:10.278Z"
+  }
+}
+```
+
+**Contoh Response Gagal / OOD (400 Bad Request):**
+*(Jika gambar bukan mata atau buram)*
+```json
+{
+  "success": false,
+  "message": "Tidak terdeteksi struktur mata (iris/pupil). Pastikan foto menampilkan mata dengan jelas...",
+  "recommendation": "Ambil ulang foto sesuai panduan."
+}
+```
+
+---
+
+### Get My Screening History
+**Endpoint:** `GET /api/screenings/me`
+
+**Response (200):**
+```json
+{
+  "success": true,
+  "message": "Data Screening berhasil ditemukan",
+  "metadata": { "status": 200 },
+  "data": [
+    {
+      "id": 1,
+      "imageUrl": "https://res.cloudinary.com/.../image.jpg",
+      "result": "INDIKASI_KUAT",
+      "confidence": 88.79,
+      "description": "Endapan lipid signifikan terdeteksi.",
+      "recommendation": "Konsultasi dokter segera, lakukan cek lipid panel.",
+      "probabilities": {
+        "normal": 9.05,
+        "beresiko": 2.16,
+        "kolesterol": 88.79
+      },
+      "createdAt": "2026-05-22T17:20:10.278Z"
     }
   ]
 }

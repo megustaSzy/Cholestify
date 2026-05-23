@@ -21,10 +21,10 @@ export const HealthGoalController = {
     }
   },
 
-  async getHistoryByUserId(req, res, next) {
+  async getMyHealthGoals(req, res, next) {
     try {
       const userId = req.user.id;
-      const data = await HealthGoalService.getHistoryByUserId(userId);
+      const data = await HealthGoalService.getMyHealthGoals(userId);
 
       return res.status(HttpStatus.OK).json({
         success: true,
@@ -42,7 +42,7 @@ export const HealthGoalController = {
   async getProgress(req, res, next) {
     try {
       const userId = req.user.id;
-      const data = await HealthGoalService.getProgress(userId);
+      const data = await HealthGoalService.getProgressByUserId(userId);
 
       return res.status(HttpStatus.OK).json({
         success: true,

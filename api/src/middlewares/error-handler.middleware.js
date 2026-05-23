@@ -1,7 +1,7 @@
 import { HttpStatus } from "../constants/http-status.constant.js";
 
 export const errorHandler = (err, req, res, next) => {
-  console.error(err);
+  console.error(err.message);
 
   const statusCode = Number.isInteger(err.status) ? err.status : 500;
 

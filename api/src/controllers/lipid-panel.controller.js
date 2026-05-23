@@ -23,11 +23,11 @@ export const LipidPanelController = {
     }
   },
 
-  async getLipidPanelByUserId(req, res, next) {
+  async getMyLipids(req, res, next) {
     try {
       const userId = req.user.id;
 
-      const data = await LipidPanelService.getLipidPanelByUserId(userId);
+      const data = await LipidPanelService.getMyLipids(userId);
 
       return res.status(HttpStatus.OK).json({
         success: true,

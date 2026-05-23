@@ -41,16 +41,14 @@ export const LipidPanelService = {
       },
     });
 
-    if (data.length === 0) {
-      throw Object.assign(new Error(MESSAGE.LIPID_PANEL.NOT_FOUND), {
-        status: HttpStatus.NOT_FOUND,
-      });
+    if (!data || data.length === 0) {
+      throw new NotFoundError(MESSAGE.LIPID_PANEL.NOT_FOUND);
     }
 
     return data;
   },
 
-  async getLipidPanelByUserId(userId) {
+  async getMyLipids(userId) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
     const data = await prisma.lipidPanel.findMany({
@@ -111,8 +109,8 @@ export const LipidPanelService = {
     HealthRecommendationService.generateFromLipidPanel(
       userId,
       data.id,
-      data
-    ).catch(err => console.error("[BackgroundAI] Failed to generate:", err));
+      data,
+    ).catch((err) => console.error("[BackgroundAI] Failed to generate:", err));
 
     return data;
   },
@@ -143,8 +141,8 @@ export const LipidPanelService = {
     HealthRecommendationService.generateFromLipidPanel(
       existing.userId,
       updated.id,
-      updated
-    ).catch(err => console.error("[BackgroundAI] Failed to update:", err));
+      updated,
+    ).catch((err) => console.error("[BackgroundAI] Failed to update:", err));
 
     return updated;
   },

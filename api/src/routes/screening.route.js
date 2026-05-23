@@ -14,4 +14,6 @@ router.post(
   ScreeningController.create,
 );
 
+router.get("/me", authMiddleware, ScreeningController.getMyScreenings);
+
 export default router;

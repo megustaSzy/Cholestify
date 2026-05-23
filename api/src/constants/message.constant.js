@@ -55,8 +55,10 @@ export const MESSAGE = {
   },
 
   SCREENING: {
+    FOUND: "Data Screening berhasil ditemukan",
     CREATED: "Screening berhasil",
     IMAGE_REQUIRED: "Image wajib diupload",
+    NOT_FOUND: "Data Screening tidak ditemukan"
   },
 
   TOKEN: {
@@ -88,5 +90,7 @@ export const MESSAGE = {
 
   FOOD: {
     FOUND: "Data daftar makanan berhasil diambil",
+    PUBLIC_FOUND: "Data daftar makanan publik berhasil diambil",
+    USER_FOUND: "Data daftar makanan user berhasil diambil",
   },
 };

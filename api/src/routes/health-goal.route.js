@@ -6,7 +6,7 @@ import { healthGoalSchema } from "../validations/health-goal.validation.js";
 
 const router = Router();
 
-router.get("/me", authMiddleware, HealthGoalController.getHistoryByUserId);
+router.get("/me", authMiddleware, HealthGoalController.getMyHealthGoals);
 router.get("/progress", authMiddleware, HealthGoalController.getProgress);
 
 router.post(
