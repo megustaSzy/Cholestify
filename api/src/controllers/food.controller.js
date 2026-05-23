@@ -10,7 +10,7 @@ export const FoodController = {
 
       return res.status(HttpStatus.OK).json({
         success: true,
-        message: "Data makanan publik berhasil diambil",
+        message: MESSAGE.FOOD.PUBLIC_FOUND,
         metadata: result.paginationMeta,
         data: result.foods,
       });
