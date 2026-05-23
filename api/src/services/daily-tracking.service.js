@@ -97,6 +97,10 @@ export const DailyTrackingService = {
       },
     });
 
+    if (!data || data.length === 0) {
+      throw new NotFoundError(MESSAGE.DAILY_TRACKING.NOT_FOUND);
+    }
+
     return data;
   },
 };
