@@ -21,10 +21,10 @@ export const HealthRecommendationController = {
     }
   },
 
-  async getRecommendations(req, res, next) {
+  async getMyRecommendations(req, res, next) {
     try {
       const userId = req.user.id;
-      const data = await HealthRecommendationService.getRecommendationsByUserId(userId);
+      const data = await HealthRecommendationService.getMyRecommendations(userId);
 
       return res.status(HttpStatus.OK).json({
         success: true,

@@ -14,7 +14,7 @@ router.get(
 router.get(
   "/me",
   authMiddleware,
-  HealthRecommendationController.getRecommendations,
+  HealthRecommendationController.getMyRecommendations,
 );
 
 export default router;
