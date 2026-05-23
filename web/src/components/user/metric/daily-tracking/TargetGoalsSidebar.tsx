@@ -9,29 +9,6 @@ const goals = [
 export default function TargetGoalsSidebar() {
   return (
     <div className="flex flex-col gap-4 w-full">
-      {/* Target Goals Card
-      <Card className="shadow-sm border border-border w-full">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold">Target Tujuan</CardTitle>
-        </CardHeader>
-
-        <CardContent className="flex flex-col gap-2 pt-0">
-          {goals.map((goal) => (
-            <div
-              key={goal.label}
-              className="flex items-center justify-between text-sm"
-            >
-              <div className="flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${goal.color}`} />
-                <span className="text-muted-foreground">{goal.label}</span>
-              </div>
-
-              <span className="font-medium text-foreground">{goal.value}</span>
-            </div>
-          ))}
-        </CardContent>
-      </Card> */}
-
       {/* Motivational Image Card */}
       <Card className="shadow-sm border border-border overflow-hidden p-0 w-full h-[130px] sm:h-[150px] lg:h-[130px]">
         <div className="relative w-full h-full">
