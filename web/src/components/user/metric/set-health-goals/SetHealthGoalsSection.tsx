@@ -22,15 +22,14 @@ type GoalField = {
 type GoalCategory = {
   key: string;
   title: string;
-  icon: ReactNode;
-  iconBg: string;
+  // icon: ReactNode;
+  // iconBg: string;
   fields: GoalField[];
 };
 
 type FieldValues = Record<GoalFieldId, string>;
 
 type HealthGoalPayload = {
-  targetLdlHdlRatio: number;
   targetWeeklyCalories: number;
   targetExerciseMins: number;
 };
@@ -69,47 +68,32 @@ const initialFieldValues: FieldValues = {
 
 const goalCategories: GoalCategory[] = [
   {
-    key: "cardiovascular",
-    title: "Cardiovascular",
-    icon: <Heart className="h-4 w-4" />,
-    iconBg: "text-rose-500",
-    fields: [
-      {
-        id: "ldl_hdl_ratio",
-        label: "TARGET LDL/HDL RATIO",
-        placeholder: "e.g. 2.5",
-        unit: "Ratio",
-        hint: "Optimal clinical range is typically below 2.5.",
-      },
-    ],
-  },
-  {
     key: "metabolic",
-    title: "Metabolic",
-    icon: <Utensils className="h-4 w-4" />,
-    iconBg: "text-amber-500",
+    title: "Metabolisme",
+    // icon: <Utensils className="h-4 w-4" />,
+    // iconBg: "text-amber-500",
     fields: [
       {
         id: "weekly_calories",
-        label: "TARGET WEEKLY CALORIES",
-        placeholder: "e.g. 14000",
+        label: "TARGET KALORI Mingguan",
+        placeholder: "Contoh: 14000",
         unit: "kcal",
-        hint: "Based on standard BMR calculations.",
+        hint: "Gunakan angka total kalori yang ingin dicapai dalam 1 minggu.",
       },
     ],
   },
   {
     key: "physical_activity",
     title: "Aktivitas Fisik",
-    icon: <Activity className="h-4 w-4" />,
-    iconBg: "text-blue-500",
+    // icon: <Activity className="h-4 w-4" />,
+    // iconBg: "text-blue-500",
     fields: [
       {
         id: "exercise_mins",
-        label: "TARGET EXERCISE",
-        placeholder: "e.g. 150",
-        unit: "mins/week",
-        hint: "AHA recommends 150 mins moderate activity.",
+        label: "TARGET MENIT Aktifitas Fisik Mingguan",
+        placeholder: "Contoh: 150",
+        unit: "menit/minggu",
+        hint: "Masukkan angka total waktu olahraga yang ingin dicapai dalam 1 minggu.",
       },
     ],
   },
@@ -119,7 +103,7 @@ function getApiErrorMessage(error: unknown): string {
   if (axios.isAxiosError<ApiErrorResponse>(error)) {
     return (
       error.response?.data?.message ||
-      "Gagal menyimpan health goals. Silakan coba lagi."
+      "Gagal menyimpan tujuan kesehatan. Silakan coba lagi."
     );
   }
 
@@ -127,7 +111,7 @@ function getApiErrorMessage(error: unknown): string {
     return error.message;
   }
 
-  return "Gagal menyimpan health goals. Silakan coba lagi.";
+  return "Gagal menyimpan tujuan kesehatan. Silakan coba lagi.";
 }
 
 function isInvalidNumber(value: string): boolean {
@@ -154,21 +138,21 @@ function GoalCard({
         className,
       )}
     >
-      <div className="flex items-start gap-3">
-        <span
+      <div className="flex w-full justify-center">
+        {/* <span
           className={cn(
             "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted",
             category.iconBg,
           )}
         >
           {category.icon}
-        </span>
+        </span> */}
 
-        <div>
+        <div className="text-center mb-5">
           <h3 className="font-semibold text-base text-foreground">
             {category.title}
           </h3>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground text-center">
             Atur target sesuai kebutuhan kesehatan Anda.
           </p>
         </div>
@@ -240,7 +224,6 @@ export default function SetHealthGoalsSection() {
     setSuccessMessage("");
 
     if (
-      isInvalidNumber(fieldValues.ldl_hdl_ratio) ||
       isInvalidNumber(fieldValues.weekly_calories) ||
       isInvalidNumber(fieldValues.exercise_mins)
     ) {
@@ -249,7 +232,6 @@ export default function SetHealthGoalsSection() {
     }
 
     const payload: HealthGoalPayload = {
-      targetLdlHdlRatio: Number(fieldValues.ldl_hdl_ratio),
       targetWeeklyCalories: Number(fieldValues.weekly_calories),
       targetExerciseMins: Number(fieldValues.exercise_mins),
     };
@@ -271,16 +253,15 @@ export default function SetHealthGoalsSection() {
   };
 
   const isFormInvalid =
-    isInvalidNumber(fieldValues.ldl_hdl_ratio) ||
     isInvalidNumber(fieldValues.weekly_calories) ||
     isInvalidNumber(fieldValues.exercise_mins);
 
   return (
     <div className="w-full">
-      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
-        <div className="border-b border-border px-5 py-5 md:px-6">
-          <h2 className="text-base font-semibold text-foreground">
-            Target Kesehatan
+      <div className="rounded-2xl border border-border bg-card shadow-sm o  verflow-hidden">
+        <div className="border-b border-border px-5 py-5 md:px-6 text-center">
+          <h2 className="text-xl font-semibold text-foreground">
+            Target Tujuan Kesehatan
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Masukkan target utama yang akan digunakan untuk pemantauan kesehatan
@@ -289,7 +270,7 @@ export default function SetHealthGoalsSection() {
         </div>
 
         <div className="p-5 md:p-6">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          <div className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-5 md:grid-cols-2">
             {goalCategories.map((cat, index) => (
               <GoalCard
                 key={cat.key}
@@ -321,7 +302,7 @@ export default function SetHealthGoalsSection() {
             disabled={isSubmitting}
             className="w-full sm:w-auto sm:min-w-[90px]"
           >
-            Cancel
+            Batal
           </Button>
 
           <Button
@@ -329,7 +310,7 @@ export default function SetHealthGoalsSection() {
             disabled={isSubmitting || isFormInvalid}
             className="w-full bg-blue-600 hover:bg-blue-700 sm:w-auto sm:min-w-[110px]"
           >
-            {isSubmitting ? "Saving..." : "Save Goals"}
+            {isSubmitting ? "Menyimpan..." : "Simpan Target"}
           </Button>
         </div>
       </div>
