@@ -7,7 +7,7 @@ export default function Header() {
     <>
       <div>
         <h1 className="text-2xl font-bold text-gray-900 mb-1">
-          Detect Arcus Senilis
+          Deteksi Mata Dengan AI
         </h1>
         <p className="text-gray-500 text-sm">
           Unggah foto iris mata anda berkualitas tinggi untuk menganalisis

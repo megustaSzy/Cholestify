@@ -86,7 +86,7 @@ const statusCards = [
   },
   {
     status: "NEUTRAL",
-    title: "Neutral",
+    title: "Netral",
     description: "Konsumsi Jumlah Sedang",
     icon: Minus,
     activeBorderClass: "border-amber-500",
@@ -274,15 +274,15 @@ export default function BodySection() {
               <TableHeader>
                 <TableRow className="bg-[#f7f7fb] hover:bg-[#f7f7fb]">
                   <TableHead className="h-14 w-[40%] px-3 text-[10px] font-bold uppercase tracking-wide text-gray-950">
-                    Food Item
+                    Makanan
                   </TableHead>
 
                   <TableHead className="h-14 w-[20%] px-3 text-[10px] font-bold uppercase tracking-wide text-gray-950">
-                    Impact
+                    Status
                   </TableHead>
 
                   <TableHead className="h-14 w-[15%] px-3 text-right text-[10px] font-bold uppercase tracking-wide text-gray-950">
-                    Calories
+                    Kalori (kcal)
                   </TableHead>
 
                   <TableHead className="h-14 w-[20%] px-3 text-right text-[10px] font-bold uppercase tracking-wide text-gray-950">

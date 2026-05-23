@@ -25,9 +25,13 @@ import {
   Utensils,
   Weight,
   Activity,
+  ClipboardList,
+  HeartPulse,
+  ChevronRight,
 } from "lucide-react";
 import { useFetchData } from "@/hooks/useFetchData";
 import { isAuthError, isNoDataError } from "@/lib/ApiErrorResponse";
+import Link from "next/link";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -201,7 +205,7 @@ function HealthAdviceCard({
               variant="ghost"
               className="h-auto px-0 text-[9px] font-bold tracking-widest text-blue-200 uppercase hover:bg-transparent"
             >
-              DIETARY SHIFT
+              POLA MAKAN
             </Badge>
           </div>
           <p className="text-xs leading-relaxed text-blue-100">
@@ -217,7 +221,7 @@ function HealthAdviceCard({
               variant="ghost"
               className="h-auto px-0 text-[9px] font-bold tracking-widest text-blue-200 uppercase hover:bg-transparent"
             >
-              ACTIVITY GOAL
+              AKTIVITAS
             </Badge>
           </div>
           <p className="text-xs leading-relaxed text-blue-100">
@@ -351,6 +355,26 @@ export default function ReportsContent() {
     !biometrics &&
     lipidHistory.length === 0;
 
+  const clinicalReports = [
+    {
+      title: "Riwayat Target Harian",
+      description:
+        "Lihat riwayat kalori, protein, olahraga, dan catatan makanan harian.",
+      href: "/user/history/activity-target",
+    },
+    {
+      title: "Riwayat Screening Mata",
+      description:
+        "Lihat riwayat hasul dari screening yang telah anda lakukan.",
+      href: "/user/history/eye-scan",
+    },
+    {
+      title: "Riwayaat Data Lipid Panel",
+      description: "Lihat riwayat lipid panel.",
+      href: "/user/history/lipid-panel",
+    },
+  ];
+
   return (
     <div className="flex min-h-screen flex-1 flex-col bg-gray-50">
       <main className="flex w-full flex-1 flex-col gap-5 px-4 py-6 sm:px-6 lg:mx-auto lg:max-w-5xl lg:px-0">
@@ -394,7 +418,7 @@ export default function ReportsContent() {
             <CardHeader className="px-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <CardTitle>Lipid Panel Overview</CardTitle>
+                  <CardTitle>Ringkasan Lipid Panel</CardTitle>
                   <CardDescription className="text-xs">
                     Berdasarkan catatan {formatDate(lipidPanel?.date)}
                   </CardDescription>
@@ -416,7 +440,7 @@ export default function ReportsContent() {
               <div className="mt-2 grid grid-cols-3 gap-3 px-2">
                 <div>
                   <p className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
-                    LDL (BAD)
+                    LDL (Kolesterol Buruk)
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {toDisplayNumber(lipidPanel?.ldl)}{" "}
@@ -428,7 +452,7 @@ export default function ReportsContent() {
 
                 <div>
                   <p className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
-                    HDL (GOOD)
+                    HDL ( Kolesterol Baik)
                   </p>
                   <p className="text-2xl font-bold text-gray-900">
                     {toDisplayNumber(lipidPanel?.hdl)}{" "}
@@ -450,15 +474,6 @@ export default function ReportsContent() {
                   </p>
                 </div>
               </div>
-
-              <div className="mt-3 flex justify-end">
-                <TrendingUp
-                  size={22}
-                  className={
-                    lipidStatus.isWarning ? "text-red-400" : "text-blue-500"
-                  }
-                />
-              </div>
             </CardContent>
           </Card>
 
@@ -473,50 +488,30 @@ export default function ReportsContent() {
             <CardHeader className="px-5">
               <div className="flex items-center justify-between">
                 <CardTitle>Laporan Clinical</CardTitle>
-                <Button variant="link" size="sm" className="font-semibold">
-                  VIEW ALL
-                </Button>
               </div>
             </CardHeader>
 
-            <CardContent className="flex flex-col gap-3 px-5">
-              {lipidHistory.length > 0 ? (
-                lipidHistory.slice(0, 3).map((report) => (
-                  <div
-                    key={report.id ?? report.date}
-                    className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 p-3 transition-colors hover:bg-gray-100"
-                  >
-                    <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-red-100">
-                      <FileText size={16} className="text-red-500" />
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold text-gray-800">
-                        Lipid Panel Report
-                      </p>
-                      <p className="mt-0.5 text-[10px] text-gray-400">
-                        {formatDate(report.date)} / Total{" "}
-                        {toDisplayNumber(report.totalCholesterol)} mg/dL
-                      </p>
-                    </div>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      disabled
-                      className="flex-shrink-0 text-blue-500 hover:text-blue-700"
-                      aria-label="Download belum tersedia"
-                      title="Endpoint download report belum tersedia"
-                    >
-                      <Download size={16} />
-                    </Button>
+            <CardContent className="grid gap-3 px-5">
+              {clinicalReports.map((report) => (
+                <Link
+                  key={report.title}
+                  href={report.href}
+                  className="group flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-200 p-3 transition-all hover:-translate-y-0.5 hover:border-gray-100 hover:bg-gray-100 hover:shadow-sm"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold text-gray-900">
+                      {report.title}
+                    </p>
+                    <p className="mt-0.5 line-clamp-2 text-[11px] leading-relaxed text-gray-500">
+                      {report.description}
+                    </p>
                   </div>
-                ))
-              ) : (
-                <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 text-sm text-gray-500">
-                  Belum ada riwayat lipid panel.
-                </div>
-              )}
+
+                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-gray-400 transition group-hover:bg-white group-hover:text-blue-600">
+                    <ChevronRight size={16} />
+                  </div>
+                </Link>
+              ))}
             </CardContent>
           </Card>
 

@@ -4,12 +4,6 @@ import { ReactNode } from "react";
 import {
   Mail,
   Phone,
-  Ruler,
-  Weight,
-  Activity,
-  HeartPulse,
-  Utensils,
-  Dumbbell,
 } from "lucide-react";
 import { useFetchData } from "@/hooks/useFetchData";
 import { isAuthError, isNoDataError } from "@/lib/ApiErrorResponse";
@@ -148,11 +142,6 @@ function toDisplayNumber(value?: number, fractionDigits = 0) {
   return value.toFixed(fractionDigits).replace(/\.0$/, "");
 }
 
-function progress(value?: number, max = 240) {
-  if (typeof value !== "number") return 0;
-  return Math.min(100, Math.max(0, Math.round((value / max) * 100)));
-}
-
 export default function ClinicalProfileContent() {
   const {
     data: userResponse,
@@ -205,7 +194,6 @@ export default function ClinicalProfileContent() {
   const email = user?.email ?? "-";
   const phone = user?.notelp ?? "-";
   const lastLipidDate = formatDate(lipidPanel?.date);
-  const recommendationDate = formatDate(recommendation?.generatedAt);
   const clinicalErrors = [userError, healthError, lipidHistoryError];
 
   const hasAuthError = clinicalErrors.some(isAuthError);
@@ -291,13 +279,13 @@ export default function ClinicalProfileContent() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <StatCard
-                label="Height"
+                label="Tinggi Badan"
                 value={toDisplayNumber(biometrics?.height)}
                 unit="cm"
               />
 
               <StatCard
-                label="Weight"
+                label="Berat Badan"
                 value={toDisplayNumber(biometrics?.weight)}
                 unit="kg"
               />
@@ -319,7 +307,7 @@ export default function ClinicalProfileContent() {
             <div className="bg-white border border-gray-200 rounded-2xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  Recent Lipid Panel
+                  Data Lipid Terakhir
                 </h3>
 
                 <span className="text-xs text-gray-500">{lastLipidDate}</span>

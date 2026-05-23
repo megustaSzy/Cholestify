@@ -213,11 +213,11 @@ export default function FoodDirectoryContent() {
                 <TableHeader>
                   <TableRow className="bg-[#f7f7fb] hover:bg-[#f7f7fb]">
                     <TableHead className="h-14 w-[40%] px-3 text-[11px] font-bold uppercase tracking-wide text-gray-950">
-                      Food Item
+                      Makanan
                     </TableHead>
 
                     <TableHead className="h-14 w-[20%] px-3 text-right text-[11px] font-bold uppercase tracking-wide text-gray-950">
-                      Calories
+                      Kalori (kcal)
                     </TableHead>
 
                     <TableHead className="h-14 w-[20%] px-3 text-right text-[11px] font-bold uppercase tracking-wide text-gray-950">

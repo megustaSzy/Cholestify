@@ -6,10 +6,8 @@ import {
   AlertCircle,
   CalendarDays,
   CheckCircle2,
-  FlaskConical,
   Info,
   Ruler,
-  ScanSearch,
   Weight,
 } from "lucide-react";
 
@@ -170,22 +168,16 @@ function MiniMetricCard({
 }
 
 function ActivityItem({
-  icon,
   title,
   description,
   status,
 }: {
-  icon: React.ReactNode;
   title: string;
   description: string;
   status: string;
 }) {
   return (
     <div className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white px-4 py-3">
-      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-50 text-blue-600">
-        {icon}
-      </div>
-
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-gray-900">{title}</p>
         <p className="truncate text-xs text-gray-500">{description}</p>
@@ -238,7 +230,6 @@ export default function DashboardContent() {
             </div>
 
             <div className="inline-flex w-fit items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-600 shadow-sm">
-              <CalendarDays className="h-4 w-4 text-blue-600" />
               Hari ini, {formatTodayBadge()}
             </div>
           </div>
@@ -300,14 +291,14 @@ export default function DashboardContent() {
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <MiniMetricCard
-                  label="Height"
+                  label="Tinggi Badan"
                   value={toDisplayNumber(biometrics?.height)}
                   unit="cm"
                   icon={<Ruler className="h-4 w-4" />}
                 />
 
                 <MiniMetricCard
-                  label="Weight"
+                  label="Berat Badan"
                   value={toDisplayNumber(biometrics?.weight)}
                   unit="kg"
                   icon={<Weight className="h-4 w-4" />}
@@ -334,16 +325,14 @@ export default function DashboardContent() {
 
               <div className="flex flex-col gap-3">
                 <ActivityItem
-                  icon={<ScanSearch className="h-4 w-4" />}
                   title="BMI Check"
-                  description={`Height ${toDisplayNumber(
+                  description={`Tinggi Badan ${toDisplayNumber(
                     biometrics?.height,
-                  )} cm • Weight ${toDisplayNumber(biometrics?.weight)} kg`}
-                  status={biometrics ? "Clear" : "Empty"}
+                  )} cm • Berat Badan ${toDisplayNumber(biometrics?.weight)} kg`}
+                  status={biometrics ? "Selesai" : "Kosong"}
                 />
 
                 <ActivityItem
-                  icon={<FlaskConical className="h-4 w-4" />}
                   title="Lipid Panel Lab"
                   description={
                     isLipidHistoryLoading
@@ -353,7 +342,7 @@ export default function DashboardContent() {
                         )}`
                   }
                   status={
-                    latestLipidHistory || lipidPanel ? "Reviewed" : "Empty"
+                    latestLipidHistory || lipidPanel ? "Ditinjau" : "Kosong"
                   }
                 />
               </div>

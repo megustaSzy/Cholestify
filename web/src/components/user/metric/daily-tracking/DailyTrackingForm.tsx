@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,17 +43,19 @@ export default function DailyTrackingForm({
   return (
     <Card className="shadow-sm border border-border w-full">
       <CardHeader className="pb-4">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary">
-            <LayoutDashboardIcon className="w-5 h-5" />
-          </div>
-          <CardTitle className="text-lg font-semibold">Metrik Harian</CardTitle>
+        <div>
+          <CardTitle className="text-xl font-semibold pt-3 text-center">
+            Metrik Harian
+          </CardTitle>
+          <CardDescription className="text-center">
+            Input metrik harian Anda Seperti Kalori, Protein, dan Aktivitas
+          </CardDescription>
         </div>
       </CardHeader>
 
       <Separator />
 
-      <CardContent className="pt-6 flex flex-col gap-5">
+      <CardContent className="flex flex-col gap-5">
         {/* Daily Calories */}
         <div className="flex flex-col gap-1.5">
           <Label
@@ -61,7 +69,7 @@ export default function DailyTrackingForm({
             <Input
               id="daily-calories"
               type="number"
-              placeholder="e.g. 2000"
+              placeholder="Contoh: 2000"
               value={calories}
               min={0}
               onChange={(e) => onCaloriesChange(e.target.value)}
@@ -83,7 +91,7 @@ export default function DailyTrackingForm({
             <Input
               id="daily-protein"
               type="number"
-              placeholder="e.g. 2000"
+              placeholder="Contoh: 2000"
               value={protein}
               min={0}
               onChange={(e) => onProteinChange(e.target.value)}
@@ -105,7 +113,7 @@ export default function DailyTrackingForm({
             <Input
               id="exercise-minutes"
               type="number"
-              placeholder="e.g. 45"
+              placeholder="Contoh: 45"
               value={exerciseMinutes}
               min={0}
               onChange={(e) => onExerciseMinutesChange(e.target.value)}
@@ -156,7 +164,7 @@ export function DailyTrackingActions({
         disabled={isSubmitting}
         className="flex items-center gap-2"
       >
-        Cancel
+        Batal
       </Button>
 
       <Button
@@ -165,7 +173,7 @@ export function DailyTrackingActions({
         className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white"
       >
         <SaveIcon className="w-4 h-4" />
-        {isSubmitting ? "Saving..." : "Save Entry"}
+        {isSubmitting ? "Menyimpan..." : "Simpan"}
       </Button>
     </div>
   );

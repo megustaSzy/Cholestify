@@ -37,23 +37,23 @@ const data = {
 
   navSecondary: [
     {
-      title: "Logout",
+      title: "Keluar",
       // url: "/",
       icon: <LogOutIcon />,
       onClick: () => {
         logout();
       },
     },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: <CircleHelpIcon />,
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: <Settings2Icon />,
-    },
+    // {
+    //   title: "Get Help",
+    //   url: "#",
+    //   icon: <CircleHelpIcon />,
+    // },
+    // {
+    //   title: "Settings",
+    //   url: "#",
+    //   icon: <Settings2Icon />,
+    // },
   ],
   menu: [
     {
@@ -62,18 +62,18 @@ const data = {
       icon: <DatabaseIcon />,
     },
     {
-      name: "Eye Scan",
-      url: "/user/eye-scan",
+      name: "Scan Mata",
+      url: "/user/scan-mata",
       icon: <Eye />,
     },
     {
-      name: "Food Table",
-      url: "/user/food-table",
+      name: "List Makanan",
+      url: "/user/list-makanan",
       icon: <UtensilsCrossed />,
     },
     {
-      name: "Reports",
-      url: "/user/reports",
+      name: "Laporan",
+      url: "/user/laporan",
       icon: <FileIcon />,
     },
     {
@@ -82,39 +82,39 @@ const data = {
       icon: <BarChart />,
       items: [
         {
-          title: "Log Lipid Panel",
-          url: "/user/metric/log-lipid-panel",
+          title: "Data Lipid Panel",
+          url: "/user/metric/data-lipid-panel",
         },
         {
-          title: "Set Helath Goals",
-          url: "/user/metric/set-health-goals",
+          title: "Tujuan Kesehatan",
+          url: "/user/metric/tujuan-kesehatan",
         },
         {
-          title: "Log Biometrics",
-          url: "/user/metric/log-biometrics",
+          title: "Data Biometrik",
+          url: "/user/metric/data-biometrik",
         },
         {
-          title: "Daily Tracking",
-          url: "/user/metric/daily-tracking",
+          title: "Pengukuran Harian",
+          url: "/user/metric/pengukuran-harian",
         },
       ],
     },
     {
-      name: "History",
+      name: "Riwayat",
       // url: "",
       icon: <HistoryIcon />,
       items: [
         {
           title: "Target Aktifitas",
-          url: "/user/history/activity-target",
+          url: "/user/riwayat/target-aktivitas",
         },
         {
-          title: "Eye Scan",
-          url: "/user/history/eye-scan",
+          title: "Scan Mata",
+          url: "/user/riwayat/scan-mata",
         },
         {
           title: "Lipid Panel",
-          url: "/user/history/lipid-panel",
+          url: "/user/riwayat/lipid-panel",
         },
       ],
     },
@@ -124,16 +124,16 @@ const data = {
       icon: <User />,
       items: [
         {
-          title: "Clinical Profile",
-          url: "/user/profile/clinical-profile",
+          title: "Profile Klinik",
+          url: "/user/profile/profile-klinis",
         },
         {
-          title: "Helath Goals",
-          url: "/user/profile/health-goals",
+          title: "Target Kesehatan",
+          url: "/user/profile/target-kesehatan",
         },
         {
-          title: "Account Setting",
-          url: "/user/profile/account-settings",
+          title: "Pengaturan Akun",
+          url: "/user/profile/pengaturan-akun",
         },
       ],
     },
@@ -152,7 +152,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   Cholestify
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  Clinical Portal
+                  Version 1.0
                 </span>
               </div>
             </SidebarMenuButton>

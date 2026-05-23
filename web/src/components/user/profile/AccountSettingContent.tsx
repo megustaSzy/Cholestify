@@ -5,6 +5,7 @@ import { Upload, Trash2, Pencil, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import { API } from "@/lib/utils";
 import { useFetchData } from "@/hooks/useFetchData";
 import { useState } from "react";
+import { toast } from "sonner";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -29,8 +30,8 @@ type ProfileDraft = {
 };
 
 type UpdatePasswordPayload = {
-  currentPassword: string;
-  newPassword: string;
+  password: string;
+  confirmPassword: string;
 };
 
 function Avatar({ nama }: { nama: string }) {
@@ -69,9 +70,10 @@ export default function AccountSettingContent() {
     email: "",
     notelp: "",
   });
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
@@ -119,30 +121,50 @@ export default function AccountSettingContent() {
   };
 
   const updatePassword = async () => {
-    if (!currentPassword || !newPassword) {
-      console.error("Current password dan new password wajib diisi.");
+    if (!user?.id) {
+      toast.error("Data user belum tersedia.");
       return;
     }
 
-    if (newPassword.length < 8) {
-      console.error("Password baru minimal 8 karakter.");
+    if (!password || !confirmPassword) {
+      toast.error("Password dan konfirmasi password wajib diisi.");
       return;
     }
 
-    const payload: UpdatePasswordPayload = {
-      currentPassword,
-      newPassword,
-    };
+    if (password.length < 8) {
+      toast.error("Password minimal 8 karakter.");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      toast.error("Password dan konfirmasi password tidak sama.");
+      return;
+    }
 
     try {
       setIsSaving(true);
 
-      await API.patch("/users/password", payload);
+      await API.patch(`/users/${user.id}`, {
+        password,
+        confirmPassword,
+      });
 
-      setCurrentPassword("");
-      setNewPassword("");
+      setPassword("");
+      setConfirmPassword("");
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+
+      await mutate();
+
+      toast.success("Password berhasil diperbarui.", {
+        description: "Silakan gunakan password baru saat login berikutnya.",
+      });
     } catch (err) {
       console.error("Gagal update password:", err);
+
+      toast.error("Gagal memperbarui password.", {
+        description: "Pastikan sesi login masih valid, lalu coba lagi.",
+      });
     } finally {
       setIsSaving(false);
     }
@@ -329,52 +351,71 @@ export default function AccountSettingContent() {
             <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr_auto] gap-4 md:items-end">
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1.5">
-                  Password Saat Ini
+                  Password Baru
                 </label>
 
                 <div className="relative">
                   <Input
-                    type={showCurrentPw ? "text" : "password"}
-                    value={currentPassword}
-                    onChange={(e) => setCurrentPassword(e.target.value)}
-                    placeholder="Password Saat Ini"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Min. 8 karakter"
                     className="h-11 w-full border border-gray-200 rounded-lg px-3 pr-9 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
                   />
 
                   <button
                     type="button"
-                    onClick={() => setShowCurrentPw(!showCurrentPw)}
+                    onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showCurrentPw ? <EyeOff size={15} /> : <Eye size={15} />}
+                    {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                   </button>
                 </div>
               </div>
 
               <div>
                 <label className="text-[10px] font-bold uppercase tracking-widest text-gray-400 block mb-1.5">
-                  New Password
+                  Konfirmasi Password
                 </label>
 
-                <Input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Min. 8 characters"
-                  className="h-11 w-full border border-gray-200 rounded-lg px-3 text-sm text-gray-800 placeholder-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                />
+                <div className="relative">
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Ulangi password baru"
+                    className="h-11 w-full border border-gray-200 rounded-lg px-3 pr-9 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                  />
+
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={15} />
+                    ) : (
+                      <Eye size={15} />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <button
                 onClick={updatePassword}
-                disabled={isSaving}
+                disabled={isSaving || !password || !confirmPassword}
                 className="h-11 px-5 bg-gray-100 text-gray-500 text-sm font-medium rounded-lg hover:bg-gray-200 transition-colors whitespace-nowrap disabled:cursor-not-allowed disabled:bg-gray-200"
               >
-                Update Password
+                {isSaving ? "Memperbarui..." : "Perbarui Password"}
               </button>
             </div>
-          </div>
 
+            {confirmPassword && password !== confirmPassword && (
+              <p className="mt-3 text-xs text-red-500">
+                Password dan konfirmasi password tidak sama.
+              </p>
+            )}
+          </div>
           {/* Button bawah */}
           <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-end gap-3 pt-1 pb-8">
             <button
@@ -382,7 +423,7 @@ export default function AccountSettingContent() {
               disabled={!isEditing || isSaving}
               className="h-10 px-5 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors disabled:text-gray-400 disabled:cursor-not-allowed"
             >
-              Cancel Changes
+              Batal
             </button>
 
             <button
@@ -390,7 +431,7 @@ export default function AccountSettingContent() {
               disabled={!isEditing || isSaving}
               className="h-10 px-6 bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
-              {isSaving ? "Saving..." : "Save All Settings"}
+              {isSaving ? "Menyimpan..." : "Simpan Perubahan"}
             </button>
           </div>
         </div>

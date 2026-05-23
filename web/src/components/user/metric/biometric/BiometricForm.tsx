@@ -52,7 +52,7 @@ function getApiErrorMessage(error: unknown): string {
   if (axios.isAxiosError<ApiErrorResponse>(error)) {
     return (
       error.response?.data?.message ||
-      "Gagal menyimpan data biometrics. Silakan coba lagi."
+      "Gagal menyimpan data biometrik. Silakan coba lagi."
     );
   }
 
@@ -60,7 +60,7 @@ function getApiErrorMessage(error: unknown): string {
     return error.message;
   }
 
-  return "Gagal menyimpan data biometrics. Silakan coba lagi.";
+  return "Gagal menyimpan data biometrik. Silakan coba lagi.";
 }
 
 function isInvalidNumber(value: string): boolean {
@@ -101,7 +101,7 @@ export default function LogBiometricsContent() {
     setSuccessMessage("");
 
     if (isInvalidNumber(heightValue) || isInvalidNumber(weightValue)) {
-      setErrorMessage("Height dan weight wajib diisi dengan angka valid.");
+      setErrorMessage("Tinggi Badan dan Berat Badan wajib diisi dengan angka valid.");
       return;
     }
 
@@ -163,14 +163,14 @@ export default function LogBiometricsContent() {
       <CardContent className="pt-6 flex flex-col gap-5">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="height" className="text-sm font-medium">
-            Height <span className="text-destructive">*</span>
+            Tinggi Badan <span className="text-destructive">*</span>
           </Label>
           <div className="relative">
             <Input
               id="height"
               type="number"
               min="0"
-              placeholder="e.g. 175"
+              placeholder="Contoh: 175"
               value={heightValue}
               onChange={(e) => {
                 setHeightDraft(e.target.value);
@@ -190,14 +190,14 @@ export default function LogBiometricsContent() {
 
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="weight" className="text-sm font-medium">
-            Weight <span className="text-destructive">*</span>
+            Berat Badan <span className="text-destructive">*</span>
           </Label>
           <div className="relative">
             <Input
               id="weight"
               type="number"
               min="0"
-              placeholder="e.g. 70.5"
+              placeholder="Contoh: 70"
               value={weightValue}
               onChange={(e) => {
                 setWeightDraft(e.target.value);
@@ -242,7 +242,7 @@ export default function LogBiometricsContent() {
             disabled={isSubmitting}
             className="flex items-center gap-2"
           >
-            Cancel
+            Batal
           </Button>
 
           <Button
@@ -253,11 +253,11 @@ export default function LogBiometricsContent() {
             <SaveIcon className="w-4 h-4" />
             {isSubmitting
               ? isUpdateMode
-                ? "Updating..."
-                : "Saving..."
+                ? "Memperbarui..."
+                : "Menyimpan..."
               : isUpdateMode
-                ? "Update Data"
-                : "Save Data"}
+                ? "Perbarui Data"
+                : "Simpan Data"}
           </Button>
         </div>
       </CardContent>
