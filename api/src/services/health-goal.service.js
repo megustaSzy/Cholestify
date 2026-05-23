@@ -21,7 +21,7 @@ export const HealthGoalService = {
     return data;
   },
 
-  async getHistoryByUserId(userId) {
+  async getMyHealthGoals(userId) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
     const data = await prisma.healthGoal.findMany({
@@ -42,7 +42,7 @@ export const HealthGoalService = {
     return data;
   },
 
-  async getProgress(userId) {
+  async getProgressByUserId(userId) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
     const healthGoal = await prisma.healthGoal.findFirst({
