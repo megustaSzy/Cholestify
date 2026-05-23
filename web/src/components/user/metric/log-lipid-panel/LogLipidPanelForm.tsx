@@ -56,13 +56,13 @@ const metrics: MetricField[] = [
   {
     key: "ldl",
     label: "LDL",
-    sublabel: "(bad cholesterol)",
+    sublabel: "(Kolesterol buruk)",
     target: "< 100 mg/dL",
   },
   {
     key: "hdl",
     label: "HDL",
-    sublabel: "(good cholesterol)",
+    sublabel: "(Kolesterol baik)",
     target: "> 40 mg/dL (Pria) dan > 50 mg/dL (Wanita)",
   },
 ];
@@ -158,7 +158,7 @@ export function LogLipidPanelForm() {
       {/* Page Header */}
       <div className="mb-4 md:mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-foreground">
-          Log Lipid Panel
+          Data Lipid Panel
         </h1>
         <p className="text-xs sm:text-sm text-muted-foreground mt-1">
           Masukkan hasil pemeriksaan darah terbaru Anda untuk memantau kesehatan
@@ -259,7 +259,7 @@ export function LogLipidPanelForm() {
                 disabled={isSubmitting}
                 className="w-full sm:w-auto"
               >
-                Cancel
+                Batal
               </Button>
               <Button
                 onClick={handleSave}
@@ -267,7 +267,7 @@ export function LogLipidPanelForm() {
                 className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <SaveIcon className="w-4 h-4" />
-                {isSubmitting ? "Saving..." : "Save Data"}
+                {isSubmitting ? "Menyimpan..." : "Simpan Data"}
               </Button>
             </div>
           </CardContent>
