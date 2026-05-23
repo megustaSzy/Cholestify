@@ -10,6 +10,7 @@ import {
   Ruler,
   Weight,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -107,6 +108,7 @@ function getActionMessage(
       description:
         "Tambahkan hasil lipid panel agar dashboard dapat menampilkan ringkasan kesehatan.",
       actionLabel: "Tambah Data",
+      href: "/user/metric/data-lipid-panel",
     };
   }
 
@@ -135,13 +137,11 @@ function MiniMetricCard({
   label,
   value,
   unit,
-  icon,
   status,
 }: {
   label: string;
   value: string;
   unit: string;
-  icon: React.ReactNode;
   status?: string;
 }) {
   return (
@@ -150,7 +150,6 @@ function MiniMetricCard({
         <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-500">
           {label}
         </p>
-        <span className="text-gray-400">{icon}</span>
       </div>
 
       <div className="flex items-end gap-1">
@@ -191,6 +190,7 @@ function ActivityItem({
 }
 
 export default function DashboardContent() {
+  const router = useRouter();
   const {
     data: healthResponse,
     error: healthError,
@@ -294,21 +294,18 @@ export default function DashboardContent() {
                   label="Tinggi Badan"
                   value={toDisplayNumber(biometrics?.height)}
                   unit="cm"
-                  icon={<Ruler className="h-4 w-4" />}
                 />
 
                 <MiniMetricCard
                   label="Berat Badan"
                   value={toDisplayNumber(biometrics?.weight)}
                   unit="kg"
-                  icon={<Weight className="h-4 w-4" />}
                 />
 
                 <MiniMetricCard
                   label="BMI"
                   value={toDisplayNumber(biometrics?.bmi, 1)}
                   unit=""
-                  icon={<Activity className="h-4 w-4" />}
                   status={biometrics?.bmiCategory}
                 />
               </div>
@@ -353,20 +350,11 @@ export default function DashboardContent() {
                 <h2 className="text-lg font-semibold text-gray-900">
                   Tindakan Diperlukan
                 </h2>
-                <button className="text-gray-400">•••</button>
               </div>
 
               <div className="rounded-xl border border-red-200 bg-red-50 p-4">
                 <div className="flex items-start gap-3">
-                  <div className="mt-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-red-600">
-                    {actionMessage.title === "Kondisi Stabil" ? (
-                      <CheckCircle2 className="h-4 w-4" />
-                    ) : (
-                      <AlertCircle className="h-4 w-4" />
-                    )}
-                  </div>
-
-                  <div className="flex-1">
+                  <div className="flex-1 text-center">
                     <p className="text-sm font-semibold text-gray-900">
                       {actionMessage.title}
                     </p>
@@ -374,7 +362,14 @@ export default function DashboardContent() {
                       {actionMessage.description}
                     </p>
 
-                    <button className="mt-3 rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50">
+                    <button
+                      onClick={() => {
+                        if (actionMessage.href) {
+                          router.push(actionMessage.href);
+                        }
+                      }}
+                      className="mt-3 rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+                    >
                       {actionMessage.actionLabel}
                     </button>
                   </div>
