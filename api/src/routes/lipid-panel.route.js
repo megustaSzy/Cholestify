@@ -14,7 +14,6 @@ import {
 const router = Router();
 
 // ADMIN
-// ADMIN
 router.get(
   "/",
   authMiddleware,
@@ -23,7 +22,7 @@ router.get(
 );
 
 // USER
-router.get("/me", authMiddleware, LipidPanelController.getLipidPanelByUserId);
+router.get("/me", authMiddleware, LipidPanelController.getMyLipids);
 router.post(
   "/",
   authMiddleware,
