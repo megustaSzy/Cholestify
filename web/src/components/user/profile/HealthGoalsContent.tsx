@@ -323,17 +323,17 @@ export default function HealthGoalsContent() {
               </div>
 
               <Link
-                href="/user/metric/set-health-goals"
+                href="/user/metric/tujuan-kesehatan"
                 className="flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-blue-700 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-800"
               >
                 <Plus size={15} />
-                New Goal
+                Buat Target
               </Link>
             </div>
 
             {isGoalsLoading && (
               <div className="rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-500">
-                Loading health goals...
+                Loading...
               </div>
             )}
 
@@ -345,7 +345,7 @@ export default function HealthGoalsContent() {
 
             {goalsUnknownError && (
               <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-sm text-red-600">
-                Gagal mengambil data health goals. Silakan coba lagi.
+                Gagal mengambil data target kesehatan. Silakan coba lagi.
               </div>
             )}
 
@@ -354,7 +354,7 @@ export default function HealthGoalsContent() {
               (goalsNoDataError || isGoalsDataEmpty) && (
                 <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm text-blue-700">
                   Belum ada target kesehatan. Buat target pertama agar progress
-                  kalori dan exercise dapat dipantau.
+                  kalori dan aktivitas dapat dipantau.
                 </div>
               )}
 
@@ -397,10 +397,10 @@ export default function HealthGoalsContent() {
                 <div className="rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-500">
                   Belum ada target kesehatan. Klik{" "}
                   <Link
-                    href="/user/metric/set-health-goals"
+                    href="/user/metric/tujuan-kesehatan"
                     className="font-semibold text-blue-600 hover:underline"
                   >
-                    New Goal
+                    disini
                   </Link>{" "}
                   untuk membuat target pertama.
                 </div>
@@ -428,8 +428,7 @@ export default function HealthGoalsContent() {
                 <div className="flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 rounded-md px-3 py-2.5 justify-center">
                   <InfoIcon className="w-4 h-4 shrink-0 mt-0.5 text-primary/70" />
                   <span>
-                    Pastikan pengukuran dilakukan tanpa sepatu dan mengenakan
-                    pakaian tipis untuk akurasi optimal.
+                    Data tujuan kesehatan terakhir akan ditampilkan di atas.
                   </span>
                 </div>
               </div>
