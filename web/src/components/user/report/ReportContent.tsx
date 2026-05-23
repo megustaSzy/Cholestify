@@ -12,7 +12,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import {
   AlertTriangle,
   Download,
@@ -21,12 +20,9 @@ import {
   Info,
   Ruler,
   Sparkles,
-  TrendingUp,
   Utensils,
   Weight,
   Activity,
-  ClipboardList,
-  HeartPulse,
   ChevronRight,
 } from "lucide-react";
 import { useFetchData } from "@/hooks/useFetchData";
@@ -235,24 +231,15 @@ function HealthAdviceCard({
 }
 
 function BiometricsItem({
-  icon,
-  label,
   value,
   unit,
 }: {
-  icon: React.ReactNode;
   label: string;
   value: string;
   unit: string;
 }) {
   return (
     <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
-      <div className="mb-2 flex items-center justify-between">
-        <span className="text-[9px] font-bold uppercase tracking-widest text-gray-400">
-          {label}
-        </span>
-        <span className="text-gray-400">{icon}</span>
-      </div>
       <p className="text-xl font-bold text-gray-900">
         {value}{" "}
         {unit && (
@@ -360,18 +347,18 @@ export default function ReportsContent() {
       title: "Riwayat Target Harian",
       description:
         "Lihat riwayat kalori, protein, olahraga, dan catatan makanan harian.",
-      href: "/user/history/activity-target",
+      href: "/user/riwayat/target-aktivitas",
     },
     {
       title: "Riwayat Screening Mata",
       description:
         "Lihat riwayat hasul dari screening yang telah anda lakukan.",
-      href: "/user/history/eye-scan",
+      href: "/user/riwayat/scan-mata",
     },
     {
       title: "Riwayaat Data Lipid Panel",
       description: "Lihat riwayat lipid panel.",
-      href: "/user/history/lipid-panel",
+      href: "/user/riwayat/lipid-panel",
     },
   ];
 
@@ -486,8 +473,27 @@ export default function ReportsContent() {
         <div className="flex flex-col gap-4 lg:flex-row">
           <Card className="flex-1 border-gray-200 bg-white py-5">
             <CardHeader className="px-5">
-              <div className="flex items-center justify-between">
-                <CardTitle>Laporan Clinical</CardTitle>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <CardTitle>Laporan Clinical</CardTitle>
+                  <CardDescription className="mt-1 text-xs">
+                    Akses riwayat pemeriksaan dan unduh laporan clinical
+                    lengkap.
+                  </CardDescription>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={handleDownloadClinicalPdf}
+                  disabled={isDownloadingReport || isLoading}
+                  title="Unduh laporan klinik PDF"
+                  aria-label="Unduh laporan clinical PDF"
+                  className="h-9 w-9 shrink-0 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                >
+                  <Download className="size-4" />
+                </Button>
               </div>
             </CardHeader>
 
@@ -496,7 +502,7 @@ export default function ReportsContent() {
                 <Link
                   key={report.title}
                   href={report.href}
-                  className="group flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-200 p-3 transition-all hover:-translate-y-0.5 hover:border-gray-100 hover:bg-gray-100 hover:shadow-sm"
+                  className="group flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-100/80 p-3 transition-all hover:-translate-y-0.5 hover:border-blue-100 hover:bg-blue-50 hover:shadow-sm"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold text-gray-900">
@@ -507,7 +513,7 @@ export default function ReportsContent() {
                     </p>
                   </div>
 
-                  <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full text-gray-400 transition group-hover:bg-white group-hover:text-blue-600">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-gray-400 transition group-hover:bg-white group-hover:text-blue-600">
                     <ChevronRight size={16} />
                   </div>
                 </Link>
@@ -515,47 +521,55 @@ export default function ReportsContent() {
             </CardContent>
           </Card>
 
-          <Card className="flex-1 border-gray-200 bg-white py-5">
+          <Card className="flex flex-1 flex-col border-gray-200 bg-white py-5">
             <CardHeader className="px-5">
-              <CardTitle>Biometrics Terkini</CardTitle>
+              <div>
+                <CardTitle>Biometrics Terkini</CardTitle>
+                <CardDescription className="mt-1 text-xs">
+                  Ringkasan tinggi badan, berat badan, dan status BMI terbaru.
+                </CardDescription>
+              </div>
             </CardHeader>
 
-            <CardContent className="px-5">
+            <CardContent className="flex flex-1 flex-col px-5">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <BiometricsItem
-                  icon={<Ruler size={15} />}
-                  label="Height"
+                  label="Tinggi badan"
                   value={toDisplayNumber(biometrics?.height)}
                   unit="cm"
                 />
 
                 <BiometricsItem
-                  icon={<Weight size={15} />}
-                  label="Weight"
+                  label="Berat badan"
                   value={toDisplayNumber(biometrics?.weight)}
                   unit="kg"
                 />
 
                 <BiometricsItem
-                  icon={<Activity size={15} />}
                   label="BMI"
                   value={toDisplayNumber(biometrics?.bmi, 1)}
                   unit=""
                 />
               </div>
 
-              <div className="mt-4 flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-gray-600">
-                <Info
-                  size={15}
-                  className="mt-0.5 flex-shrink-0 text-blue-500"
-                />
-                <span>
-                  Status BMI:{" "}
-                  <span className="font-semibold text-blue-700">
-                    {biometrics?.bmiCategory ?? "Belum tersedia"}
+              <div className="mt-4 grid flex-1 gap-3">
+                <Link
+                  href="/user/metric/data-biometrik"
+                  className="mt-auto flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
+                >
+                  <span>Perbarui data biometrik</span>
+                  <ChevronRight size={16} />
+                </Link>
+                <div className="flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-gray-600">
+                  <Info size={15} className="mt-0.5 shrink-0 text-blue-500" />
+                  <span>
+                    Status BMI:{" "}
+                    <span className="font-semibold text-blue-700">
+                      {biometrics?.bmiCategory ?? "Belum tersedia"}
+                    </span>
+                    . Data ini diambil dari ringkasan kesehatan terbaru.
                   </span>
-                  . Data ini diambil dari ringkasan kesehatan terbaru.
-                </span>
+                </div>
               </div>
             </CardContent>
           </Card>
