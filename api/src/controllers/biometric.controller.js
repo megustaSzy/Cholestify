@@ -23,11 +23,11 @@ export const BiometricController = {
     }
   },
 
-  async getBiometricByUserId(req, res, next) {
+  async getMyBiometrics(req, res, next) {
     try {
       const userId = req.user.id;
 
-      const data = await BiometricService.getBiometricByUserId(userId);
+      const data = await BiometricService.getMyBiometrics(userId);
 
       return res.status(HttpStatus.OK).json({
         success: true,

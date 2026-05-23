@@ -17,7 +17,7 @@ router.get(
 );
 
 // USER
-router.get("/me", authMiddleware, BiometricController.getBiometricByUserId);
+router.get("/me", authMiddleware, BiometricController.getMyBiometrics);
 router.post("/", authMiddleware, BiometricController.createBiometric);
 router.patch("/", authMiddleware, BiometricController.updateBiometric);
 
