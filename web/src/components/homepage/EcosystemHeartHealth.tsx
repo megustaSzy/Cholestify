@@ -102,6 +102,7 @@ export default function EcosystemHeratHealth() {
                     height={0}
                     sizes="100vw"
                     className="w-full h-52 sm:h-full object-cover bg-slate-100 rounded-xl"
+                    loading="eager"
                   />
                 </div>
               </div>
