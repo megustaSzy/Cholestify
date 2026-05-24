@@ -142,6 +142,10 @@ export const AuthService = {
   },
 
   async refresh(refreshToken) {
+    if (!refreshToken) {
+      throw new UnauthorizedError(MESSAGE.TOKEN.INVALID);
+    }
+
     const decoded = verifyRefreshToken(refreshToken);
 
     await validateRefresh(refreshToken);
