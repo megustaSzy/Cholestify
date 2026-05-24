@@ -23,6 +23,7 @@ router.get(
 
 // USER
 router.get("/me", authMiddleware, LipidPanelController.getMyLipids);
+router.get("/me/export/pdf", authMiddleware, LipidPanelController.exportMyLipidsPDF);
 router.post(
   "/",
   authMiddleware,

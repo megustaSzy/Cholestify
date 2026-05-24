@@ -2,6 +2,8 @@ import { HttpStatus } from "../constants/http-status.constant.js";
 import { MESSAGE } from "../constants/message.constant.js";
 
 import { LipidPanelService } from "../services/lipid-panel.service.js";
+import { UserService } from "../services/user.service.js";
+import { generateLipidPDF } from "../utils/pdf.util.js";
 
 export const LipidPanelController = {
   async getLipidPanels(req, res, next) {
@@ -39,6 +41,19 @@ export const LipidPanelController = {
 
         data,
       });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async exportMyLipidsPDF(req, res, next) {
+    try {
+      const userId = req.user.id;
+
+      const user = await UserService.getUsersById(userId);
+      const data = await LipidPanelService.getMyLipids(userId);
+
+      generateLipidPDF(res, user, data);
     } catch (error) {
       next(error);
     }
