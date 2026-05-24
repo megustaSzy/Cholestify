@@ -122,13 +122,11 @@ export const AuthController = {
       const { user, accessToken, refreshToken } = await AuthService.googleLogin(
         req.user,
       );
-
-      // set cookie, bukan query param lagi
       res.cookie("accessToken", accessToken, COOKIE_CONFIG.ACCESS_TOKEN);
       res.cookie("refreshToken", refreshToken, COOKIE_CONFIG.REFRESH_TOKEN);
 
       // redirect bersih tanpa token di URL
-      return res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+      return res.redirect(`${process.env.FRONTEND_URL}/user/dashboard`);
     } catch (error) {
       next(error);
     }
@@ -136,7 +134,6 @@ export const AuthController = {
 
   async getMe(req, res, next) {
     try {
-      // Mengambil ID user dari authMiddleware (req.user.id)
       const user = await UserService.getUsersById(req.user.id);
 
       return res.status(HttpStatus.OK).json({
