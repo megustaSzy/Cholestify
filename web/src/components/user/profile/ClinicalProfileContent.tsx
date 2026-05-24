@@ -1,10 +1,7 @@
 "use client";
 import React from "react";
 import { ReactNode } from "react";
-import {
-  Mail,
-  Phone,
-} from "lucide-react";
+import { Mail, Phone } from "lucide-react";
 import { useFetchData } from "@/hooks/useFetchData";
 import { isAuthError, isNoDataError } from "@/lib/ApiErrorResponse";
 
@@ -22,6 +19,10 @@ type UserProfile = {
   nama?: string;
   email?: string;
   notelp?: string;
+  avatar?: string | null;
+  avatarUrl?: string | null;
+  imageUrl?: string | null;
+  profileImage?: string | null;
 };
 
 type Biometrics = {
@@ -54,7 +55,7 @@ type HealthSummary = {
   recommendation?: Recommendation | null;
 };
 
-function Avatar({ name }: { name: string }) {
+function Avatar({ name, src }: { name: string; src?: string | null }) {
   const initials = name
     .split(" ")
     .filter(Boolean)
@@ -64,8 +65,16 @@ function Avatar({ name }: { name: string }) {
     .toUpperCase();
 
   return (
-    <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold text-xl flex-shrink-0">
-      {initials || "U"}
+    <div className="relative flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-300 text-xl font-semibold text-gray-700">
+      {src ? (
+        <img
+          src={src}
+          alt={name || "User avatar"}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        initials || "U"
+      )}
     </div>
   );
 }
@@ -142,6 +151,28 @@ function toDisplayNumber(value?: number, fractionDigits = 0) {
   return value.toFixed(fractionDigits).replace(/\.0$/, "");
 }
 
+function getAvatarUrl(src?: string | null) {
+  if (!src) return null;
+
+  if (
+    src.startsWith("http://") ||
+    src.startsWith("https://") ||
+    src.startsWith("blob:") ||
+    src.startsWith("data:")
+  ) {
+    return src;
+  }
+
+  const apiOrigin = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(
+    /\/api\/?$/,
+    "",
+  );
+
+  if (!apiOrigin) return src;
+
+  return `${apiOrigin}${src.startsWith("/") ? src : `/${src}`}`;
+}
+
 export default function ClinicalProfileContent() {
   const {
     data: userResponse,
@@ -193,6 +224,9 @@ export default function ClinicalProfileContent() {
   const patientId = user?.id ? `#HC-${String(user.id).padStart(4, "0")}` : "-";
   const email = user?.email ?? "-";
   const phone = user?.notelp ?? "-";
+  const patientAvatar = getAvatarUrl(
+    user?.avatarUrl ?? user?.avatar ?? user?.imageUrl ?? user?.profileImage,
+  );
   const lastLipidDate = formatDate(lipidPanel?.date);
   const clinicalErrors = [userError, healthError, lipidHistoryError];
 
@@ -252,7 +286,7 @@ export default function ClinicalProfileContent() {
               )}
 
             <div className="bg-white border border-gray-200 rounded-2xl p-5 flex items-center gap-4">
-              <Avatar name={patientName} />
+              <Avatar name={patientName} src={patientAvatar} />
 
               <div className="flex-1 min-w-0">
                 <h2 className="text-xl font-bold text-gray-900">
