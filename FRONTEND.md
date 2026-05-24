@@ -8,35 +8,37 @@ Base URL: `http://localhost:3001`
 
 ## 📋 Daftar Endpoint
 
-| Method  | Endpoint                    | Auth | Deskripsi                                          |
-| ------- | --------------------------- | ---- | -------------------------------------------------- |
-| `POST`  | `/api/auth/register`        | ❌   | Registrasi user baru                               |
-| `POST`  | `/api/auth/login`           | ❌   | Login, cookie di-set otomatis                      |
-| `POST`  | `/api/auth/refresh`         | 🍪   | Refresh access token                               |
-| `POST`  | `/api/auth/logout`          | 🍪   | Logout, cookie dihapus                             |
-| `POST`  | `/api/auth/forgot-password` | ❌   | Kirim email reset password                         |
-| `POST`  | `/api/auth/reset-password`  | ❌   | Reset password via token query                     |
-| `GET`   | `/api/auth/google`          | ❌   | Login via Google OAuth                             |
-| `GET`   | `/api/users/:id`            | 🍪   | Ambil profil user                                  |
-| `PATCH` | `/api/users/:id`            | 🍪   | Update profil user                                 |
-| `GET`   | `/api/health-summary`       | 🍪   | **Dashboard** — Biometric + Latest Lipid Panel     |
-| `POST`  | `/api/biometrics`           | 🍪   | Input tinggi & berat badan (BMI dihitung otomatis) |
-| `GET`   | `/api/biometrics/me`        | 🍪   | Ambil Biometrics user (pribadi)                    |
-| `PATCH` | `/api/biometrics/`          | 🍪   | Update biometric user (pribadi)                    |
-| `POST`  | `/api/lipid-panels`         | 🍪   | Input data kolesterol baru                         |
-| `GET`   | `/api/lipid-panels/me`      | 🍪   | Ambil Riwayat Lipids user (pribadi)                |
-| `POST`  | `/api/calculates`           | ❌   | Hitung zone detak jantung                          |
-| `POST`  | `/api/health-goals`         | 🍪   | Input target kesehatan dan dapatkan saran          |
-| `GET`   | `/api/health-goals/me`      | 🍪   | Ambil riwayat target kesehatan                     |
-| `GET`   | `/api/health-recommendations/overview` | 🍪 | **Widget Overview** — Lipid Panel & Saran Terbaru |
-| `GET`   | `/api/health-recommendations/me` | 🍪 | Ambil riwayat saran kesehatan saja                 |
-| `POST`  | `/api/daily-trackings`      | 🍪   | Catat aktivitas & kalori harian                    |
-| `GET`   | `/api/daily-trackings/history` | 🍪 | Ambil riwayat pencatatan harian                   |
-| `GET`   | `/api/foods/public`         | ❌   | **Public Foods** — Daftar kalori makanan tanpa auth|
-| `GET`   | `/api/foods?page=&limit=&search=&status=` | 🍪   | **Rekomendasi Makanan** — Menu diet sesuai LDL    |
-| `POST`  | `/api/screenings`           | 🍪   | **AI Eye Scan** — Analisis gambar retina mata      |
-| `GET`   | `/api/screenings/me`        | 🍪   | Ambil riwayat hasil scan mata (pribadi)            |
-| `POST`  | `/api/tests/upload`          | ❌   | *Testing* — Upload gambar ke Cloudinary            |
+| Method  | Endpoint                                  | Auth | Deskripsi                                           |
+| ------- | ----------------------------------------- | ---- | --------------------------------------------------- |
+| `POST`  | `/api/auth/register`                      | ❌   | Registrasi user baru                                |
+| `POST`  | `/api/auth/login`                         | ❌   | Login, cookie di-set otomatis                       |
+| `POST`  | `/api/auth/refresh`                       | 🍪   | Refresh access token                                |
+| `POST`  | `/api/auth/logout`                        | 🍪   | Logout, cookie dihapus                              |
+| `POST`  | `/api/auth/forgot-password`               | ❌   | Kirim email reset password                          |
+| `POST`  | `/api/auth/reset-password`                | ❌   | Reset password via token query                      |
+| `GET`   | `/api/auth/google`                        | ❌   | Login via Google OAuth                              |
+| `GET`   | `/api/users/:id`                          | 🍪   | Ambil profil user                                   |
+| `PATCH` | `/api/users/:id`                          | 🍪   | Update profil user                                  |
+| `GET`   | `/api/health-summary`                     | 🍪   | **Dashboard** — Biometric + Latest Lipid Panel      |
+| `POST`  | `/api/biometrics`                         | 🍪   | Input tinggi & berat badan (BMI dihitung otomatis)  |
+| `GET`   | `/api/biometrics/me`                      | 🍪   | Ambil Biometrics user (pribadi)                     |
+| `PATCH` | `/api/biometrics/`                        | 🍪   | Update biometric user (pribadi)                     |
+| `POST`  | `/api/lipid-panels`                       | 🍪   | Input data kolesterol baru                          |
+| `GET`   | `/api/lipid-panels/me`                    | 🍪   | Ambil Riwayat Lipids user (pribadi)                 |
+| `GET`   | `/api/lipid-panels/me/export/pdf`         | 🍪   | Download PDF riwayat lipid panel (blob)             |
+| `POST`  | `/api/calculates`                         | ❌   | Hitung zone detak jantung                           |
+| `POST`  | `/api/health-goals`                       | 🍪   | Input target kesehatan dan dapatkan saran           |
+| `GET`   | `/api/health-goals/me`                    | 🍪   | Ambil riwayat target kesehatan                      |
+| `GET`   | `/api/health-recommendations/overview`    | 🍪   | **Widget Overview** — Lipid Panel & Saran Terbaru   |
+| `GET`   | `/api/health-recommendations/me`          | 🍪   | Ambil riwayat saran kesehatan saja                  |
+| `POST`  | `/api/daily-trackings`                    | 🍪   | Catat aktivitas & kalori harian                     |
+| `GET`   | `/api/daily-trackings/history`            | 🍪   | Ambil riwayat pencatatan harian                     |
+| `GET`   | `/api/foods/public`                       | ❌   | **Public Foods** — Daftar kalori makanan tanpa auth |
+| `GET`   | `/api/foods?page=&limit=&search=&status=` | 🍪   | **Rekomendasi Makanan** — Menu diet sesuai LDL      |
+| `POST`  | `/api/screenings`                         | 🍪   | **AI Eye Scan** — Analisis gambar retina mata       |
+| `GET`   | `/api/screenings/me`                      | 🍪   | Ambil riwayat hasil scan mata (pribadi)             |
+| `GET`   | `/api/screenings/me/export/pdf`           | 🍪   | Download PDF hasil scan mata (blob)                 |
+| `POST`  | `/api/tests/upload`                       | ❌   | _Testing_ — Upload gambar ke Cloudinary             |
 
 > 🍪 = Token dikirim otomatis via HTTP-only Cookie, **tidak perlu set header manual**.
 
@@ -255,13 +257,13 @@ Base URL: `http://localhost:3001`
 
 **Request Body (JSON):**
 
-| Field              | Type     | Required | Keterangan                                |
-| ------------------ | -------- | -------- | ----------------------------------------- |
-| `totalCholesterol` | `number` | ✅ Ya    | Total kolesterol (mg/dL)                  |
-| `ldl`              | `number` | ✅ Ya    | LDL / bad cholesterol (mg/dL)             |
-| `hdl`              | `number` | ✅ Ya    | HDL / good cholesterol (mg/dL)            |
-| `triglycerides`    | `number` | ✅ Ya    | Trigliserida (mg/dL)                      |
-| `date`             | `string` | ❌ Tidak | Tanggal pengecekan (default: `now`)       |
+| Field              | Type     | Required | Keterangan                          |
+| ------------------ | -------- | -------- | ----------------------------------- |
+| `totalCholesterol` | `number` | ✅ Ya    | Total kolesterol (mg/dL)            |
+| `ldl`              | `number` | ✅ Ya    | LDL / bad cholesterol (mg/dL)       |
+| `hdl`              | `number` | ✅ Ya    | HDL / good cholesterol (mg/dL)      |
+| `triglycerides`    | `number` | ✅ Ya    | Trigliserida (mg/dL)                |
+| `date`             | `string` | ❌ Tidak | Tanggal pengecekan (default: `now`) |
 
 **Contoh Request:**
 
@@ -324,7 +326,47 @@ Base URL: `http://localhost:3001`
 
 ---
 
+### Download My Lipid Panel History PDF
+
+**Endpoint:** `GET /api/lipid-panels/me/export/pdf`
+
+**Deskripsi:** Mengunduh seluruh riwayat pemeriksaan Lipid Panel milik user dalam bentuk file **PDF** yang diformat khusus.
+
+> ⚠️ **PENTING UNTUK FRONTEND**: Karena _response_ dari API ini berupa _Binary File_ (bukan JSON), pastikan kamu menggunakan parameter `responseType: "blob"` saat me-_request_ dengan Axios, lalu mengonversinya menjadi URL unduhan menggunakan `URL.createObjectURL`.
+
+**Contoh Implementasi Axios di React:**
+
+```javascript
+const handleDownloadPDF = async () => {
+  try {
+    const response = await axios.get(
+      "http://localhost:3001/api/lipid-panels/me/export/pdf",
+      {
+        withCredentials: true,
+        responseType: "blob", // WAJIB ADA
+      },
+    );
+
+    // Konversi blob ke URL dan trigger fungsi download browser
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "Riwayat_Lipid.pdf");
+    document.body.appendChild(link);
+    link.click();
+
+    // Bersihkan memori URL
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Gagal download laporan", error);
+  }
+};
 ```
+
+---
+
+````
 
 ---
 
@@ -350,7 +392,7 @@ Base URL: `http://localhost:3001`
   "restingHeartRate": 72,
   "activityLevel": "LIGHTLY_ACTIVE"
 }
-```
+````
 
 **Response (200):**
 
@@ -368,17 +410,19 @@ Base URL: `http://localhost:3001`
 ## 🎯 Health Goals (Saran Kesehatan)
 
 ### Create Target & Dapatkan Saran
+
 **Endpoint:** `POST /api/health-goals`
 
 **Request Body (JSON):**
 
-| Field                  | Type     | Required | Keterangan                                  |
-| ---------------------- | -------- | -------- | ------------------------------------------- |
-| `targetLdlHdlRatio`    | `number` | ✅ Ya    | Target rasio LDL/HDL (misal: 2.5)           |
-| `targetWeeklyCalories` | `number` | ✅ Ya    | Target kalori per minggu (misal: 14000)     |
-| `targetExerciseMins`   | `number` | ✅ Ya    | Target olahraga menit/minggu (misal: 150)   |
+| Field                  | Type     | Required | Keterangan                                |
+| ---------------------- | -------- | -------- | ----------------------------------------- |
+| `targetLdlHdlRatio`    | `number` | ✅ Ya    | Target rasio LDL/HDL (misal: 2.5)         |
+| `targetWeeklyCalories` | `number` | ✅ Ya    | Target kalori per minggu (misal: 14000)   |
+| `targetExerciseMins`   | `number` | ✅ Ya    | Target olahraga menit/minggu (misal: 150) |
 
 **Contoh Request:**
+
 ```json
 {
   "targetLdlHdlRatio": 2.5,
@@ -388,6 +432,7 @@ Base URL: `http://localhost:3001`
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -407,9 +452,11 @@ Base URL: `http://localhost:3001`
 ---
 
 ### Get My Health Goals History
+
 **Endpoint:** `GET /api/health-goals/me`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -470,11 +517,13 @@ Base URL: `http://localhost:3001`
 ## 💡 Health Recommendation (Otomatis)
 
 ### Get Overview Widget
+
 **Endpoint:** `GET /api/health-recommendations/overview`
 
 **Deskripsi:** Mengambil data saran kesehatan terbaru beserta hasil lab kolesterol referensinya yang ter-generate secara otomatis setiap kali input Lipid Panel. Cocok untuk ditampilkan di UI Overview.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -499,11 +548,13 @@ Base URL: `http://localhost:3001`
 ---
 
 ### Get My Recommendations History
+
 **Endpoint:** `GET /api/health-recommendations/me`
 
 **Deskripsi:** Mengambil semua riwayat saran kesehatan milik user yang digenerate oleh sistem, murni hanya rekomendasi tanpa dicampur dengan riwayat angka Lipid Panel-nya.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -527,11 +578,13 @@ Base URL: `http://localhost:3001`
 Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 
 ### Create Daily Tracking
+
 **Endpoint:** `POST /api/daily-trackings`
 
 **Deskripsi:** Menyimpan data kalori, protein, durasi olahraga, dan catatan makanan untuk hari ini.
 
 **Body Request:**
+
 ```json
 {
   "calories": 2000,
@@ -542,6 +595,7 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 ```
 
 **Response (201):**
+
 ```json
 {
   "success": true,
@@ -562,11 +616,13 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 ---
 
 ### Get My Daily Tracking History
+
 **Endpoint:** `GET /api/daily-trackings/history`
 
 **Deskripsi:** Mengambil semua riwayat pencatatan harian milik user yang sedang login beserta target goals pada saat itu.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -596,9 +652,11 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 ## 🍎 Food Recommendations
 
 ### Get Public Food List (No Auth)
+
 **Endpoint:** `GET /api/foods/public`
 
 **Query Parameters (Opsional):**
+
 - `page` (number): Halaman (default: 1)
 - `limit` (number): Jumlah data (default: 10)
 - `search` (string): Mencari makanan berdasarkan nama (contoh: "ayam")
@@ -608,6 +666,7 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 **Deskripsi:** Mengambil daftar makanan publik (ID, nama, kalori, protein, lemak) tanpa rekomendasi status. Endpoint ini terbuka bebas tanpa token.
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -635,9 +694,11 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 ---
 
 ### Get Food Recommendation List (Paginated & Filtered)
+
 **Endpoint:** `GET /api/foods`
 
 **Query Parameters (Opsional):**
+
 - `page` (number): Halaman yang ingin diambil (default: 1)
 - `limit` (number): Jumlah data per halaman (default: 10)
 - `search` (string): Mencari makanan berdasarkan nama (contoh: "ayam")
@@ -648,13 +709,15 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 **Deskripsi:** Mengambil daftar makanan master beserta klasifikasinya (`OPTIMAL`, `NEUTRAL`, `LIMIT`) yang ditentukan secara dinamis berdasarkan nilai LDL terakhir pengguna.
 
 **Skenario Pengujian Frontend (Best Practices):**
+
 - **Awal Buka:** `GET /api/foods?page=1&limit=10`
-- **Pencarian Kata:** `GET /api/foods?page=1&limit=10&search=susu` *(setiap user mengetik pencarian baru, paksa reset ke `page=1`)*.
+- **Pencarian Kata:** `GET /api/foods?page=1&limit=10&search=susu` _(setiap user mengetik pencarian baru, paksa reset ke `page=1`)_.
 - **Pindah Halaman:** Gunakan nilai `next` di JSON `metadata`. URL `next` otomatis mengingat query pencarianmu (contoh: `?page=2&limit=10&search=susu`). Jika `next` bernilai `null`, data sudah habis.
-- **Filter Tab Kategori:** `GET /api/foods?page=1&limit=10&status=OPTIMAL` *(setiap pindah tab, paksa reset ke `page=1`)*.
+- **Filter Tab Kategori:** `GET /api/foods?page=1&limit=10&status=OPTIMAL` _(setiap pindah tab, paksa reset ke `page=1`)_.
 - **Kombinasi Pencarian & Tab:** `GET /api/foods?page=1&limit=10&search=daging&status=LIMIT`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -697,17 +760,19 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 ## 👁️ AI Eye Scan (Screening)
 
 ### Upload & Analyze Eye Image
+
 **Endpoint:** `POST /api/screenings`
 
 **Headers:** `Content-Type: multipart/form-data`
 
 **Request Body (FormData):**
-| Field      | Type   | Required | Keterangan                                                                 |
+| Field | Type | Required | Keterangan |
 | ---------- | ------ | -------- | -------------------------------------------------------------------------- |
-| `image`    | `file` | ✅ Ya    | Gambar mata (JPG/PNG). Maksimal 10MB.                                      |
-| `socketId` | `string`| ❌ Tidak | ID dari koneksi `Socket.io` untuk menerima *real-time progress tracking*.  |
+| `image` | `file` | ✅ Ya | Gambar mata (JPG/PNG). Maksimal 10MB. |
+| `socketId` | `string`| ❌ Tidak | ID dari koneksi `Socket.io` untuk menerima _real-time progress tracking_. |
 
 **Contoh Response (201 Created):**
+
 ```json
 {
   "success": true,
@@ -732,7 +797,8 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 ```
 
 **Contoh Response Gagal / OOD (400 Bad Request):**
-*(Jika gambar bukan mata atau buram)*
+_(Jika gambar bukan mata atau buram)_
+
 ```json
 {
   "success": false,
@@ -745,18 +811,20 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 
 ### 🔌 Panduan Pemasangan Socket.io di Frontend (React)
 
-Untuk menampilkan *loading progress bar* secara *real-time* saat gambar mata sedang diunggah dan diproses oleh AI (Backend -> FastAPI Hugging Face -> Backend -> Frontend), kamu perlu memasang Socket.io Client.
+Untuk menampilkan _loading progress bar_ secara _real-time_ saat gambar mata sedang diunggah dan diproses oleh AI (Backend -> FastAPI Hugging Face -> Backend -> Frontend), kamu perlu memasang Socket.io Client.
 
 **1. Install library di React:**
+
 ```bash
 npm install socket.io-client
 ```
 
 **2. Contoh Kode Komponen React:**
+
 ```javascript
-import React, { useState, useEffect } from 'react';
-import { io } from 'socket.io-client';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { io } from "socket.io-client";
+import axios from "axios";
 
 // Ganti URL dengan Base URL backend-mu
 const socket = io("http://localhost:3001", {
@@ -772,8 +840,8 @@ const EyeScanForm = () => {
   useEffect(() => {
     // Menangkap event "scan_progress" dari server Node.js
     socket.on("scan_progress", (data) => {
-      setProgress(data.progress);     // Angka persentase 0-100
-      setLoadingText(data.message);   // Teks status (Upload, Sedang Menganalisis, dll)
+      setProgress(data.progress); // Angka persentase 0-100
+      setLoadingText(data.message); // Teks status (Upload, Sedang Menganalisis, dll)
     });
 
     // Cleanup saat komponen ditutup
@@ -784,30 +852,33 @@ const EyeScanForm = () => {
 
   const handleScan = async () => {
     if (!file) return alert("Pilih gambar terlebih dahulu!");
-    
+
     setIsScanning(true);
     setProgress(0);
     setLoadingText("Memulai...");
 
     const formData = new FormData();
     formData.append("image", file); // ⚠️ Pastikan namanya "image"
-    
+
     // 💡 SANGAT PENTING: Masukkan ID koneksi soket agar server tahu ke user mana ia harus mengirim progress
-    formData.append("socketId", socket.id); 
+    formData.append("socketId", socket.id);
 
     try {
-      const response = await axios.post("http://localhost:3001/api/screenings", formData, {
-        withCredentials: true,
-        headers: { "Content-Type": "multipart/form-data" } // ⚠️ Jangan lupa header multipart
-      });
-      
+      const response = await axios.post(
+        "http://localhost:3001/api/screenings",
+        formData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" }, // ⚠️ Jangan lupa header multipart
+        },
+      );
+
       console.log("Hasil AI:", response.data);
       alert("Selesai! Hasil: " + response.data.data.result);
-      
+
       // Jika berhasil, progress paksa ke 100% dan ganti teks
       setProgress(100);
       setLoadingText("Selesai!");
-      
     } catch (error) {
       console.error(error);
       alert(error.response?.data?.message || "Gagal melakukan scan");
@@ -819,7 +890,11 @@ const EyeScanForm = () => {
 
   return (
     <div>
-      <input type="file" onChange={(e) => setFile(e.target.files[0])} accept="image/*" />
+      <input
+        type="file"
+        onChange={(e) => setFile(e.target.files[0])}
+        accept="image/*"
+      />
       <button onClick={handleScan} disabled={isScanning}>
         {isScanning ? "Memproses AI..." : "Mulai Scan Mata"}
       </button>
@@ -842,9 +917,11 @@ export default EyeScanForm;
 ---
 
 ### Get My Screening History
+
 **Endpoint:** `GET /api/screenings/me`
 
 **Response (200):**
+
 ```json
 {
   "success": true,
@@ -866,8 +943,17 @@ export default EyeScanForm;
       "createdAt": "2026-05-22T17:20:10.278Z"
     }
   ]
-}
 ```
+
+---
+
+### Download My Screening History PDF
+
+**Endpoint:** `GET /api/screenings/me/export/pdf`
+
+**Deskripsi:** Mengunduh seluruh riwayat deteksi mata AI milik user dalam bentuk file **PDF**.
+
+Sama seperti riwayat Lipid Panel, _endpoint_ ini juga me-return _Binary File_ (PDF). Jangan lupa gunakan kode implementasi pengunduhan _blob_ yang sama seperti pada dokumentasi PDF Lipid Panel (gunakan `responseType: "blob"`).
 
 ---
 

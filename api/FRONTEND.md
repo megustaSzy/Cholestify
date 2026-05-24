@@ -25,6 +25,7 @@ Base URL: `http://localhost:3001`
 | `PATCH` | `/api/biometrics/`          | 🍪   | Update biometric user (pribadi)                    |
 | `POST`  | `/api/lipid-panels`         | 🍪   | Input data kolesterol baru                         |
 | `GET`   | `/api/lipid-panels/me`      | 🍪   | Ambil Riwayat Lipids user (pribadi)                |
+| `GET`   | `/api/lipid-panels/me/export/pdf` | 🍪 | Download PDF riwayat lipid panel (blob)            |
 | `PATCH` | `/api/lipid-panels/`        | 🍪   | Update data kolesterol terbaru                     |
 | `POST`  | `/api/calculates`           | ❌   | Hitung zone detak jantung                          |
 | `POST`  | `/api/health-goals`         | 🍪   | Input target kesehatan dan dapatkan saran          |
@@ -35,6 +36,7 @@ Base URL: `http://localhost:3001`
 | `GET`   | `/api/foods?page=&limit=&search=&status=` | 🍪   | **Rekomendasi Makanan** — Menu diet sesuai LDL    |
 | `POST`  | `/api/screenings`           | 🍪   | **AI Eye Scan** — Analisis gambar retina mata      |
 | `GET`   | `/api/screenings/me`        | 🍪   | Ambil riwayat hasil scan mata (pribadi)            |
+| `GET`   | `/api/screenings/me/export/pdf` | 🍪 | Download PDF hasil scan mata (blob)                |
 | `POST`  | `/api/tests/upload`          | ❌   | *Testing* — Upload gambar ke Cloudinary            |
 
 > 🍪 = Token dikirim otomatis via HTTP-only Cookie, **tidak perlu set header manual**.
@@ -311,6 +313,41 @@ Base URL: `http://localhost:3001`
     }
   ]
 }
+```
+
+---
+
+### Download My Lipid Panel History PDF
+
+**Endpoint:** `GET /api/lipid-panels/me/export/pdf`
+
+**Deskripsi:** Mengunduh seluruh riwayat pemeriksaan Lipid Panel milik user dalam bentuk file **PDF** yang diformat khusus. 
+> ⚠️ **PENTING UNTUK FRONTEND**: Karena *response* dari API ini berupa *Binary File* (bukan JSON), pastikan kamu menggunakan parameter `responseType: "blob"` saat me-*request* dengan Axios, lalu mengonversinya menjadi URL unduhan menggunakan `URL.createObjectURL`.
+
+**Contoh Implementasi Axios di React:**
+```javascript
+const handleDownloadPDF = async () => {
+  try {
+    const response = await axios.get("http://localhost:3001/api/lipid-panels/me/export/pdf", {
+      withCredentials: true,
+      responseType: "blob", // WAJIB ADA
+    });
+    
+    // Konversi blob ke URL dan trigger fungsi download browser
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "Riwayat_Lipid.pdf"); 
+    document.body.appendChild(link);
+    link.click();
+    
+    // Bersihkan memori URL
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error("Gagal download laporan", error);
+  }
+};
 ```
 
 ---
@@ -836,6 +873,16 @@ export default EyeScanForm;
   ]
 }
 ```
+
+---
+
+### Download My Screening History PDF
+
+**Endpoint:** `GET /api/screenings/me/export/pdf`
+
+**Deskripsi:** Mengunduh seluruh riwayat deteksi mata AI milik user dalam bentuk file **PDF**. 
+
+Sama seperti riwayat Lipid Panel, *endpoint* ini juga me-return *Binary File* (PDF). Jangan lupa gunakan kode implementasi pengunduhan *blob* yang sama seperti pada dokumentasi PDF Lipid Panel (gunakan `responseType: "blob"`).
 
 ---
 
