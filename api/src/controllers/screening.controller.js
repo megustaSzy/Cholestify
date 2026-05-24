@@ -103,16 +103,19 @@ export const ScreeningController = {
   async getMyScreenings(req, res, next) {
     try {
       const userId = req.user.id;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
 
-      const data = await ScreeningService.getMyScreenings(userId);
+      const result = await ScreeningService.getMyScreenings(userId, page, limit);
 
       return res.status(HttpStatus.OK).json({
         success: true,
         message: MESSAGE.SCREENING.FOUND,
         metadata: {
           status: HttpStatus.OK,
+          ...result.metadata,
         },
-        data: data,
+        data: result.data,
       });
     } catch (error) {
       next(error);
@@ -124,7 +127,7 @@ export const ScreeningController = {
       const userId = req.user.id;
 
       const user = await UserService.getUsersById(userId);
-      const data = await ScreeningService.getMyScreenings(userId);
+      const data = await ScreeningService.getAllMyScreenings(userId);
 
       generateScreeningPDF(res, user, data);
     } catch (error) {
