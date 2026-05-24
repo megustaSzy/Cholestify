@@ -6,14 +6,14 @@ import { io } from "../server.js";
 export const predictEyeScan = async (fileBuffer, filename, socketId) => {
   try {
     if (socketId) {
-      io.to(socketId).emit("scan_progress", { message: "Menganalisis pola retina mata...", progress: 30 });
+      io.to(socketId).emit("scan_progress", { message: "AI mulai memindai pola mata Anda...", progress: 30 });
     }
 
     const formData = new FormData();
     formData.append("file", fileBuffer, filename);
 
     if (socketId) {
-      io.to(socketId).emit("scan_progress", { message: "Mengekstraksi indikasi lipid dengan Model AI...", progress: 60 });
+      io.to(socketId).emit("scan_progress", { message: "Mendeteksi kadar kolesterol...", progress: 60 });
     }
 
     const response = await axios.post(
@@ -22,12 +22,12 @@ export const predictEyeScan = async (fileBuffer, filename, socketId) => {
       {
         headers: formData.getHeaders(),
         maxBodyLength: Infinity,
-        timeout: 15000, // timeout 15s
+        timeout: 60000,
       },
     );
 
     if (socketId) {
-      io.to(socketId).emit("scan_progress", { message: "Selesai! Menampilkan hasil...", progress: 100 });
+      io.to(socketId).emit("scan_progress", { message: "Menyusun hasil diagnosis AI...", progress: 85 });
     }
 
     return response.data;

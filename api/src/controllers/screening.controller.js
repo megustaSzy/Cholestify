@@ -26,7 +26,7 @@ export const ScreeningController = {
 
       if (socketId) {
         io.to(socketId).emit("scan_progress", {
-          message: "Mengunggah gambar ke server...",
+          message: "Menyiapkan foto mata Anda...",
           progress: 10,
         });
       }
@@ -77,6 +77,13 @@ export const ScreeningController = {
           probabilities: result.probabilitas,
         },
       });
+      
+      if (socketId) {
+        io.to(socketId).emit("scan_progress", {
+          message: "Selesai! Hasil siap ditampilkan.",
+          progress: 100,
+        });
+      }
 
       return res.status(HttpStatus.CREATED).json({
         success: true,
