@@ -27,9 +27,9 @@ export default function NavHeaderClient({ hasToken }: NavHeaderClientProps) {
 
   const menus = [
     { label: "Home", href: "/" },
-    { label: "Food Directory", href: "/food-directory" },
-    { label: "Eye Scan", href: "/user/eye-scan" },
-    { label: "Calculator HDR", href: "/calculator-hdr" },
+    { label: "Kandungan Makanan", href: "/food-directory" },
+    { label: "Scan Mata", href: "/user/scan-mata" },
+    { label: "Kalkulator RHR", href: "/calculator-hdr" },
   ];
 
   return (

@@ -21,6 +21,7 @@ import { useState } from "react";
 
 export function NavMenuSidebar({
   items,
+  className,
 }: {
   items: {
     name: string;
@@ -32,6 +33,7 @@ export function NavMenuSidebar({
       isActive?: boolean;
     }[];
   }[];
+  className?: string;
 }) {
   const pathname = usePathname();
 
@@ -51,7 +53,11 @@ export function NavMenuSidebar({
   };
 
   return (
-    <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+    <SidebarGroup
+      className={["group-data-[collapsible=icon]:hidden", className]
+        .filter(Boolean)
+        .join(" ")}
+    >
       <SidebarGroupLabel>Menu</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
@@ -71,16 +77,22 @@ export function NavMenuSidebar({
                   <CollapsibleTrigger
                     className={[
                       "flex items-center gap-3 px-3 py-2 transition-all w-full",
-                      "text-gray-500 hover:bg-gray-50 hover:text-gray-800",
+                      "text-gray-700 hover:bg-blue-50 hover:text-blue-700",
                       isParentActive
                         ? "text-blue-600 font-semibold bg-transparent border-l-[3px] border-blue-600 pl-[calc(0.75rem-3px)]"
                         : "border-l-[3px] border-transparent pl-[calc(0.75rem-3px)]",
                     ].join(" ")}
                   >
-                    <span className={isParentActive ? "text-blue-600" : "text-gray-400"}>
+                    <span
+                      className={
+                        isParentActive ? "text-blue-600" : "text-gray-600"
+                      }
+                    >
                       {item.icon}
                     </span>
-                    <span className="flex-1 text-left text-sm">{item.name}</span>
+                    <span className="flex-1 text-left text-sm">
+                      {item.name}
+                    </span>
                     <ChevronRight
                       className={[
                         "h-4 w-4 shrink-0 transition-transform duration-200",
@@ -101,7 +113,7 @@ export function NavMenuSidebar({
                               "ml-9",
                               pathname === sub.url
                                 ? "!text-blue-600 !font-semibold !bg-transparent border-l-[3px] border-blue-600 rounded-none"
-                                : "text-gray-400 hover:text-gray-700 hover:bg-gray-50 border-l-[3px] border-transparent rounded-none",
+                                : "text-gray-800 hover:text-gray-700 hover:bg-gray-50 border-l-[3px] border-transparent rounded-none",
                             ].join(" ")}
                           >
                             {sub.title}
@@ -122,16 +134,28 @@ export function NavMenuSidebar({
                 render={<Link href={item.url || "#"} />}
                 className={[
                   "flex items-center gap-3 px-3 py-2 rounded-lg transition-all",
-                  "text-gray-500 hover:bg-gray-50 hover:text-gray-800",
+                  "text-gray-500 hover:bg-gray-50 hover:text-gray-500",
                   isParentActive
                     ? "!text-blue-600 !font-semibold !bg-transparent border-l-[3px] border-blue-600 rounded-none pl-[calc(0.75rem-3px)]"
                     : "border-l-[3px] border-transparent rounded-none pl-[calc(0.75rem-3px)]",
                 ].join(" ")}
               >
-                <span className={isParentActive ? "text-blue-600" : "text-gray-400"}>
+                <span
+                  className={isParentActive ? "text-blue-600" : "text-gray-600"}
+                >
                   {item.icon}
                 </span>
-                <span>{item.name}</span>
+
+                <span
+                  className={[
+                    "flex-1 text-left text-sm",
+                    isParentActive
+                      ? "font-semibold text-blue-600"
+                      : "font-medium text-gray-700",
+                  ].join(" ")}
+                >
+                  {item.name}
+                </span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           );
