@@ -1,10 +1,7 @@
 "use client";
 
-import type { CSSProperties } from "react";
-import { AppSidebar } from "@/components/AppSidebar";
-import { SiteHeader } from "@/components/site-header";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -14,20 +11,16 @@ import {
 } from "@/components/ui/card";
 import {
   AlertTriangle,
-  Download,
-  FileText,
   Footprints,
   Info,
-  Ruler,
   Sparkles,
   Utensils,
-  Weight,
-  Activity,
   ChevronRight,
 } from "lucide-react";
 import { useFetchData } from "@/hooks/useFetchData";
 import { isAuthError, isNoDataError } from "@/lib/ApiErrorResponse";
 import Link from "next/link";
+import { API } from "@/lib/utils";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -110,7 +103,7 @@ function getLipidStatus(totalCholesterol?: number) {
 
   return {
     label: "Dalam Rentang Baik",
-    className: "border-green-100 bg-green-50 text-green-600",
+    className: "border-green-100 bg-green-50 text-green-700",
     isWarning: false,
   };
 }
@@ -185,7 +178,7 @@ function HealthAdviceCard({
   activityAdvice?: string;
 }) {
   return (
-    <Card className="w-56 flex-shrink-0 border-blue-700 bg-blue-700 py-5 text-white">
+    <Card className="mx-auto w-full max-w-[340px] border-blue-700 bg-blue-700 py-5 text-white sm:max-w-[380px] lg:mx-0 lg:w-56 lg:max-w-none lg:flex-shrink-0">
       <CardHeader className="px-5">
         <CardTitle className="flex items-center gap-2 text-sm font-bold text-white">
           <Sparkles size={15} className="text-blue-300" />
@@ -231,6 +224,7 @@ function HealthAdviceCard({
 }
 
 function BiometricsItem({
+  label,
   value,
   unit,
 }: {
@@ -240,6 +234,9 @@ function BiometricsItem({
 }) {
   return (
     <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+        {label}
+      </p>
       <p className="text-xl font-bold text-gray-900">
         {value}{" "}
         {unit && (
@@ -471,6 +468,58 @@ export default function ReportsContent() {
         </div>
 
         <div className="flex flex-col gap-4 lg:flex-row">
+          <Card className="w-full border-gray-200 bg-white py-5 lg:flex-1">
+            <CardHeader className="px-5">
+              <div>
+                <CardTitle>Biometrics Terkini</CardTitle>
+                <CardDescription className="mt-1 text-xs leading-relaxed">
+                  Ringkasan tinggi badan, berat badan, dan status BMI terbaru.
+                </CardDescription>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-4 px-5 pb-5">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <BiometricsItem
+                  label="Tinggi badan"
+                  value={toDisplayNumber(biometrics?.height)}
+                  unit="cm"
+                />
+
+                <BiometricsItem
+                  label="Berat badan"
+                  value={toDisplayNumber(biometrics?.weight)}
+                  unit="kg"
+                />
+
+                <BiometricsItem
+                  label="BMI"
+                  value={toDisplayNumber(biometrics?.bmi, 1)}
+                  unit=""
+                />
+              </div>
+
+              <div className="flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs leading-relaxed text-gray-600">
+                <Info size={15} className="mt-0.5 shrink-0 text-blue-500" />
+                <span className="break-words">
+                  Status BMI:{" "}
+                  <span className="font-semibold text-blue-700">
+                    {biometrics?.bmiCategory ?? "Belum tersedia"}
+                  </span>
+                  . Data ini diambil dari ringkasan kesehatan terbaru.
+                </span>
+              </div>
+
+              <Link
+                href="/user/metric/data-biometrik"
+                className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
+              >
+                <span>Perbarui data biometrik</span>
+                <ChevronRight size={16} />
+              </Link>
+            </CardContent>
+          </Card>
+
           <Card className="flex-1 border-gray-200 bg-white py-5">
             <CardHeader className="px-5">
               <div className="flex items-start justify-between gap-3">
@@ -481,19 +530,6 @@ export default function ReportsContent() {
                     lengkap.
                   </CardDescription>
                 </div>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={handleDownloadClinicalPdf}
-                  disabled={isDownloadingReport || isLoading}
-                  title="Unduh laporan klinik PDF"
-                  aria-label="Unduh laporan clinical PDF"
-                  className="h-9 w-9 shrink-0 rounded-xl text-blue-600 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  <Download className="size-4" />
-                </Button>
               </div>
             </CardHeader>
 
@@ -518,59 +554,6 @@ export default function ReportsContent() {
                   </div>
                 </Link>
               ))}
-            </CardContent>
-          </Card>
-
-          <Card className="flex flex-1 flex-col border-gray-200 bg-white py-5">
-            <CardHeader className="px-5">
-              <div>
-                <CardTitle>Biometrics Terkini</CardTitle>
-                <CardDescription className="mt-1 text-xs">
-                  Ringkasan tinggi badan, berat badan, dan status BMI terbaru.
-                </CardDescription>
-              </div>
-            </CardHeader>
-
-            <CardContent className="flex flex-1 flex-col px-5">
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <BiometricsItem
-                  label="Tinggi badan"
-                  value={toDisplayNumber(biometrics?.height)}
-                  unit="cm"
-                />
-
-                <BiometricsItem
-                  label="Berat badan"
-                  value={toDisplayNumber(biometrics?.weight)}
-                  unit="kg"
-                />
-
-                <BiometricsItem
-                  label="BMI"
-                  value={toDisplayNumber(biometrics?.bmi, 1)}
-                  unit=""
-                />
-              </div>
-
-              <div className="mt-4 grid flex-1 gap-3">
-                <Link
-                  href="/user/metric/data-biometrik"
-                  className="mt-auto flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
-                >
-                  <span>Perbarui data biometrik</span>
-                  <ChevronRight size={16} />
-                </Link>
-                <div className="flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50 p-3 text-xs text-gray-600">
-                  <Info size={15} className="mt-0.5 shrink-0 text-blue-500" />
-                  <span>
-                    Status BMI:{" "}
-                    <span className="font-semibold text-blue-700">
-                      {biometrics?.bmiCategory ?? "Belum tersedia"}
-                    </span>
-                    . Data ini diambil dari ringkasan kesehatan terbaru.
-                  </span>
-                </div>
-              </div>
             </CardContent>
           </Card>
         </div>

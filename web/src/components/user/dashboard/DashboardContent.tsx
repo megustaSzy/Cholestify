@@ -78,15 +78,15 @@ function toDisplayNumber(value?: number, fractionDigits = 0) {
   return value.toFixed(fractionDigits).replace(/\.0$/, "");
 }
 
-function getCholesterolProgress(value?: number) {
-  if (typeof value !== "number") return 0;
-  return Math.min(100, Math.max(0, Math.round((value / 240) * 100)));
-}
+// function getCholesterolProgress(value?: number) {
+//   if (typeof value !== "number") return 0;
+//   return Math.min(100, Math.max(0, Math.round((value / 240) * 100)));
+// }
 
 function getCholesterolDelta(totalCholesterol?: number) {
   if (typeof totalCholesterol !== "number") return "-";
   if (totalCholesterol < 200) return "Optimal";
-  if (totalCholesterol < 240) return "Borderline";
+  if (totalCholesterol < 240) return "Waspada";
   return "High";
 }
 
@@ -99,6 +99,7 @@ function getActionMessage(
       title: "Saran Kesehatan",
       description: latestGoal.dietaryAdvice,
       actionLabel: "Lihat Saran",
+      href: "/user/laporan",
     };
   }
 
@@ -122,6 +123,7 @@ function getActionMessage(
       description:
         "Nilai kolesterol atau LDL berada di atas rentang optimal. Pertimbangkan konsultasi dengan tenaga medis.",
       actionLabel: "Tinjau Data",
+      href: "/user/riwayat/lipid-panel",
     };
   }
 
@@ -130,6 +132,7 @@ function getActionMessage(
     description:
       "Data terbaru berada dalam rentang yang baik. Pertahankan pola makan dan aktivitas fisik.",
     actionLabel: "Lihat Detail",
+    href: "/user/riwayat/lipid-panel",
   };
 }
 
@@ -157,7 +160,7 @@ function MiniMetricCard({
         <span className="mb-1 text-xs text-gray-500">{unit}</span>
 
         {status && (
-          <span className="mb-1 ml-2 rounded bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-green-600">
+          <span className="mb-1 ml-2 rounded bg-green-50 px-2 py-0.5 text-[10px] font-semibold text-blue-600">
             {status}
           </span>
         )}
@@ -211,9 +214,9 @@ export default function DashboardContent() {
   const latestGoal = healthGoalsResponse?.data?.[0];
 
   const actionMessage = getActionMessage(lipidPanel, latestGoal);
-  const cholesterolProgress = getCholesterolProgress(
-    lipidPanel?.totalCholesterol,
-  );
+  // const cholesterolProgress = getCholesterolProgress(
+  //   lipidPanel?.totalCholesterol,
+  // );
 
   return (
     <main className="w-full px-4 py-5 md:px-6 md:py-6">
@@ -252,19 +255,13 @@ export default function DashboardContent() {
                 <h2 className="text-lg font-semibold text-gray-900">
                   Total Cholesterol
                 </h2>
-                <Info className="h-4 w-4 text-gray-400" />
               </div>
 
               <div className="flex flex-col items-center justify-center py-2">
-                <div
-                  className="relative flex h-36 w-36 items-center justify-center rounded-full"
-                  style={{
-                    background: `conic-gradient(#2563eb ${cholesterolProgress}%, #e5e7eb 0)`,
-                  }}
-                >
+                <div className="relative flex h-36 w-36 items-center justify-center rounded-full">
                   <div className="absolute h-28 w-28 rounded-full bg-white" />
                   <div className="relative text-center">
-                    <p className="text-3xl font-bold text-gray-900">
+                    <p className="text-5xl font-bold text-gray-900">
                       {toDisplayNumber(lipidPanel?.totalCholesterol)}
                     </p>
                     <p className="text-[10px] font-bold uppercase text-gray-500">
@@ -325,12 +322,12 @@ export default function DashboardContent() {
                   title="BMI Check"
                   description={`Tinggi Badan ${toDisplayNumber(
                     biometrics?.height,
-                  )} cm • Berat Badan ${toDisplayNumber(biometrics?.weight)} kg`}
+                  )} cm, dan Berat Badan ${toDisplayNumber(biometrics?.weight)} kg`}
                   status={biometrics ? "Selesai" : "Kosong"}
                 />
 
                 <ActivityItem
-                  title="Lipid Panel Lab"
+                  title="Lipid Panel"
                   description={
                     isLipidHistoryLoading
                       ? "Memuat riwayat lipid panel..."
@@ -352,7 +349,7 @@ export default function DashboardContent() {
                 </h2>
               </div>
 
-              <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+              <div className="rounded-xl border bg-gray-50/80 p-4">
                 <div className="flex items-start gap-3">
                   <div className="flex-1 text-center">
                     <p className="text-sm font-semibold text-gray-900">
@@ -368,7 +365,7 @@ export default function DashboardContent() {
                           router.push(actionMessage.href);
                         }
                       }}
-                      className="mt-3 rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-semibold text-gray-700 shadow-sm hover:bg-gray-50"
+                      className="mt-3 rounded-md border border-gray-300 bg-gray-300 px-4 py-2 text-xs font-semibold shadow-sm hover:bg-gray-200 hover:shadow hover:text-gray-700"
                     >
                       {actionMessage.actionLabel}
                     </button>
