@@ -704,7 +704,7 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
 **Request Body (FormData):**
 | Field      | Type   | Required | Keterangan                                                                 |
 | ---------- | ------ | -------- | -------------------------------------------------------------------------- |
-| `file`     | `file` | ✅ Ya    | Gambar mata (JPG/PNG). Maksimal 10MB.                                      |
+| `image`    | `file` | ✅ Ya    | Gambar mata (JPG/PNG). Maksimal 10MB.                                      |
 | `socketId` | `string`| ❌ Tidak | ID dari koneksi `Socket.io` untuk menerima *real-time progress tracking*.  |
 
 **Contoh Response (201 Created):**
@@ -739,6 +739,104 @@ Berisi endpoint untuk mencatat dan mengambil riwayat aktivitas harian pengguna.
   "message": "Tidak terdeteksi struktur mata (iris/pupil). Pastikan foto menampilkan mata dengan jelas...",
   "recommendation": "Ambil ulang foto sesuai panduan."
 }
+```
+
+---
+
+### 🔌 Panduan Pemasangan Socket.io di Frontend (React)
+
+Untuk menampilkan *loading progress bar* secara *real-time* saat gambar mata sedang diunggah dan diproses oleh AI (Backend -> FastAPI Hugging Face -> Backend -> Frontend), kamu perlu memasang Socket.io Client.
+
+**1. Install library di React:**
+```bash
+npm install socket.io-client
+```
+
+**2. Contoh Kode Komponen React:**
+```javascript
+import React, { useState, useEffect } from 'react';
+import { io } from 'socket.io-client';
+import axios from 'axios';
+
+// Ganti URL dengan Base URL backend-mu
+const socket = io("http://localhost:3001", {
+  withCredentials: true,
+});
+
+const EyeScanForm = () => {
+  const [file, setFile] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [loadingText, setLoadingText] = useState("");
+  const [isScanning, setIsScanning] = useState(false);
+
+  useEffect(() => {
+    // Menangkap event "scan_progress" dari server Node.js
+    socket.on("scan_progress", (data) => {
+      setProgress(data.progress);     // Angka persentase 0-100
+      setLoadingText(data.message);   // Teks status (Upload, Sedang Menganalisis, dll)
+    });
+
+    // Cleanup saat komponen ditutup
+    return () => {
+      socket.off("scan_progress");
+    };
+  }, []);
+
+  const handleScan = async () => {
+    if (!file) return alert("Pilih gambar terlebih dahulu!");
+    
+    setIsScanning(true);
+    setProgress(0);
+    setLoadingText("Memulai...");
+
+    const formData = new FormData();
+    formData.append("image", file); // ⚠️ Pastikan namanya "image"
+    
+    // 💡 SANGAT PENTING: Masukkan ID koneksi soket agar server tahu ke user mana ia harus mengirim progress
+    formData.append("socketId", socket.id); 
+
+    try {
+      const response = await axios.post("http://localhost:3001/api/screenings", formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" } // ⚠️ Jangan lupa header multipart
+      });
+      
+      console.log("Hasil AI:", response.data);
+      alert("Selesai! Hasil: " + response.data.data.result);
+      
+      // Jika berhasil, progress paksa ke 100% dan ganti teks
+      setProgress(100);
+      setLoadingText("Selesai!");
+      
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || "Gagal melakukan scan");
+      setLoadingText("Gagal.");
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={(e) => setFile(e.target.files[0])} accept="image/*" />
+      <button onClick={handleScan} disabled={isScanning}>
+        {isScanning ? "Memproses AI..." : "Mulai Scan Mata"}
+      </button>
+
+      {/* Tampilan Progress Bar Sederhana */}
+      {isScanning && (
+        <div style={{ marginTop: 20 }}>
+          <p>Status: {loadingText}</p>
+          <progress value={progress} max="100" style={{ width: "100%" }} />
+          <span>{progress}%</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default EyeScanForm;
 ```
 
 ---

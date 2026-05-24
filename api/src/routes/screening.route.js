@@ -15,5 +15,6 @@ router.post(
 );
 
 router.get("/me", authMiddleware, ScreeningController.getMyScreenings);
+router.get("/me/export/pdf", authMiddleware, ScreeningController.exportMyScreeningsPDF);
 
 export default router;

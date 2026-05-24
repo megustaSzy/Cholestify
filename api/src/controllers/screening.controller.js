@@ -6,6 +6,8 @@ import { predictEyeScan } from "../services/ai.service.js";
 import { uploadToCloudinary } from "../services/cloudinary.service.js";
 import { io } from "../server.js";
 import { ScreeningService } from "../services/screening.service.js";
+import { UserService } from "../services/user.service.js";
+import { generateScreeningPDF } from "../utils/pdf.util.js";
 
 const RESULT_MAP = {
   Normal: "NORMAL",
@@ -105,6 +107,19 @@ export const ScreeningController = {
         },
         data: data,
       });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async exportMyScreeningsPDF(req, res, next) {
+    try {
+      const userId = req.user.id;
+
+      const user = await UserService.getUsersById(userId);
+      const data = await ScreeningService.getMyScreenings(userId);
+
+      generateScreeningPDF(res, user, data);
     } catch (error) {
       next(error);
     }
