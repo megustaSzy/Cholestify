@@ -24,6 +24,7 @@ export const UserService = {
         nama: true,
         email: true,
         notelp: true,
+        avatar: true,
         role: true,
         dob: true,
         bloodType: true,
@@ -60,6 +61,7 @@ export const UserService = {
         nama: true,
         email: true,
         notelp: true,
+        avatar: true,
         role: true,
         dob: true,
         bloodType: true,
@@ -84,6 +86,10 @@ export const UserService = {
       notelp: body.notelp,
     };
 
+    if (body.avatar) {
+      updateData.avatar = body.avatar;
+    }
+
     if (body.password) {
       updateData.password = await bcrypt.hash(
         body.password,
@@ -107,6 +113,21 @@ export const UserService = {
     await prisma.user.delete({
       where: {
         id,
+      },
+    });
+  },
+
+  async removeAvatar(id) {
+    badRequestId(id, MESSAGE.COMMON.BAD_REQUEST);
+
+    await notExist(prisma.user, { id }, MESSAGE.USER.NOT_FOUND);
+
+    await prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        avatar: null,
       },
     });
   },

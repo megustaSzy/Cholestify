@@ -10,6 +10,10 @@ import { badRequestId } from "../utils/bad-request-id.util.js";
 import { notExist } from "../utils/not-exist.util.js";
 
 import { HealthRecommendationService } from "./health-recommendation.service.js";
+import {
+  getPaginationOptions,
+  getPaginationMetadata,
+} from "../utils/pagination.util.js";
 
 export const LipidPanelService = {
   async getLipidPanels() {
@@ -48,7 +52,50 @@ export const LipidPanelService = {
     return data;
   },
 
-  async getMyLipids(userId) {
+  async getMyLipids(userId, pageQuery = 1, limitQuery = 10) {
+    badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
+
+    const { page, limit, skip } = getPaginationOptions(pageQuery, limitQuery);
+
+    const [data, totalItems] = await Promise.all([
+      prisma.lipidPanel.findMany({
+        where: { userId },
+        orderBy: {
+          createdAt: "desc",
+        },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          date: true,
+
+          totalCholesterol: true,
+          ldl: true,
+          hdl: true,
+          triglycerides: true,
+
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      prisma.lipidPanel.count({
+        where: { userId },
+      }),
+    ]);
+
+    if (!data || data.length === 0) {
+      throw new NotFoundError(MESSAGE.LIPID_PANEL.NOT_FOUND);
+    }
+
+    const metadata = getPaginationMetadata(page, limit, totalItems);
+
+    return {
+      data,
+      metadata,
+    };
+  },
+
+  async getAllMyLipids(userId) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
     const data = await prisma.lipidPanel.findMany({

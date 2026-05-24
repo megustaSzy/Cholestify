@@ -28,8 +28,10 @@ export const LipidPanelController = {
   async getMyLipids(req, res, next) {
     try {
       const userId = req.user.id;
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
 
-      const data = await LipidPanelService.getMyLipids(userId);
+      const result = await LipidPanelService.getMyLipids(userId, page, limit);
 
       return res.status(HttpStatus.OK).json({
         success: true,
@@ -37,9 +39,10 @@ export const LipidPanelController = {
 
         metadata: {
           status: HttpStatus.OK,
+          ...result.metadata,
         },
 
-        data,
+        data: result.data,
       });
     } catch (error) {
       next(error);
@@ -51,7 +54,7 @@ export const LipidPanelController = {
       const userId = req.user.id;
 
       const user = await UserService.getUsersById(userId);
-      const data = await LipidPanelService.getMyLipids(userId);
+      const data = await LipidPanelService.getAllMyLipids(userId);
 
       generateLipidPDF(res, user, data);
     } catch (error) {

@@ -18,7 +18,8 @@ Base URL: `http://localhost:3001`
 | `POST`  | `/api/auth/reset-password`                | ❌   | Reset password via token query                      |
 | `GET`   | `/api/auth/google`                        | ❌   | Login via Google OAuth                              |
 | `GET`   | `/api/users/:id`                          | 🍪   | Ambil profil user                                   |
-| `PATCH` | `/api/users/:id`                          | 🍪   | Update profil user                                  |
+| `PATCH` | `/api/users/:id`                          | 🍪   | Update profil user (mendukung upload avatar)        |
+| `DELETE`| `/api/users/:id/avatar`                   | 🍪   | Hapus avatar user (set menjadi null)                |
 | `GET`   | `/api/health-summary`                     | 🍪   | **Dashboard** — Biometric + Latest Lipid Panel      |
 | `POST`  | `/api/biometrics`                         | 🍪   | Input tinggi & berat badan (BMI dihitung otomatis)  |
 | `GET`   | `/api/biometrics/me`                      | 🍪   | Ambil Biometrics user (pribadi)                     |
@@ -294,13 +295,26 @@ Base URL: `http://localhost:3001`
 
 **Endpoint:** `GET /api/lipid-panels/me`
 
+**Query Parameters (Opsional):**
+
+- `page` (number): Halaman (default: 1)
+- `limit` (number): Jumlah data (default: 10)
+
 **Response (200):**
 
 ```json
 {
   "success": true,
   "message": "Data Lipid Panel berhasil ditemukan",
-  "metadata": { "status": 200 },
+  "metadata": {
+    "status": 200,
+    "page": 1,
+    "limit": 10,
+    "totalItems": 32,
+    "totalPages": 4,
+    "prev": null,
+    "next": "?page=2&limit=10"
+  },
   "data": [
     {
       "id": 2,
@@ -482,7 +496,7 @@ const handleDownloadPDF = async () => {
 
 **Endpoint:** `PATCH /api/users/:id`
 
-**Request Body (JSON):** _(semua field opsional)_
+**Request Body (FormData / JSON):** _(semua field opsional)_
 
 | Field       | Type     | Keterangan                          |
 | ----------- | -------- | ----------------------------------- |
@@ -491,8 +505,9 @@ const handleDownloadPDF = async () => {
 | `notelp`    | `string` | Nomor telepon baru                  |
 | `dob`       | `string` | Tanggal lahir (`YYYY-MM-DD`)        |
 | `bloodType` | `string` | Golongan darah: `A`, `B`, `AB`, `O` |
+| `avatar`    | `file`   | Foto profil (JPG/PNG maks 10MB)     |
 
-**Contoh Request:**
+**Contoh Request (JSON):**
 
 ```json
 {
@@ -500,6 +515,7 @@ const handleDownloadPDF = async () => {
   "notelp": "08987654321"
 }
 ```
+*(Jika ingin update avatar, kirim sebagai `multipart/form-data` dengan key `avatar`)*
 
 **Response (200):**
 
@@ -509,6 +525,22 @@ const handleDownloadPDF = async () => {
   "message": "Data berhasil diperbarui",
   "metadata": { "status": 200 },
   "data": { ... }
+}
+```
+
+---
+
+### Hapus Avatar Profil
+
+**Endpoint:** `DELETE /api/users/:id/avatar`
+
+**Response (200):**
+
+```json
+{
+  "success": true,
+  "message": "Avatar berhasil dihapus",
+  "metadata": { "status": 200 }
 }
 ```
 
@@ -920,13 +952,26 @@ export default EyeScanForm;
 
 **Endpoint:** `GET /api/screenings/me`
 
+**Query Parameters (Opsional):**
+
+- `page` (number): Halaman (default: 1)
+- `limit` (number): Jumlah data (default: 10)
+
 **Response (200):**
 
 ```json
 {
   "success": true,
   "message": "Data Screening berhasil ditemukan",
-  "metadata": { "status": 200 },
+  "metadata": {
+    "status": 200,
+    "page": 1,
+    "limit": 10,
+    "totalItems": 15,
+    "totalPages": 2,
+    "prev": null,
+    "next": "?page=2&limit=10"
+  },
   "data": [
     {
       "id": 1,

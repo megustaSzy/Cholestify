@@ -3,6 +3,8 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import passport from "./config/passport.js";
+import helmet from "helmet";
+import compression from "compression";
 
 import { requestLogger } from "./middlewares/logger.js";
 import { errorHandler } from "./middlewares/error-handler.middleware.js";
@@ -24,6 +26,9 @@ import TestRoute from "./routes/test.route.js";
 const app = express();
 
 app.set("trust proxy", 1);
+
+app.use(helmet());
+app.use(compression());
 
 app.use(express.json());
 app.use(cookieParser());

@@ -60,6 +60,7 @@ export const AuthService = {
             notelp: true,
             dob: true,
             bloodType: true,
+            avatar: true,
             role: true,
             createdAt: true,
           },
@@ -130,6 +131,7 @@ export const AuthService = {
 
         dob: user.dob,
         bloodType: user.bloodType,
+        avatar: user.avatar,
 
         role: user.role,
       },
@@ -140,6 +142,10 @@ export const AuthService = {
   },
 
   async refresh(refreshToken) {
+    if (!refreshToken) {
+      throw new UnauthorizedError(MESSAGE.TOKEN.INVALID);
+    }
+
     const decoded = verifyRefreshToken(refreshToken);
 
     await validateRefresh(refreshToken);
@@ -270,6 +276,7 @@ export const AuthService = {
 
         dob: user.dob,
         bloodType: user.bloodType,
+        avatar: user.avatar,
 
         role: user.role,
         createdAt: user.createdAt,
