@@ -2,6 +2,7 @@ import { HttpStatus } from "../constants/http-status.constant.js";
 import { MESSAGE } from "../constants/message.constant.js";
 import { AuthService } from "../services/auth.service.js";
 import { UserService } from "../services/user.service.js";
+import { uploadToCloudinary } from "../services/cloudinary.service.js";
 
 export const UserController = {
   async createUser(req, res, next) {
@@ -61,7 +62,14 @@ export const UserController = {
     try {
       const id = Number(req.params.id);
 
-      await UserService.update(id, req.body);
+      const updateData = { ...req.body };
+
+      if (req.file) {
+        const cloudinaryResult = await uploadToCloudinary(req.file.buffer);
+        updateData.avatar = cloudinaryResult.secure_url;
+      }
+
+      await UserService.update(id, updateData);
 
       return res.status(HttpStatus.OK).json({
         success: true,
@@ -84,6 +92,24 @@ export const UserController = {
       return res.status(HttpStatus.OK).json({
         success: true,
         message: MESSAGE.USER.DELETED,
+        metadata: {
+          status: HttpStatus.OK,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  async removeAvatarById(req, res, next) {
+    try {
+      const id = Number(req.params.id);
+
+      await UserService.removeAvatar(id);
+
+      return res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Avatar berhasil dihapus",
         metadata: {
           status: HttpStatus.OK,
         },
