@@ -2,13 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import {
+  AlertCircle,
   ChevronLeft,
   ChevronRight,
   Download,
-  Eye,
-  Filter,
   ImageIcon,
 } from "lucide-react";
 
@@ -35,12 +33,29 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { isAuthError, isNoDataError } from "@/lib/ApiErrorResponse";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { getPaginationItems } from "@/hooks/usePagination";
 
 type ApiResponse<T> = {
   success: boolean;
   message: string;
   metadata?: {
     status?: number;
+    page?: number;
+    limit?: number;
+    totalItems?: number;
+    totalPages?: number;
+    prev?: string | null;
+    next?: string | null;
   };
   data: T;
 };
@@ -61,7 +76,33 @@ type EyeScanHistory = {
   createdAt: string;
 };
 
-const LIMIT = 4;
+type ApiErrorLike = {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+      error?: string;
+      metadata?: {
+        status?: number;
+      };
+    };
+  };
+  message?: string;
+};
+
+function getApiResponseMessage(error: unknown, fallback: string) {
+  if (!error || typeof error !== "object") return fallback;
+
+  const apiError = error as ApiErrorLike;
+
+  return (
+    apiError.response?.data?.message ||
+    apiError.response?.data?.error ||
+    fallback
+  );
+}
+
+const LIMIT = 10;
 
 function formatDate(date?: string) {
   if (!date) return "-";
@@ -122,32 +163,54 @@ export default function HistoryScanEyeContent() {
     data: response,
     error,
     isLoading,
-  } = useFetchData<ApiResponse<EyeScanHistory[]>>("/screenings/me");
+  } = useFetchData<ApiResponse<EyeScanHistory[]>>(
+    `/screenings/me?page=${page}&limit=${LIMIT}`,
+  );
 
   const histories = useMemo(() => {
-    const data = Array.isArray(response?.data) ? response.data : [];
-
-    return [...data].sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
+    return Array.isArray(response?.data) ? response.data : [];
   }, [response]);
 
-  const totalItems = histories.length;
-  const totalPages = Math.ceil(totalItems / LIMIT);
-  const shouldShowPagination = totalItems > LIMIT;
+  const metadata = response?.metadata;
 
-  const paginatedHistories = histories.slice((page - 1) * LIMIT, page * LIMIT);
+  const hasAuthError = isAuthError(error);
+  const hasNoDataError = isNoDataError(error);
 
-  const startRecord = totalItems === 0 ? 0 : (page - 1) * LIMIT + 1;
-  const endRecord = Math.min(page * LIMIT, totalItems);
+  const hasUnknownError = Boolean(error) && !hasAuthError && !hasNoDataError;
+
+  const emptyHistoryMessage = getApiResponseMessage(
+    error,
+    "Belum ada riwayat scan mata.",
+  );
+
+  const totalItems = metadata?.totalItems ?? histories.length;
+  const totalPages = Math.max(1, metadata?.totalPages ?? 1);
+  const currentPage = metadata?.page ?? page;
+  const currentLimit = metadata?.limit ?? LIMIT;
+  const hasData = histories.length > 0;
+
+  const shouldShowPagination =
+    hasData &&
+    totalItems > currentLimit &&
+    !hasAuthError &&
+    !hasNoDataError &&
+    !hasUnknownError;
+
+  const startRecord =
+    totalItems === 0 ? 0 : (currentPage - 1) * currentLimit + 1;
+
+  const endRecord = Math.min(currentPage * currentLimit, totalItems);
 
   const handlePrev = () => {
-    if (page > 1) setPage(page - 1);
+    if (currentPage > 1) {
+      setPage(currentPage - 1);
+    }
   };
 
   const handleNext = () => {
-    if (page < totalPages) setPage(page + 1);
+    if (currentPage < totalPages) {
+      setPage(currentPage + 1);
+    }
   };
 
   const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
@@ -223,7 +286,13 @@ export default function HistoryScanEyeContent() {
               type="button"
               variant="outline"
               onClick={handleDownloadPDF}
-              disabled={isDownloadingPdf || isLoading || histories.length === 0}
+              disabled={
+                isDownloadingPdf ||
+                isLoading ||
+                hasAuthError ||
+                hasUnknownError ||
+                histories.length === 0
+              }
               className="w-full gap-2 rounded-xl border-gray-100 bg-gray-200 text-gray-700 hover:bg-gray-100 hover:text-blue-500 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
               <Download className="h-4 w-4" />
@@ -265,17 +334,37 @@ export default function HistoryScanEyeContent() {
                       Memuat riwayat scan mata...
                     </TableCell>
                   </TableRow>
-                ) : error ? (
+                ) : hasAuthError ? (
                   <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="h-36 text-center text-sm text-red-500"
-                    >
-                      Gagal memuat riwayat scan mata.
+                    <TableCell colSpan={5} className="h-40 px-5">
+                      <div className="mx-auto flex max-w-md items-start gap-3 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-left text-sm text-red-700">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                        <div>
+                          <p className="font-semibold">Sesi login berakhir</p>
+                          <p className="mt-1 text-xs leading-relaxed">
+                            Silakan login ulang untuk melihat riwayat scan mata
+                            Anda.
+                          </p>
+                        </div>
+                      </div>
                     </TableCell>
                   </TableRow>
-                ) : paginatedHistories.length > 0 ? (
-                  paginatedHistories.map((item) => (
+                ) : hasNoDataError ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-40 px-5">
+                      <div className="flex flex-col items-center justify-center text-center text-red-600">
+                        <p className="font-semibold">
+                          Riwayat scan mata belum ada
+                        </p>
+
+                        <p className="mt-1 text-xs leading-relaxed text-red-500">
+                          {emptyHistoryMessage}
+                        </p>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : histories.length > 0 ? (
+                  histories.map((item) => (
                     <TableRow key={item.id} className="bg-white">
                       <TableCell className="px-5 py-5 text-xs font-semibold uppercase tracking-wide text-gray-700">
                         {formatDate(item.createdAt)}
@@ -469,13 +558,38 @@ export default function HistoryScanEyeContent() {
                       </TableCell>
                     </TableRow>
                   ))
+                ) : hasUnknownError ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-40 px-5">
+                      <div className="mx-auto flex max-w-md items-start gap-3 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-left text-sm text-amber-700">
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                        <div>
+                          <p className="font-semibold">
+                            Riwayat belum berhasil dimuat
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed">
+                            Terjadi kendala saat mengambil data riwayat scan
+                            mata. Silakan coba muat ulang halaman.
+                          </p>
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="h-36 text-center text-sm text-muted-foreground"
-                    >
-                      Belum ada riwayat scan mata.
+                    <TableCell colSpan={5} className="h-40 px-5">
+                      <div className="mx-auto flex max-w-md items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-left text-sm text-blue-700">
+                        <div>
+                          <p className="font-semibold">
+                            Riwayat scan mata belum ada
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed">
+                            Anda belum pernah melakukan scan mata. Silakan
+                            lakukan scan terlebih dahulu untuk melihat riwayat
+                            di halaman ini.
+                          </p>
+                        </div>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )}
@@ -484,32 +598,79 @@ export default function HistoryScanEyeContent() {
           </div>
 
           {shouldShowPagination && (
-            <div className="flex items-center justify-between border-t px-5 py-4">
-              <p className="text-sm text-muted-foreground">
-                Menampilkan {startRecord} Sampai {endRecord} Dari {totalItems}{" "}
-                Data
-              </p>
+            <div className="border-t bg-white px-5 py-4">
+              <div className="grid gap-3 md:grid-cols-[1fr_auto_1fr] md:items-center">
+                <p className="text-center text-sm text-muted-foreground md:text-left">
+                  Menampilkan{" "}
+                  <span className="font-semibold text-gray-700">
+                    {startRecord}
+                  </span>{" "}
+                  Sampai{" "}
+                  <span className="font-semibold text-gray-700">
+                    {endRecord}
+                  </span>{" "}
+                  Dari{" "}
+                  <span className="font-semibold text-gray-700">
+                    {totalItems}
+                  </span>{" "}
+                  Data
+                </p>
 
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handlePrev}
-                  disabled={page === 1}
-                  className="size-9 rounded-lg border-gray-200"
-                >
-                  <ChevronLeft className="size-4" />
-                </Button>
+                <div className="flex justify-center">
+                  <Pagination className="mx-auto w-auto">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={handlePrev}
+                          aria-disabled={currentPage === 1 || isLoading}
+                          className={
+                            currentPage === 1 || isLoading
+                              ? "pointer-events-none opacity-50"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
 
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleNext}
-                  disabled={page === totalPages}
-                  className="size-9 rounded-lg border-gray-200"
-                >
-                  <ChevronRight className="size-4" />
-                </Button>
+                      {getPaginationItems(currentPage, totalPages).map(
+                        (pageItem, index) => (
+                          <PaginationItem key={`${pageItem}-${index}`}>
+                            {pageItem === "..." ? (
+                              <PaginationEllipsis />
+                            ) : (
+                              <PaginationLink
+                                href={`?page=${pageItem}`}
+                                isActive={currentPage === pageItem}
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  setPage(pageItem);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                {pageItem}
+                              </PaginationLink>
+                            )}
+                          </PaginationItem>
+                        ),
+                      )}
+
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={handleNext}
+                          aria-disabled={
+                            currentPage === totalPages || isLoading
+                          }
+                          className={
+                            currentPage === totalPages || isLoading
+                              ? "pointer-events-none opacity-50"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+
+                <div className="hidden md:block" aria-hidden="true" />
               </div>
             </div>
           )}
