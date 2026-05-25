@@ -2,17 +2,7 @@
 
 import { useMemo, type ReactNode } from "react";
 import Link from "next/link";
-import {
-  CalendarDays,
-  CheckCircle2,
-  Dumbbell,
-  Flame,
-  Info,
-  InfoIcon,
-  Plus,
-  ReceiptCent,
-  Target,
-} from "lucide-react";
+import { CalendarDays, InfoIcon, Plus } from "lucide-react";
 
 import { useFetchData } from "@/hooks/useFetchData";
 import { isAuthError, isNoDataError } from "@/lib/ApiErrorResponse";
@@ -23,7 +13,7 @@ type ApiResponse<T> = {
   metadata?: {
     status?: number;
   };
-  data: T;
+  data?: T | null;
 };
 
 type HealthGoal = {
@@ -184,13 +174,7 @@ function HistoryMetric({
   );
 }
 
-function HistoryItem({
-  goal,
-}: {
-  goal: HealthGoal;
-  isActive: boolean;
-  sequenceNumber: number;
-}) {
+function HistoryItem({ goal }: { goal: HealthGoal }) {
   return (
     <div className="border-b border-gray-100 last:border-b-0">
       <div className="px-5 py-4 sm:px-6">
@@ -201,7 +185,7 @@ function HistoryItem({
 
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-gray-900">
-              Data Tujuan Kesehatan Terakhir
+              Data Tujuan Kesehatan Sebelumnya
             </p>
 
             <p className="mt-0.5 flex items-center gap-1 text-[11px] text-gray-500">
@@ -228,36 +212,16 @@ function HistoryItem({
 
 export default function HealthGoalsContent() {
   const {
-    data: goalsResponse,
+    data: goalResponse,
     error: goalsError,
     isLoading: isGoalsLoading,
-  } = useFetchData<ApiResponse<HealthGoal[]>>("/health-goals/me");
+  } = useFetchData<ApiResponse<HealthGoal>>("/health-goals/me");
 
   const { data: trackingResponse } = useFetchData<ApiResponse<DailyTracking[]>>(
     "/daily-trackings/history",
   );
 
-  const goals = useMemo(() => {
-    const data = Array.isArray(goalsResponse?.data) ? goalsResponse.data : [];
-
-    return [...data].sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
-  }, [goalsResponse]);
-
-  const goalSequenceMap = useMemo(() => {
-    const data = Array.isArray(goalsResponse?.data) ? goalsResponse.data : [];
-
-    return new Map<number, number>(
-      [...data]
-        .sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        )
-        .map((goal, index) => [goal.id, index + 1]),
-    );
-  }, [goalsResponse]);
+  const latestGoal = goalResponse?.data ?? null;
 
   const dailyTrackings = useMemo(() => {
     const data = Array.isArray(trackingResponse?.data)
@@ -269,7 +233,6 @@ export default function HealthGoalsContent() {
     );
   }, [trackingResponse]);
 
-  const latestGoal = goals[0];
   const latestSevenTrackings = dailyTrackings.slice(0, 7);
 
   const currentWeeklyCalories = latestSevenTrackings.reduce(
@@ -299,12 +262,29 @@ export default function HealthGoalsContent() {
     Boolean(goalsError) && !goalsAuthError && !goalsNoDataError;
 
   const isGoalsDataEmpty =
-    !isGoalsLoading &&
-    !goalsAuthError &&
-    !goalsUnknownError &&
-    goals.length === 0;
+    !isGoalsLoading && !goalsAuthError && !goalsUnknownError && !latestGoal;
 
-  const latestHistoryGoal = goals[0];
+  const previousGoalFromTracking = dailyTrackings.find((item) => {
+    if (!item.healthGoal || !latestGoal) return false;
+
+    return (
+      item.healthGoal.targetWeeklyCalories !==
+        latestGoal.targetWeeklyCalories ||
+      item.healthGoal.targetExerciseMins !== latestGoal.targetExerciseMins
+    );
+  });
+
+  const latestHistoryGoal: HealthGoal | null =
+    previousGoalFromTracking?.healthGoal
+      ? {
+          id: previousGoalFromTracking.id,
+          targetWeeklyCalories:
+            previousGoalFromTracking.healthGoal.targetWeeklyCalories,
+          targetExerciseMins:
+            previousGoalFromTracking.healthGoal.targetExerciseMins,
+          createdAt: previousGoalFromTracking.date,
+        }
+      : null;
 
   return (
     <div className="flex min-h-screen flex-1 flex-col bg-gray-50">
@@ -364,11 +344,11 @@ export default function HealthGoalsContent() {
               {latestGoal ? (
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   <TargetCard
-                    title="Weekly Calories"
-                    subtitle="Progress dari 7 daily tracking terbaru"
+                    title="Kalori Mingguan"
+                    subtitle="Progress kalori dari pengukuran harian terbaru"
                     current={toDisplayNumber(currentWeeklyCalories)}
                     target={toDisplayNumber(latestGoal.targetWeeklyCalories)}
-                    unit="kcal/week"
+                    unit="kcal/minggu"
                     progressPercent={caloriesProgress}
                     footer={
                       <p className="text-[10px] text-gray-400">
@@ -380,11 +360,11 @@ export default function HealthGoalsContent() {
                   />
 
                   <TargetCard
-                    title="Weekly Exercise"
-                    subtitle="Progress olahraga dari 7 daily tracking terbaru"
+                    title="Olahraga Mingguan"
+                    subtitle="Progress olahraga dari pengukuran harian terbaru"
                     current={toDisplayNumber(currentWeeklyExercise)}
                     target={toDisplayNumber(latestGoal.targetExerciseMins)}
-                    unit="mins/week"
+                    unit="menit/minggu"
                     progressPercent={exerciseProgress}
                     footer={
                       <p className="text-[10px] text-gray-400">
@@ -415,10 +395,6 @@ export default function HealthGoalsContent() {
                   <HistoryItem
                     key={latestHistoryGoal.id}
                     goal={latestHistoryGoal}
-                    isActive
-                    sequenceNumber={
-                      goalSequenceMap.get(latestHistoryGoal.id) ?? goals.length
-                    }
                   />
                 ) : (
                   <div className="px-5 py-4 text-sm text-gray-500">
