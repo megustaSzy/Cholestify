@@ -168,6 +168,9 @@ function formatPercent(value?: number) {
 export default function EyeScanForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const socketRef = useRef<Socket | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(false);
+  const isSubmittingRef = useRef(false);
 
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -187,6 +190,8 @@ export default function EyeScanForm() {
   >(null);
 
   useEffect(() => {
+    isMountedRef.current = true;
+
     const socket = io(SOCKET_URL, {
       withCredentials: true,
       transports: ["websocket", "polling"],
@@ -198,25 +203,30 @@ export default function EyeScanForm() {
 
     socketRef.current = socket;
 
-    socket.on("connect", () => {
+    const handleConnect = () => {
+      if (!isMountedRef.current) return;
+
       setSocketId(socket.id ?? null);
       setIsSocketConnected(true);
-    });
+    };
 
-    socket.on("connect_error", () => {
+    const handleConnectError = () => {
+      if (!isMountedRef.current) return;
+
       setSocketId(null);
       setIsSocketConnected(false);
+    };
 
-      // Jangan pakai console.error di sini,
-      // karena Next.js dev overlay akan muncul sebagai error merah.
-    });
+    const handleDisconnect = () => {
+      if (!isMountedRef.current) return;
 
-    socket.on("disconnect", () => {
       setSocketId(null);
       setIsSocketConnected(false);
-    });
+    };
 
-    socket.on("scan_progress", (data: ScanProgressPayload) => {
+    const handleScanProgress = (data: ScanProgressPayload) => {
+      if (!isMountedRef.current) return;
+
       const safeProgress = Math.min(
         95,
         Math.max(0, Number(data.progress) || 0),
@@ -224,15 +234,47 @@ export default function EyeScanForm() {
 
       setProgress(safeProgress);
       setLoadingText(data.message || "Memproses gambar...");
-    });
+    };
+
+    const disconnectSocket = () => {
+      socket.off("connect", handleConnect);
+      socket.off("connect_error", handleConnectError);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("scan_progress", handleScanProgress);
+
+      if (socket.connected) {
+        socket.disconnect();
+      }
+
+      if (socketRef.current === socket) {
+        socketRef.current = null;
+      }
+    };
+
+    const abortActiveRequest = () => {
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = null;
+    };
+
+    const handlePageHide = () => {
+      abortActiveRequest();
+      disconnectSocket();
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("connect_error", handleConnectError);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("scan_progress", handleScanProgress);
+
+    window.addEventListener("pagehide", handlePageHide);
 
     return () => {
-      socket.off("connect");
-      socket.off("connect_error");
-      socket.off("disconnect");
-      socket.off("scan_progress");
-      socket.disconnect();
-      socketRef.current = null;
+      isMountedRef.current = false;
+
+      window.removeEventListener("pagehide", handlePageHide);
+
+      abortActiveRequest();
+      disconnectSocket();
     };
   }, []);
 
@@ -322,6 +364,9 @@ export default function EyeScanForm() {
   };
 
   const handleAnalyze = async () => {
+    if (isSubmittingRef.current) {
+      return;
+    }
     if (!selectedFile) {
       toast.error("Pilih gambar mata terlebih dahulu.");
       return;
@@ -331,6 +376,10 @@ export default function EyeScanForm() {
 
     const formData = new FormData();
     formData.append("image", selectedFile, selectedFile.name);
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    isSubmittingRef.current = true;
 
     if (activeSocketId) {
       formData.append("socketId", activeSocketId);
@@ -350,6 +399,9 @@ export default function EyeScanForm() {
       const response = await API.post<ScreeningResponse>(
         "/screenings",
         formData,
+        {
+          signal: controller.signal,
+        },
       );
 
       setScreeningResult(response.data.data);
