@@ -5,6 +5,15 @@ import {
 } from "../constants/health-recommendation.constant.js";
 
 const adviceCache = new Map();
+const MAX_CACHE_SIZE = 500;
+
+const setCacheWithLimit = (key, value) => {
+  if (adviceCache.size >= MAX_CACHE_SIZE) {
+    const oldestKey = adviceCache.keys().next().value;
+    adviceCache.delete(oldestKey);
+  }
+  adviceCache.set(key, value);
+};
 
 const generateFallbackAdvice = (totalCholesterol, ldl, hdl, triglycerides) => {
   let dietaryAdvice = "";
@@ -56,7 +65,7 @@ export const generateHealthAdvice = async (
       hdl,
       triglycerides,
     );
-    adviceCache.set(cacheKey, fallback);
+    setCacheWithLimit(cacheKey, fallback);
     return fallback;
   }
 
@@ -111,7 +120,7 @@ Focus on the worst abnormal value first.
         hdl,
         triglycerides,
       );
-      adviceCache.set(cacheKey, fallback);
+      setCacheWithLimit(cacheKey, fallback);
       return fallback;
     }
 
@@ -122,7 +131,7 @@ Focus on the worst abnormal value first.
       activityAdvice: parsed.activityAdvice || "",
     };
 
-    adviceCache.set(cacheKey, advice);
+    setCacheWithLimit(cacheKey, advice);
 
     return advice;
   } catch (error) {
@@ -134,7 +143,7 @@ Focus on the worst abnormal value first.
       hdl,
       triglycerides,
     );
-    adviceCache.set(cacheKey, fallback);
+    setCacheWithLimit(cacheKey, fallback);
     return fallback;
   }
 };
