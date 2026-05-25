@@ -4,6 +4,10 @@ import { BadRequestError } from "../exceptions/BadRequestError.js";
 import { prisma } from "../lib/prisma.js";
 import { badRequestId } from "../utils/bad-request-id.util.js";
 import { notExist } from "../utils/not-exist.util.js";
+import {
+  getPaginationOptions,
+  getPaginationMetadata,
+} from "../utils/pagination.util.js";
 
 export const DailyTrackingService = {
   async create(userId, body) {
@@ -74,33 +78,47 @@ export const DailyTrackingService = {
     return data;
   },
 
-  async getHistoryByUserId(userId) {
+  async getHistoryByUserId(userId, pageQuery = 1, limitQuery = 10) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    const data = await prisma.dailyTracking.findMany({
-      where: { userId },
-      orderBy: { date: "desc" },
-      select: {
-        id: true,
-        date: true,
-        calories: true,
-        protein: true,
-        exerciseMins: true,
-        foodNotes: true,
-        createdAt: true,
-        healthGoal: {
-          select: {
-            targetWeeklyCalories: true,
-            targetExerciseMins: true,
+    const { page, limit, skip } = getPaginationOptions(pageQuery, limitQuery);
+
+    const [data, totalItems] = await Promise.all([
+      prisma.dailyTracking.findMany({
+        where: { userId },
+        orderBy: { date: "desc" },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          date: true,
+          calories: true,
+          protein: true,
+          exerciseMins: true,
+          foodNotes: true,
+          createdAt: true,
+          healthGoal: {
+            select: {
+              targetWeeklyCalories: true,
+              targetExerciseMins: true,
+            },
           },
         },
-      },
-    });
+      }),
+      prisma.dailyTracking.count({
+        where: { userId },
+      }),
+    ]);
 
     if (!data || data.length === 0) {
       throw new NotFoundError(MESSAGE.DAILY_TRACKING.NOT_FOUND);
     }
 
-    return data;
+    const metadata = getPaginationMetadata(page, limit, totalItems);
+
+    return {
+      data,
+      metadata,
+    };
   },
 };

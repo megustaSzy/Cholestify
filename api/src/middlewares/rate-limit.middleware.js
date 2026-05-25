@@ -14,3 +14,17 @@ export const forgotPasswordLimiter = rateLimit({
     },
   },
 });
+
+export const heavyTaskLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: "Server sedang sibuk. Tolong tunggu 1 menit sebelum mencoba lagi.",
+    metadata: {
+      status: HttpStatus.MANY_REQUEST,
+    },
+  },
+});

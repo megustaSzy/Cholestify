@@ -3,6 +3,7 @@ import { Router } from "express";
 import { LipidPanelController } from "../controllers/lipid-panel.controller.js";
 
 import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { heavyTaskLimiter } from "../middlewares/rate-limit.middleware.js";
 import { ownerOrAdmin } from "../middlewares/owner-or-admin.middleware.js";
 import { roleMiddleware } from "../middlewares/role.middleware.js";
 import { validate } from "../middlewares/validation.middleware.js";
@@ -137,6 +138,7 @@ router.get("/me/export/pdf", authMiddleware, LipidPanelController.exportMyLipids
 router.post(
   "/",
   authMiddleware,
+  heavyTaskLimiter,
   validate(createLipidPanelSchema),
   LipidPanelController.createLipidPanel
 );

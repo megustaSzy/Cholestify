@@ -2,6 +2,10 @@ import { MESSAGE } from "../constants/message.constant.js";
 import { NotFoundError } from "../exceptions/NotFoundError.js";
 import { prisma } from "../lib/prisma.js";
 import { generateHealthAdvice } from "../utils/generate-health-advice.util.js";
+import {
+  getPaginationOptions,
+  getPaginationMetadata,
+} from "../utils/pagination.util.js";
 
 export const HealthRecommendationService = {
   async generateFromLipidPanel(userId, lipidPanelId, lipidData) {
@@ -25,23 +29,37 @@ export const HealthRecommendationService = {
     return recommendation;
   },
 
-  async getMyRecommendations(userId) {
-    const data = await prisma.healthRecommendation.findMany({
-      where: { userId },
-      orderBy: { generatedAt: "desc" },
-      select: {
-        id: true,
-        dietaryAdvice: true,
-        activityAdvice: true,
-        generatedAt: true,
-      },
-    });
+  async getMyRecommendations(userId, pageQuery = 1, limitQuery = 10) {
+    const { page, limit, skip } = getPaginationOptions(pageQuery, limitQuery);
+
+    const [data, totalItems] = await Promise.all([
+      prisma.healthRecommendation.findMany({
+        where: { userId },
+        orderBy: { generatedAt: "desc" },
+        skip,
+        take: limit,
+        select: {
+          id: true,
+          dietaryAdvice: true,
+          activityAdvice: true,
+          generatedAt: true,
+        },
+      }),
+      prisma.healthRecommendation.count({
+        where: { userId },
+      }),
+    ]);
 
     if (!data || data.length === 0) {
       throw new NotFoundError(MESSAGE.HEALTH_RECOMMENDATION.NOT_FOUND);
     }
 
-    return data;
+    const metadata = getPaginationMetadata(page, limit, totalItems);
+
+    return {
+      data,
+      metadata,
+    };
   },
 
   async getOverview(userId) {

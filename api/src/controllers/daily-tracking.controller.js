@@ -24,15 +24,19 @@ export const DailyTrackingController = {
   async getHistoryByUserId(req, res, next) {
     try {
       const userId = req.user.id;
-      const data = await DailyTrackingService.getHistoryByUserId(userId);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      
+      const result = await DailyTrackingService.getHistoryByUserId(userId, page, limit);
 
       return res.status(HttpStatus.OK).json({
         success: true,
         message: MESSAGE.DAILY_TRACKING.HISTORY_FOUND,
         metadata: {
           status: HttpStatus.OK,
+          ...result.metadata,
         },
-        data,
+        data: result.data,
       });
     } catch (error) {
       next(error);

@@ -24,15 +24,19 @@ export const HealthRecommendationController = {
   async getMyRecommendations(req, res, next) {
     try {
       const userId = req.user.id;
-      const data = await HealthRecommendationService.getMyRecommendations(userId);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+      
+      const result = await HealthRecommendationService.getMyRecommendations(userId, page, limit);
 
       return res.status(HttpStatus.OK).json({
         success: true,
         message: MESSAGE.HEALTH_RECOMMENDATION.FOUND,
         metadata: {
           status: HttpStatus.OK,
+          ...result.metadata,
         },
-        data,
+        data: result.data,
       });
     } catch (error) {
       next(error);
