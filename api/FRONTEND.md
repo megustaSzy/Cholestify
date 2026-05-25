@@ -25,18 +25,18 @@ Base URL: `http://localhost:3001`
 | `GET`   | `/api/biometrics/me`        | 🍪   | Ambil Biometrics user (pribadi)                    |
 | `PATCH` | `/api/biometrics/`          | 🍪   | Update biometric user (pribadi)                    |
 | `POST`  | `/api/lipid-panels`         | 🍪   | Input data kolesterol baru                         |
-| `GET`   | `/api/lipid-panels/me`      | 🍪   | Ambil Riwayat Lipids user (pribadi)                |
+| `GET`   | `/api/lipid-panels/me?page=&limit=` | 🍪   | Ambil Riwayat Lipids user (pribadi)                |
 | `GET`   | `/api/lipid-panels/me/export/pdf` | 🍪 | Download PDF riwayat lipid panel (blob)            |
 | `PATCH` | `/api/lipid-panels/`        | 🍪   | Update data kolesterol terbaru                     |
 | `POST`  | `/api/calculates`           | ❌   | Hitung zone detak jantung                          |
 | `POST`  | `/api/health-goals`         | 🍪   | Input target kesehatan dan dapatkan saran          |
-| `GET`   | `/api/health-goals/me`      | 🍪   | Ambil riwayat target & saran kesehatan             |
+| `GET`   | `/api/health-goals/me`      | 🍪   | Ambil data target kesehatan terbaru                |
 | `POST`  | `/api/daily-trackings`      | 🍪   | Catat aktivitas & kalori harian                    |
-| `GET`   | `/api/daily-trackings/history` | 🍪 | Ambil riwayat pencatatan harian                   |
+| `GET`   | `/api/daily-trackings/history?page=&limit=` | 🍪 | Ambil riwayat pencatatan harian                   |
 | `GET`   | `/api/foods/public`         | ❌   | **Public Foods** — Daftar kalori makanan tanpa auth|
 | `GET`   | `/api/foods?page=&limit=&search=&status=` | 🍪   | **Rekomendasi Makanan** — Menu diet sesuai LDL    |
 | `POST`  | `/api/screenings`           | 🍪   | **AI Eye Scan** — Analisis gambar retina mata      |
-| `GET`   | `/api/screenings/me`        | 🍪   | Ambil riwayat hasil scan mata (pribadi)            |
+| `GET`   | `/api/screenings/me?page=&limit=`   | 🍪   | Ambil riwayat hasil scan mata (pribadi)            |
 | `GET`   | `/api/screenings/me/export/pdf` | 🍪 | Download PDF hasil scan mata (blob)                |
 | `POST`  | `/api/tests/upload`          | ❌   | *Testing* — Upload gambar ke Cloudinary            |
 

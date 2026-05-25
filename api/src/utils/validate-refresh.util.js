@@ -11,5 +11,12 @@ export const validateRefresh = async (refreshToken) => {
     throw new UnauthorizedError(MESSAGE.TOKEN.REFRESH_INVALID);
   }
 
+  if (token.expiresAt <= new Date()) {
+    await prisma.token.delete({
+      where: { id: token.id },
+    });
+    throw new UnauthorizedError("Refresh token sudah kedaluwarsa. Silakan login kembali.");
+  }
+
   return token;
 };

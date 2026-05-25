@@ -110,8 +110,15 @@ export const AuthService = {
     const accessToken = generateAccessToken(payload);
 
     const refreshToken = generateRefreshToken(payload);
+    await prisma.token.deleteMany({
+      where: {
+        userId: user.id,
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
 
-    // simpan refresh token ke DB
     await prisma.token.create({
       data: {
         userId: user.id,
@@ -255,6 +262,16 @@ export const AuthService = {
 
     const accessToken = generateAccessToken(payload);
     const refreshToken = generateRefreshToken(payload);
+
+    // Hapus refresh token lama yang sudah expired milik user ini agar tidak menumpuk
+    await prisma.token.deleteMany({
+      where: {
+        userId: user.id,
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
 
     await prisma.token.create({
       data: {

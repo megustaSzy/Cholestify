@@ -24,7 +24,7 @@ export const HealthGoalService = {
   async getMyHealthGoals(userId) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    const data = await prisma.healthGoal.findMany({
+    const data = await prisma.healthGoal.findFirst({
       where: { userId },
       orderBy: { createdAt: "desc" },
       select: {
@@ -35,7 +35,7 @@ export const HealthGoalService = {
       },
     });
 
-    if (!data || data.length === 0) {
+    if (!data) {
       throw new NotFoundError(MESSAGE.HEALTH_GOAL.NOT_FOUND);
     }
 
@@ -64,12 +64,18 @@ export const HealthGoalService = {
       where: {
         userId,
         healthGoalId: healthGoal.id,
-        date: { gte: startOfWeek }
-      }
+        date: { gte: startOfWeek },
+      },
     });
 
-    const totalCalories = trackingsThisWeek.reduce((sum, t) => sum + t.calories, 0);
-    const totalExerciseMins = trackingsThisWeek.reduce((sum, t) => sum + t.exerciseMins, 0);
+    const totalCalories = trackingsThisWeek.reduce(
+      (sum, t) => sum + t.calories,
+      0,
+    );
+    const totalExerciseMins = trackingsThisWeek.reduce(
+      (sum, t) => sum + t.exerciseMins,
+      0,
+    );
 
     return {
       goal: {
@@ -81,9 +87,15 @@ export const HealthGoalService = {
         totalExerciseMins,
       },
       percentage: {
-        calories: Math.min(100, Math.round((totalCalories / healthGoal.targetWeeklyCalories) * 100)),
-        exerciseMins: Math.min(100, Math.round((totalExerciseMins / healthGoal.targetExerciseMins) * 100)),
-      }
+        calories: Math.min(
+          100,
+          Math.round((totalCalories / healthGoal.targetWeeklyCalories) * 100),
+        ),
+        exerciseMins: Math.min(
+          100,
+          Math.round((totalExerciseMins / healthGoal.targetExerciseMins) * 100),
+        ),
+      },
     };
   },
 };
