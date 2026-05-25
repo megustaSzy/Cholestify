@@ -1,10 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Image from "next/image";
-
-const goals = [
-  { label: "Kalori", value: "2,200 kcal", color: "bg-blue-500" },
-  { label: "Olahraga", value: "60 min", color: "bg-blue-400" },
-];
+import { Card, } from "@/components/ui/card";
 
 export default function TargetGoalsSidebar() {
   return (

@@ -1,8 +1,9 @@
-import type { CSSProperties } from "react";
+import { Suspense, type CSSProperties } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import HealthGoalsContent from "@/components/user/profile/HealthGoalsContent";
+import { HealthGoalsPageSkeleton } from "@/components/user/profile/skeleton/HealthGoalsSkeleton";
 
 export default function HealthGoalsPage() {
   return (
@@ -16,8 +17,10 @@ export default function HealthGoalsPage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
+       <Suspense fallback={<HealthGoalsPageSkeleton/>}>
+         <SiteHeader />
         <HealthGoalsContent />
+       </Suspense>
       </SidebarInset>
     </SidebarProvider>
   );

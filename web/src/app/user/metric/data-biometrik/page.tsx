@@ -4,6 +4,8 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Metadata } from "next";
 import LogBiometricsContent from "@/components/user/metric/biometric/BiometricForm";
 import HeaderSection from "@/components/user/metric/biometric/HeaderSection";
+import { Suspense } from "react";
+import { LogBiometricsSkeleton } from "@/components/user/metric/biometric/BiometricsSkeleton";
 
 export const metadata: Metadata = {
   title: "Cholestify - Log Biometrics",
@@ -27,8 +29,10 @@ export default function LogBiometricsPage() {
             <div className="flex flex-col gap-4 py-6 md:gap-6 md:py-8">
               <div className="w-full px-4 sm:px-6 lg:px-8">
                 <div className="w-full max-w-3xl mx-auto flex flex-col">
-                  <HeaderSection />
-                  <LogBiometricsContent />
+                  <Suspense fallback={<LogBiometricsSkeleton />}>
+                    <HeaderSection />
+                    <LogBiometricsContent />
+                  </Suspense>
                 </div>
               </div>
             </div>

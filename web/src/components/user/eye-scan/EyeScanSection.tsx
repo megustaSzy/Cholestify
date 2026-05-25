@@ -1,52 +1,319 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import axios from "axios";
+import { io, type Socket } from "socket.io-client";
+import {
+  AlertCircle,
+  CheckCircle2,
+  CloudUpload,
+  FileImage,
+  HelpCircle,
+  Loader2,
+  ScanEye,
+  Trash2,
+} from "lucide-react";
+import { toast } from "sonner";
+
+import { API } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { CloudUpload, HelpCircle, ScanEye } from "lucide-react";
 import { Input } from "@/components/ui/input";
+
+type ScreeningResponse = {
+  success: boolean;
+  message: string;
+  metadata?: {
+    status?: number;
+  };
+  data: {
+    id: number;
+    userId: number;
+    imageUrl: string;
+    result: string;
+    confidence: number;
+    description: string;
+    recommendation: string;
+    probabilities: {
+      normal: number;
+      beresiko: number;
+      kolesterol: number;
+    };
+    createdAt: string;
+  };
+};
+
+type ApiErrorResponse = {
+  success?: boolean;
+  message?: string;
+  recommendation?: string;
+  error?: string;
+  metadata?: {
+    status?: number;
+  };
+};
+
+type ScanProgressPayload = {
+  progress?: number;
+  message?: string;
+};
+
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+const SOCKET_URL =
+  process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:3001";
+
+const allowedExtensions = ["jpg", "jpeg", "png", "heic"];
+const allowedMimeTypes = ["image/jpeg", "image/png", "image/heic"];
+
+function getFileExtension(fileName: string) {
+  return fileName.split(".").pop()?.toLowerCase() ?? "";
+}
+
+function isAllowedFile(file: File) {
+  const extension = getFileExtension(file.name);
+
+  return (
+    allowedExtensions.includes(extension) ||
+    allowedMimeTypes.includes(file.type)
+  );
+}
+
+function isPreviewableFile(file: File | null) {
+  if (!file) return false;
+
+  const extension = getFileExtension(file.name);
+
+  return ["jpg", "jpeg", "png"].includes(extension);
+}
+
+function getApiErrorMessage(error: unknown) {
+  if (axios.isAxiosError<ApiErrorResponse>(error)) {
+    return (
+      error.response?.data?.message ||
+      error.response?.data?.recommendation ||
+      error.response?.data?.error ||
+      "Gagal melakukan analisis foto."
+    );
+  }
+
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Gagal melakukan analisis foto.";
+}
+
+function formatPercent(value?: number) {
+  if (typeof value !== "number" || Number.isNaN(value)) return "0.00%";
+
+  return `${value.toFixed(2)}%`;
+}
 
 export default function EyeScanForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const socketRef = useRef<Socket | null>(null);
+
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+  const [socketId, setSocketId] = useState<string | null>(null);
+  const [isSocketConnected, setIsSocketConnected] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [loadingText, setLoadingText] = useState("");
+
+  const [scanError, setScanError] = useState(false);
+
+  const [screeningResult, setScreeningResult] = useState<
+    ScreeningResponse["data"] | null
+  >(null);
+
+  useEffect(() => {
+    const socket = io(SOCKET_URL, {
+      withCredentials: true,
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
+    });
+
+    socketRef.current = socket;
+
+    socket.on("connect", () => {
+      setSocketId(socket.id ?? null);
+      setIsSocketConnected(true);
+    });
+
+    socket.on("connect_error", () => {
+      setSocketId(null);
+      setIsSocketConnected(false);
+
+      // Jangan pakai console.error di sini,
+      // karena Next.js dev overlay akan muncul sebagai error merah.
+    });
+
+    socket.on("disconnect", () => {
+      setSocketId(null);
+      setIsSocketConnected(false);
+    });
+
+    socket.on("scan_progress", (data: ScanProgressPayload) => {
+      const safeProgress = Math.min(
+        95,
+        Math.max(0, Number(data.progress) || 0),
+      );
+
+      setProgress(safeProgress);
+      setLoadingText(data.message || "Memproses gambar...");
+    });
+
+    return () => {
+      socket.off("connect");
+      socket.off("connect_error");
+      socket.off("disconnect");
+      socket.off("scan_progress");
+      socket.disconnect();
+      socketRef.current = null;
+    };
+  }, []);
+
+  const clearSelectedFile = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setScreeningResult(null);
+    setProgress(0);
+    setLoadingText("");
+
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
+  const handleSelectedFile = (file: File) => {
+    setScreeningResult(null);
+    setProgress(0);
+    setLoadingText("");
+
+    if (!isAllowedFile(file)) {
+      toast.error(
+        "Format file tidak didukung. Gunakan JPG, JPEG, PNG, atau HEIC.",
+      );
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("Ukuran file maksimal 10MB.");
+      return;
+    }
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (file) {
+      handleSelectedFile(file);
+    }
+  };
+
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
     setDragOver(false);
-    const file = e.dataTransfer.files?.[0];
+
+    const file = event.dataTransfer.files?.[0];
+
     if (file) {
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
+      handleSelectedFile(file);
     }
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault();
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
     setDragOver(true);
   };
 
-  const handleDragLeave = () => setDragOver(false);
+  const handleDragLeave = () => {
+    setDragOver(false);
+  };
+
+  const handleAnalyze = async () => {
+    if (!selectedFile) {
+      toast.error("Pilih gambar mata terlebih dahulu.");
+      return;
+    }
+
+    const activeSocketId = socketRef.current?.id ?? socketId;
+
+    const formData = new FormData();
+    formData.append("image", selectedFile, selectedFile.name);
+
+    if (activeSocketId) {
+      formData.append("socketId", activeSocketId);
+    }
+
+    try {
+      setIsSubmitting(true);
+      setScreeningResult(null);
+      setScanError(false);
+      setProgress(5);
+      setLoadingText(
+        activeSocketId
+          ? "Mengunggah gambar..."
+          : "Mengunggah gambar tanpa realtime progress...",
+      );
+
+      const response = await API.post<ScreeningResponse>(
+        "/screenings",
+        formData,
+      );
+
+      setScreeningResult(response.data.data);
+      setProgress(100);
+      setLoadingText("Selesai. Hasil siap ditampilkan.");
+      toast.success(response.data.message || "Analisis foto berhasil.");
+    } catch (error) {
+      setScanError(true);
+      setProgress(0);
+      setLoadingText("Analisis gagal.");
+
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message ||
+            error.response?.data?.error ||
+            "Gagal melakukan analisis foto.",
+        );
+        return;
+      }
+
+      toast.error("Gagal melakukan analisis foto.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <div className="xl:col-span-3 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
-      {/* Drop Zone */}
+    <div className="xl:col-span-3 flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div
-        className={`m-4 rounded-xl border-2 border-dashed transition-colors cursor-pointer flex flex-col items-center justify-center flex-1 min-h-64 ${
+        className={`m-4 flex min-h-64 flex-1 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed transition-colors ${
           dragOver
             ? "border-blue-400 bg-blue-50"
             : "border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/40"
         }`}
-        onClick={() => fileInputRef.current?.click()}
+        onClick={() => !isSubmitting && fileInputRef.current?.click()}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -54,48 +321,205 @@ export default function EyeScanForm() {
         <Input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/png"
+          name="image"
+          accept=".jpg,.jpeg,.png,.heic,image/jpeg,image/png,image/heic"
           className="hidden"
           onChange={handleFileChange}
+          disabled={isSubmitting}
         />
-        {previewUrl ? (
-          <Image
-            src={previewUrl}
-            alt="Eye preview"
-            className="max-h-56 rounded-lg object-contain"
-            width={400}
-            height={400}
-            unoptimized
-          />
+
+        {previewUrl && selectedFile ? (
+          <div className="flex w-full flex-col items-center gap-3 px-4">
+            {isPreviewableFile(selectedFile) ? (
+              <Image
+                src={previewUrl}
+                alt="Eye preview"
+                className="max-h-56 rounded-lg object-contain"
+                width={400}
+                height={400}
+                unoptimized
+                style={{
+                  width: "auto",
+                  height: "auto",
+                }}
+              />
+            ) : (
+              <div className="flex h-40 w-full max-w-sm flex-col items-center justify-center rounded-xl border border-gray-200 bg-white">
+                <FileImage className="mb-2 h-9 w-9 text-blue-500" />
+                <p className="text-sm font-medium text-gray-700">
+                  File HEIC siap dianalisis
+                </p>
+                <p className="mt-1 text-xs text-gray-400">
+                  Preview HEIC mungkin tidak tampil di browser.
+                </p>
+              </div>
+            )}
+
+            <div className="max-w-full rounded-full bg-white px-3 py-1 text-xs text-gray-500 shadow-sm">
+              {selectedFile.name}
+            </div>
+          </div>
         ) : (
           <>
-            <div className="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center mb-4">
-              <CloudUpload className="w-7 h-7 text-blue-500" />
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100">
+              <CloudUpload className="h-7 w-7 text-blue-500" />
             </div>
-            <p className="text-gray-700 font-medium text-sm">
-              Drag &amp; drop or click to upload
+
+            <p className="text-sm font-medium text-gray-700">
+              Drag & drop atau klik untuk upload
             </p>
-            <p className="text-gray-400 text-xs mt-1">
-              Supports high-resolution JPG or PNG (Max 10MB)
+
+            <p className="mt-1 text-xs text-gray-400">
+              Mendukung JPG, JPEG, PNG, HEIC. Maksimal 10MB.
             </p>
           </>
         )}
       </div>
 
-      {/* Footer Row */}
-      <div className="flex items-center justify-between px-4 pb-4">
-        <div className="flex items-center gap-2 text-gray-400 text-sm">
-          <HelpCircle className="w-4 h-4" />
-          <span>Siap Untuk AI analysis?</span>
+      {(isSubmitting || progress > 0) && (
+        <div className="mx-4 mb-4 rounded-xl border border-blue-100 bg-blue-50 p-4">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm font-medium text-blue-700">
+              <span>{loadingText || "Menunggu progress..."}</span>
+            </div>
+
+            <span className="text-xs font-bold text-blue-700">
+              {Math.round(progress)}%
+            </span>
+          </div>
+
+          <div className="h-2 overflow-hidden rounded-full bg-blue-100">
+            <div
+              className="h-full rounded-full bg-blue-600 transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
+          <div className="mt-2 flex items-center gap-2 text-[11px] text-blue-600">
+            <span
+              className={`h-2 w-2 rounded-full ${
+                isSocketConnected ? "bg-green-500" : "bg-gray-400"
+              }`}
+            />
+            <span>
+              {isSocketConnected
+                ? "Realtime progress aktif"
+                : "Socket belum terhubung, progress tetap diproses setelah submit"}
+            </span>
+          </div>
         </div>
-        <Button
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-5 py-2 flex items-center gap-2 text-sm font-medium"
-          disabled={!selectedFile}
-        >
-          <ScanEye className="w-4 h-4" />
-          Analisis Photo
-        </Button>
+      )}
+
+      {screeningResult && (
+        <div className="mx-4 mb-4 rounded-xl border border-blue-100 bg-blue-50 p-4">
+          <div className="flex items-start gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                <h3 className="text-sm font-semibold text-gray-900">
+                  Hasil Analisis: {screeningResult.result}
+                </h3>
+
+                <span className="w-fit rounded-full bg-blue-600 px-2.5 py-1 text-[10px] font-bold text-white">
+                  {formatPercent(screeningResult.confidence)}
+                </span>
+              </div>
+
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                {screeningResult.description}
+              </p>
+
+              <div className="mt-3 rounded-lg bg-white p-3 text-xs text-gray-600">
+                <p className="font-semibold text-gray-900">Rekomendasi</p>
+                <p className="mt-1 leading-relaxed">
+                  {screeningResult.recommendation}
+                </p>
+              </div>
+
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                <div className="rounded-lg bg-white px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase text-gray-400">
+                    Normal
+                  </p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {formatPercent(screeningResult.probabilities.normal)}
+                  </p>
+                </div>
+
+                <div className="rounded-lg bg-white px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase text-gray-400">
+                    Beresiko
+                  </p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {formatPercent(screeningResult.probabilities.beresiko)}
+                  </p>
+                </div>
+
+                <div className="rounded-lg bg-white px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase text-gray-400">
+                    Kolesterol
+                  </p>
+                  <p className="text-sm font-bold text-gray-900">
+                    {formatPercent(screeningResult.probabilities.kolesterol)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex flex-col gap-3 px-4 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-sm text-gray-400">
+          <HelpCircle className="h-4 w-4" />
+          <span>
+            {selectedFile
+              ? "Gambar siap dianalisis."
+              : "Upload gambar mata terlebih dahulu."}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {selectedFile && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={clearSelectedFile}
+              disabled={isSubmitting}
+              className="gap-2 rounded-lg"
+            >
+              <Trash2 className="h-4 w-4" />
+              Hapus
+            </Button>
+          )}
+
+          <Button
+            type="button"
+            onClick={handleAnalyze}
+            disabled={!selectedFile || isSubmitting}
+            className="flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Menganalisis...
+              </>
+            ) : (
+              <>
+                <ScanEye className="h-4 w-4" />
+                Analisis Foto
+              </>
+            )}
+          </Button>
+        </div>
       </div>
+
+      {/* <div className="mx-4 mb-4 flex items-start gap-2 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-xs text-amber-700">
+        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+        <p>
+          Pastikan gambar menampilkan mata dengan jelas. Jika sistem memberi
+          pesan struktur mata tidak terdeteksi, ambil ulang foto sesuai panduan.
+        </p>
+      </div> */}
     </div>
   );
 }

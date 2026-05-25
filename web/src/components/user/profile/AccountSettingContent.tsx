@@ -6,6 +6,8 @@ import { API } from "@/lib/utils";
 import { useFetchData } from "@/hooks/useFetchData";
 import { useState } from "react";
 import { toast } from "sonner";
+import Image from "next/image";
+import axios from "axios";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -21,6 +23,8 @@ type UserProfile = {
   nama?: string;
   email?: string;
   notelp?: string;
+  avatar?: string | null;
+  avatarUrl?: string | null;
 };
 
 type ProfileDraft = {
@@ -29,12 +33,7 @@ type ProfileDraft = {
   notelp: string;
 };
 
-type UpdatePasswordPayload = {
-  password: string;
-  confirmPassword: string;
-};
-
-function Avatar({ nama }: { nama: string }) {
+function Avatar({ nama, src }: { nama: string; src?: string | null }) {
   const initials = nama
     .split(" ")
     .filter(Boolean)
@@ -44,8 +43,18 @@ function Avatar({ nama }: { nama: string }) {
     .toUpperCase();
 
   return (
-    <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-semibold text-xl flex-shrink-0">
-      {initials || "U"}
+    <div className="relative flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-300 text-xl font-semibold text-gray-700">
+      {src ? (
+        <Image
+          src={src}
+          alt={nama || "User avatar"}
+          fill
+          className="object-cover"
+          unoptimized
+        />
+      ) : (
+        initials || "U"
+      )}
     </div>
   );
 }
@@ -76,45 +85,93 @@ export default function AccountSettingContent() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const displayAvatar =
+    avatarPreview || user?.avatarUrl || user?.avatar || null;
 
   const handleAvatarUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const file = event.target.files?.[0];
+
     if (!file) return;
 
-    setAvatarPreview(URL.createObjectURL(file));
+    if (!user?.id) {
+      toast.error("Data user belum tersedia.");
+      return;
+    }
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/jpg"];
+
+    if (!allowedTypes.includes(file.type)) {
+      toast.error("Format avatar harus JPG atau PNG.");
+      return;
+    }
+
+    const maxSize = 10 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      toast.error("Ukuran avatar maksimal 10MB.");
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreview(previewUrl);
 
     const formData = new FormData();
-    formData.append("avatar", file);
+    formData.append("avatar", file, file.name);
 
     try {
       setIsUploadingAvatar(true);
 
-      await API.post("/users/avatar", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      await API.patch(`/users/${user.id}`, formData);
 
       await mutate();
+
+      toast.success("Foto profil berhasil diperbarui.");
     } catch (err) {
-      console.error("Gagal upload avatar:", err);
+      setAvatarPreview(null);
+
+      if (axios.isAxiosError(err)) {
+        toast.error(
+          err.response?.data?.message || "Gagal memperbarui foto profil.",
+        );
+        return;
+      }
+
+      toast.error("Gagal memperbarui foto profil.");
     } finally {
       setIsUploadingAvatar(false);
+
+      if (event.target) {
+        event.target.value = "";
+      }
     }
   };
 
   const handleRemoveAvatar = async () => {
+    if (!user?.id) {
+      toast.error("Data user belum tersedia.");
+      return;
+    }
+
     try {
       setIsUploadingAvatar(true);
 
-      await API.delete("/users/avatar");
+      await API.delete(`/users/${user.id}/avatar`);
 
       setAvatarPreview(null);
       await mutate();
+
+      toast.success("Foto profil berhasil dihapus.");
     } catch (err) {
-      console.error("Gagal menghapus avatar:", err);
+      if (axios.isAxiosError(err)) {
+        toast.error(
+          err.response?.data?.message || "Gagal menghapus foto profil.",
+        );
+        return;
+      }
+
+      toast.error("Gagal menghapus foto profil.");
     } finally {
       setIsUploadingAvatar(false);
     }
@@ -241,7 +298,7 @@ export default function AccountSettingContent() {
             <h3 className="font-semibold text-gray-900 mb-5">Foto Profil</h3>
 
             <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-              <Avatar nama={displayName || "User"} />
+              <Avatar nama={displayName || "User"} src={displayAvatar} />
 
               <div className="flex flex-wrap gap-2">
                 <label className="h-10 flex cursor-pointer items-center gap-2 px-4 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-colors">
@@ -250,7 +307,7 @@ export default function AccountSettingContent() {
 
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/png,image/jpeg,image/jpg"
                     hidden
                     onChange={handleAvatarUpload}
                     disabled={isUploadingAvatar}

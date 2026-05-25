@@ -1,7 +1,5 @@
 "use client";
-
 import * as React from "react";
-
 import { NavMenuSidebar } from "@/components/NavMenuSidebar";
 import { NavUser } from "@/components/NavUser";
 import {
@@ -14,8 +12,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
-  Settings2Icon,
-  CircleHelpIcon,
   DatabaseIcon,
   FileIcon,
   LogOutIcon,
@@ -27,13 +23,14 @@ import {
 } from "lucide-react";
 import { NavSecondary } from "./NavSecondary";
 import { logout } from "@/lib/utils";
+import Link from "next/link";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
+  // user: {
+  //   name: "shadcn",
+  //   email: "m@example.com",
+  //   avatar: "/avatars/shadcn.jpg",
+  // },
 
   navSecondary: [
     {
@@ -105,10 +102,6 @@ const data = {
       icon: <HistoryIcon />,
       items: [
         {
-          title: "Target Aktifitas",
-          url: "/user/riwayat/target-aktivitas",
-        },
-        {
           title: "Scan Mata",
           url: "/user/riwayat/scan-mata",
         },
@@ -148,9 +141,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton className="data-[slot=sidebar-menu-button]:p-1.5! h-auto hover:bg-transparent hover:text-inherit active:bg-transparent active:text-inherit cursor-default">
               {/* <CommandIcon className="size-5!" /> */}
               <div className="flex flex-col items-start leading-tight ml-5">
-                <span className="text-2xl font-semibold text-blue-600">
-                  Cholestify
-                </span>
+                <Link href="/">
+                  <span className="text-2xl font-semibold text-blue-600">
+                    Cholestify
+                  </span>
+                </Link>
                 <span className="text-sm text-muted-foreground">
                   Version 1.0
                 </span>
@@ -161,12 +156,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {/* <NavMain items={data.navMain} /> */}
-        <NavMenuSidebar items={data.menu} />
+        <NavMenuSidebar className="font-semibold" items={data.menu} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <NavUser />
-      </SidebarFooter>
+      </SidebarFooter> */}
     </Sidebar>
   );
 }

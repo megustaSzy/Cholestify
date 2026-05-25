@@ -1,7 +1,8 @@
 import FoodDirectoryContent from "@/components/homepage/food-directory/FoodDirectoryContent";
 import FooterForm from "@/components/homepage/Footer";
 import NavHeader from "@/components/homepage/NavHeader";
-import React from "react";
+import { FoodDirectorySkeleton } from "@/components/user/food-table/FoodDirectorySkeleton";
+import React, { Suspense } from "react";
 
 export default function FoodDirectoryPage() {
   return (
@@ -11,7 +12,9 @@ export default function FoodDirectoryPage() {
       {/* Main Content */}
       <main className="flex-1 bg-[#f7f7fb]">
         <div className="mx-auto w-full max-w-7xl px-6">
-          <FoodDirectoryContent />
+          <Suspense fallback={<FoodDirectorySkeleton />}>
+            <FoodDirectoryContent />
+          </Suspense>
         </div>
       </main>
       {/* Footer */}

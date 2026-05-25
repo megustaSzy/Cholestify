@@ -23,6 +23,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "../ui/skeleton";
+
+type ResetPasswordResponse = {
+  success?: boolean;
+  message?: string;
+  metadata?: {
+    status?: number;
+  };
+  data?: unknown;
+};
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return "Terjadi kesalahan. Silakan coba lagi.";
+}
 
 export default function ResetPasswordPage() {
   const router = useRouter();
@@ -64,13 +82,16 @@ export default function ResetPasswordPage() {
         return;
       }
 
+      const normalizedApiBase = API_BASE.replace(/\/$/, "");
+
       const response = await fetch(
-        `${API_BASE}auth/reset-password?token=${token}`,
+        `${normalizedApiBase}/auth/reset-password?token=${token}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
+          credentials: "include",
           body: JSON.stringify({
             password,
             confirmPassword,
@@ -78,7 +99,7 @@ export default function ResetPasswordPage() {
         },
       );
 
-      const result = await response.json();
+      const result = (await response.json()) as ResetPasswordResponse;
 
       if (!response.ok) {
         throw new Error(result.message || "Gagal reset password");
@@ -89,8 +110,8 @@ export default function ResetPasswordPage() {
       setTimeout(() => {
         router.push("/login");
       }, 1500);
-    } catch (error: any) {
-      setErrorMessage(error.message || "Terjadi kesalahan. Silakan coba lagi.");
+    } catch (error: unknown) {
+      setErrorMessage(getErrorMessage(error));
     } finally {
       setIsLoading(false);
     }

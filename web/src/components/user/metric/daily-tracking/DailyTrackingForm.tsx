@@ -16,7 +16,6 @@ import {
   DumbbellIcon,
   SaveIcon,
   UtensilsIcon,
-  LayoutDashboardIcon,
 } from "lucide-react";
 
 interface DailyTrackingFormProps {

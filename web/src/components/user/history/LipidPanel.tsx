@@ -8,6 +8,7 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
+  Download,
   HeartPulse,
   TrendingUp,
 } from "lucide-react";
@@ -24,6 +25,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { API } from "@/lib/utils";
+import { toast } from "sonner";
+import axios from "axios";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -103,38 +107,14 @@ const statusDescription: Record<LipidStatus, string> = {
 
 function TrendValue({
   value,
-  previousValue,
-  goodWhenHigher = false,
 }: {
   value?: number;
   previousValue?: number;
   goodWhenHigher?: boolean;
 }) {
-  const hasValue = typeof value === "number";
-  const hasTrend = hasValue && typeof previousValue === "number";
-
-  if (!hasValue) return <span>-</span>;
-
-  const isUp = hasTrend ? value > previousValue : false;
-  const isDown = hasTrend ? value < previousValue : false;
-
-  const isGood =
-    hasTrend && ((goodWhenHigher && isUp) || (!goodWhenHigher && isDown));
-
-  const colorClass =
-    !hasTrend || value === previousValue
-      ? "text-gray-950"
-      : isGood
-        ? "text-emerald-600"
-        : "text-red-600";
-
   return (
-    <span
-      className={`inline-flex items-center justify-center gap-1 ${colorClass}`}
-    >
+    <span className={`inline-flex items-center justify-center gap-1`}>
       {formatNumber(value)}
-      {isUp && <ArrowUp className="size-3.5" />}
-      {isDown && <ArrowDown className="size-3.5" />}
     </span>
   );
 }
@@ -160,12 +140,10 @@ function SummaryCard({
   label,
   value,
   description,
-  icon,
 }: {
   label: string;
   value: ReactNode;
   description: string;
-  icon: ReactNode;
 }) {
   return (
     <Card className="rounded-2xl border-gray-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
@@ -177,10 +155,9 @@ function SummaryCard({
             </p>
             <div className="mt-2 text-2xl font-bold text-gray-950">{value}</div>
           </div>
-
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+          {/* <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
             {icon}
-          </div>
+          </div> */}
         </div>
 
         <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
@@ -297,6 +274,50 @@ export default function LipidPanelHistoryContent() {
   const previousLipid = lipidPanels[1];
   const latestStatus = latestLipid ? getLipidStatus(latestLipid) : null;
 
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+
+  const handleDownloadPDF = async () => {
+    try {
+      setIsDownloadingPdf(true);
+
+      const response = await API.get<Blob>("/lipid-panels/me/export/pdf", {
+        responseType: "blob",
+      });
+
+      const blob = new Blob([response.data], {
+        type: "application/pdf",
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = url;
+      link.download = `riwayat-lipid-panel-${new Date()
+        .toISOString()
+        .slice(0, 10)}.pdf`;
+
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      toast.success("PDF riwayat lipid panel berhasil diunduh.");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message ||
+            "Gagal mengunduh PDF riwayat lipid panel.",
+        );
+        return;
+      }
+
+      toast.error("Gagal mengunduh PDF riwayat lipid panel.");
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
   const handlePrev = () => {
     setPage(Math.max(currentPage - 1, 1));
   };
@@ -355,7 +376,7 @@ export default function LipidPanelHistoryContent() {
               />
             }
             description="LDL lebih rendah umumnya lebih baik."
-            icon={<TrendingUp className="size-5" />}
+            // icon={<TrendingUp className="size-5" />}
           />
 
           <SummaryCard
@@ -368,7 +389,7 @@ export default function LipidPanelHistoryContent() {
               />
             }
             description="HDL lebih tinggi umumnya lebih baik."
-            icon={<HeartPulse className="size-5" />}
+            // icon={<HeartPulse className="size-5" />}
           />
 
           <SummaryCard
@@ -380,29 +401,44 @@ export default function LipidPanelHistoryContent() {
               />
             }
             description="Perbandingan dengan pemeriksaan sebelumnya."
-            icon={<TrendingUp className="size-5" />}
+            // icon={<TrendingUp className="size-5" />}
           />
 
           <SummaryCard
             label="Last Checkup"
             value={formatDate(latestLipid.date)}
             description="Tanggal pemeriksaan lipid panel terakhir."
-            icon={<CalendarDays className="size-5" />}
+            // icon={<CalendarDays className="size-5" />}
           />
         </div>
       )}
 
       <Card className="overflow-hidden rounded-3xl border-gray-200 bg-white shadow-sm">
-        <CardHeader className="border-b bg-white px-5 py-6 sm:px-6">
-          <div className="mx-auto flex max-w-xl flex-col items-center text-center">
-            <h2 className="text-xl font-bold tracking-tight text-gray-950 sm:text-2xl">
-              Tabel Riwayat Data
-            </h2>
+        <CardHeader className="border-b bg-white px-5 py-5 sm:px-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="max-w-xl">
+              <h2 className="text-xl font-bold tracking-tight text-gray-950 sm:text-2xl">
+                Tabel Riwayat Data
+              </h2>
 
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Data terbaru ditampilkan di bagian atas. Panah menunjukkan
-              perubahan dibanding pemeriksaan sebelumnya.
-            </p>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Data terbaru ditampilkan di bagian atas. Panah menunjukkan
+                perubahan dibanding pemeriksaan sebelumnya.
+              </p>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleDownloadPDF}
+              disabled={
+                isDownloadingPdf || isLoading || lipidPanels.length === 0
+              }
+              className="w-full gap-2 rounded-xl border-gray-100 bg-gray-200 text-gray-700 hover:bg-gray-100 hover:text-blue-500 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            >
+              <Download className="h-4 w-4" />
+              {isDownloadingPdf ? "Mengunduh..." : "Unduh PDF"}
+            </Button>
           </div>
         </CardHeader>
 
@@ -462,18 +498,18 @@ export default function LipidPanelHistoryContent() {
                         key={lipid.id}
                         className="h-16 transition-colors hover:bg-blue-50/40"
                       >
-                        <TableCell className="text-center text-xs font-semibold uppercase tracking-wide text-gray-700">
+                        <TableCell className="text-center text-xs font-extrabold uppercase tracking-wide text-gray-700">
                           {formatDate(lipid.date)}
                         </TableCell>
 
-                        <TableCell className="text-center text-sm font-semibold">
+                        <TableCell className="text-center text-sm font-medium">
                           <TrendValue
                             value={lipid.ldl}
                             previousValue={previousItem?.ldl}
                           />
                         </TableCell>
 
-                        <TableCell className="text-center text-sm font-semibold">
+                        <TableCell className="text-center text-sm font-medium">
                           <TrendValue
                             value={lipid.hdl}
                             previousValue={previousItem?.hdl}
@@ -481,14 +517,14 @@ export default function LipidPanelHistoryContent() {
                           />
                         </TableCell>
 
-                        <TableCell className="text-center text-sm font-semibold">
+                        <TableCell className="text-center text-sm font-medium">
                           <TrendValue
                             value={lipid.totalCholesterol}
                             previousValue={previousItem?.totalCholesterol}
                           />
                         </TableCell>
 
-                        <TableCell className="text-center text-sm font-semibold text-gray-950">
+                        <TableCell className="text-center text-sm font-medium text-gray-950">
                           {formatNumber(lipid.triglycerides)}
                         </TableCell>
 
@@ -552,13 +588,13 @@ export default function LipidPanelHistoryContent() {
             <div className="flex flex-col gap-3 border-t bg-gray-50/70 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
               <p className="text-center text-sm text-muted-foreground sm:text-left">
                 Menampilkan{" "}
-                <span className="font-semibold text-gray-950">
+                <span className="">
                   {startRecord}
                 </span>{" "}
                 sampai{" "}
-                <span className="font-semibold text-gray-950">{endRecord}</span>{" "}
+                <span className="">{endRecord}</span>{" "}
                 dari{" "}
-                <span className="font-semibold text-gray-950">
+                <span className="">
                   {totalItems}
                 </span>{" "}
                 data

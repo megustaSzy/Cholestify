@@ -1,8 +1,9 @@
-import { type CSSProperties } from "react";
+import { Suspense, type CSSProperties } from "react";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import AccountSettingContent from "@/components/user/profile/AccountSettingContent";
+import { AccountSettingSkeleton } from "@/components/user/profile/skeleton/AccountSettingSkeleton";
 
 export default function AccountSettingsPage() {
   return (
@@ -16,8 +17,10 @@ export default function AccountSettingsPage() {
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
-        <SiteHeader />
-        <AccountSettingContent />
+        <Suspense fallback={<AccountSettingSkeleton/>}>
+          <SiteHeader />
+          <AccountSettingContent />
+        </Suspense>
       </SidebarInset>
     </SidebarProvider>
   );

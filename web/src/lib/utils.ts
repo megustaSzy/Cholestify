@@ -11,7 +11,7 @@ export const fetcher = (url: string) => API.get(url).then((res) => res.data);
 export const API = axios.create({
   baseURL: "/api-proxy",
   headers: {
-    "Content-Type": "application/json",
+    // "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "69420",
   },
   withCredentials: true,
