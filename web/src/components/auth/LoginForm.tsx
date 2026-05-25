@@ -18,6 +18,7 @@ import { useState } from "react";
 import axios from "axios";
 import { API } from "@/lib/utils";
 import { ArrowLeft, Loader2 } from "lucide-react";
+import { Form } from "@base-ui/react";
 
 type LoginResponse = {
   success: boolean;
@@ -117,7 +118,7 @@ export function LoginForm({
         </CardHeader>
 
         <CardContent className="pt-4 pb-4">
-          <form
+          <Form
             onSubmit={handleSubmit}
             className="space-y-4"
             aria-busy={isLoading}
@@ -267,7 +268,7 @@ export function LoginForm({
                 Daftar
               </Link>
             </div>
-          </form>
+          </Form>
         </CardContent>
       </Card>
     </section>

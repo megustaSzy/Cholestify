@@ -37,6 +37,7 @@ import { signupSchema } from "@/lib/ValidationAuth";
 import { ArrowLeft, CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Form } from "@base-ui/react";
 
 export function SignupForm({
   className,
@@ -184,7 +185,7 @@ export function SignupForm({
         </CardHeader>
 
         <CardContent className="pt-4 pb-4">
-          <form
+          <Form
             onSubmit={handleSubmit}
             className="grid grid-cols-2 gap-3"
             aria-busy={loading}
@@ -470,7 +471,7 @@ export function SignupForm({
                 Login
               </Link>
             </div>
-          </form>
+          </Form>
         </CardContent>
       </Card>
     </section>
