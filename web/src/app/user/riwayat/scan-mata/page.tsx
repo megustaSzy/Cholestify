@@ -2,6 +2,8 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import HistoryScanEyeContent from "@/components/user/history/ScanEye";
+import { HistoryScanEyeSkeleton } from "@/components/user/history/skeleton/ScanEyeSkeleton";
+import { Suspense } from "react";
 
 export default function EyeScanHistoryPage() {
   return (
@@ -20,7 +22,9 @@ export default function EyeScanHistoryPage() {
         <main className="flex flex-1 flex-col bg-[#faf9ff]">
           <div className="w-full px-6 py-6 lg:px-8 xl:px-10">
             <div className="w-full max-w-none">
+              <Suspense fallback={<HistoryScanEyeSkeleton />}>
               <HistoryScanEyeContent />
+              </Suspense>
             </div>
           </div>
         </main>
