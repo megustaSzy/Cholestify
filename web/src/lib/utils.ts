@@ -17,6 +17,8 @@ export const API = axios.create({
   withCredentials: true,
 });
 
+let refreshPromise: Promise<unknown> | null = null;
+
 API.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -28,7 +30,7 @@ API.interceptors.response.use(
 
     const requestUrl = originalRequest.url ?? "";
 
-    if (requestUrl.includes("/auth/") && !requestUrl.includes("/auth/logout")) {
+    if (requestUrl.includes("/auth/")) {
       return Promise.reject(error);
     }
 
@@ -36,7 +38,13 @@ API.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        await API.post("/auth/refresh");
+        if (!refreshPromise) {
+          refreshPromise = API.post("/auth/refresh").finally(() => {
+            refreshPromise = null;
+          });
+        }
+
+        await refreshPromise;
 
         return API(originalRequest);
       } catch (refreshError) {
