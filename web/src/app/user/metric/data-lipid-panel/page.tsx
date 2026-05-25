@@ -4,6 +4,8 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { LogLipidPanelFormSkeleton } from "@/components/user/metric/log-lipid-panel/LogLipidPanelSkeleton";
 
 export const metadata: Metadata = {
   title: "Log Lipid Panel - Cholestify",
@@ -27,7 +29,9 @@ export default function LogLipidPanelPage() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <LogLipidPanelForm />
+              <Suspense fallback={<LogLipidPanelFormSkeleton />}>
+                <LogLipidPanelForm />
+              </Suspense>
             </div>
           </div>
         </div>
