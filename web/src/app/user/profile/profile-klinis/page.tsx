@@ -4,6 +4,13 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import ClinicalProfileContent from "@/components/user/profile/ClinicalProfileContent";
 import { ClinicalProfileSkeleton } from "@/components/user/profile/skeleton/ClinicalProfileSkeleton";
+import MobileBottomNav from "@/components/MobilrButtomNav";
+import MobileTopHeader from "@/components/MobileTopHeader";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Profile Klinis - Cholestify",
+};
 
 export default function ClinicalProfilePage() {
   return (
@@ -15,12 +22,26 @@ export default function ClinicalProfilePage() {
         } as CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      {/* sidebar */}
+      <div className="hidden md:block">
+        <AppSidebar variant="inset" />
+      </div>
+
+      {/* Navbar Mobile */}
+      <MobileBottomNav />
+
       <SidebarInset>
-        <Suspense fallback={<ClinicalProfileSkeleton />}>
+        {/* site header dekstop */}
+        <div className="hidden md:block">
           <SiteHeader />
-          <ClinicalProfileContent />
-        </Suspense>
+        </div>
+        <MobileTopHeader />
+
+        <main className="flex flex-1 flex-col pb-[140px] md:pb-0">
+          <Suspense fallback={<ClinicalProfileSkeleton />}>
+            <ClinicalProfileContent />
+          </Suspense>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -6,11 +6,11 @@ import React, { Suspense } from "react";
 import HeaderSection from "@/components/user/metric/daily-tracking/HeaderSection";
 import DailyTrackingContent from "@/components/user/metric/daily-tracking/DailyTrackingContent";
 import { DailyTrackingPageSkeleton } from "@/components/user/metric/daily-tracking/DailyTrackingSkeleton";
+import MobileBottomNav from "@/components/MobilrButtomNav";
+import MobileTopHeader from "@/components/MobileTopHeader";
 
 export const metadata: Metadata = {
-  title: "Cholestify - Daily Tracking",
-  description:
-    "Enter your daily health metrics to maintain an accurate clinical profile.",
+  title: "Cholestify - Tracking Harian",
 };
 
 export default function DailyTrackingPage() {
@@ -23,14 +23,25 @@ export default function DailyTrackingPage() {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      {/* sidebar */}
+      <div className="hidden md:block">
+        <AppSidebar variant="inset" />
+      </div>
+
+      {/* Navbar Mobile */}
+      <MobileBottomNav />
+
       <SidebarInset>
-        <SiteHeader />
-        <div className="flex flex-1 flex-col">
+        {/* site header dekstop */}
+        <div className="hidden md:block">
+          <SiteHeader />
+        </div>
+        <MobileTopHeader />
+        <main className="flex flex-1 flex-col bg-gray-50 pb-[140px] md:pb-0">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-6 md:gap-6 md:py-8">
               <div className="w-full px-4 sm:px-6 lg:px-8">
-                <div className="w-full max-w-6xl mx-auto flex flex-col gap-6">
+                <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
                   <Suspense fallback={<DailyTrackingPageSkeleton />}>
                     <HeaderSection />
                     <DailyTrackingContent />
@@ -39,7 +50,7 @@ export default function DailyTrackingPage() {
               </div>
             </div>
           </div>
-        </div>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

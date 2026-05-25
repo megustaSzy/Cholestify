@@ -6,9 +6,7 @@ import axios from "axios";
 import { io, type Socket } from "socket.io-client";
 import {
   AlertCircle,
-  CheckCircle2,
   CloudUpload,
-  FileImage,
   HelpCircle,
   Loader2,
   ScanEye,
@@ -63,8 +61,12 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const SOCKET_URL =
   process.env.NEXT_PUBLIC_SOCKET_URL ?? "http://localhost:3001";
 
-const allowedExtensions = ["jpg", "jpeg", "png", "heic"];
-const allowedMimeTypes = ["image/jpeg", "image/png", "image/heic"];
+const allowedExtensions = ["jpg", "jpeg", "png"] as const;
+const allowedMimeTypes = ["image/jpeg", "image/png"] as const;
+
+function formatFileSize(size: number) {
+  return `${(size / (1024 * 1024)).toFixed(2)}MB`;
+}
 
 function getFileExtension(fileName: string) {
   return fileName.split(".").pop()?.toLowerCase() ?? "";
@@ -73,35 +75,88 @@ function getFileExtension(fileName: string) {
 function isAllowedFile(file: File) {
   const extension = getFileExtension(file.name);
 
-  return (
-    allowedExtensions.includes(extension) ||
-    allowedMimeTypes.includes(file.type)
+  const hasAllowedExtension = allowedExtensions.some(
+    (item) => item === extension,
   );
-}
 
-function isPreviewableFile(file: File | null) {
-  if (!file) return false;
+  const hasAllowedMimeType =
+    !file.type || allowedMimeTypes.some((item) => item === file.type);
 
-  const extension = getFileExtension(file.name);
-
-  return ["jpg", "jpeg", "png"].includes(extension);
+  return hasAllowedExtension && hasAllowedMimeType;
 }
 
 function getApiErrorMessage(error: unknown) {
   if (axios.isAxiosError<ApiErrorResponse>(error)) {
-    return (
+    const status =
+      error.response?.status ?? error.response?.data?.metadata?.status;
+
+    const apiMessage =
       error.response?.data?.message ||
       error.response?.data?.recommendation ||
-      error.response?.data?.error ||
-      "Gagal melakukan analisis foto."
-    );
+      error.response?.data?.error;
+
+    if (!error.response) {
+      return {
+        title: "Tidak dapat terhubung ke server.",
+        description:
+          "Periksa koneksi internet Anda atau coba lagi beberapa saat.",
+      };
+    }
+
+    if (status === 400) {
+      return {
+        title: apiMessage || "Foto belum sesuai.",
+        description:
+          "Pastikan foto menampilkan area mata dengan jelas, tidak buram, dan pencahayaan cukup.",
+      };
+    }
+
+    if (status === 401) {
+      return {
+        title: "Sesi login berakhir.",
+        description: "Silakan login ulang lalu coba analisis foto kembali.",
+      };
+    }
+
+    if (status === 413) {
+      return {
+        title: "Ukuran file terlalu besar.",
+        description: "Gunakan gambar dengan ukuran maksimal 10MB.",
+      };
+    }
+
+    if (status === 415) {
+      return {
+        title: "Format file tidak didukung.",
+        description: "Gunakan gambar dengan format JPG, JPEG, atau PNG.",
+      };
+    }
+
+    if (status && status >= 500) {
+      return {
+        title: "Server gagal memproses foto.",
+        description:
+          "Layanan analisis sedang bermasalah. Silakan coba lagi nanti.",
+      };
+    }
+
+    return {
+      title: apiMessage || "Gagal melakukan analisis foto.",
+      description: "Silakan coba lagi dengan gambar yang berbeda.",
+    };
   }
 
   if (error instanceof Error) {
-    return error.message;
+    return {
+      title: error.message,
+      description: "Silakan coba lagi.",
+    };
   }
 
-  return "Gagal melakukan analisis foto.";
+  return {
+    title: "Gagal melakukan analisis foto.",
+    description: "Silakan coba lagi beberapa saat.",
+  };
 }
 
 function formatPercent(value?: number) {
@@ -189,6 +244,7 @@ export default function EyeScanForm() {
     setSelectedFile(null);
     setPreviewUrl(null);
     setScreeningResult(null);
+    setScanError(false);
     setProgress(0);
     setLoadingText("");
 
@@ -199,18 +255,29 @@ export default function EyeScanForm() {
 
   const handleSelectedFile = (file: File) => {
     setScreeningResult(null);
+    setScanError(false);
     setProgress(0);
     setLoadingText("");
 
     if (!isAllowedFile(file)) {
-      toast.error(
-        "Format file tidak didukung. Gunakan JPG, JPEG, PNG, atau HEIC.",
-      );
+      clearSelectedFile();
+
+      toast.error("Format file tidak didukung.", {
+        description: "Gunakan gambar dengan format JPG, JPEG, atau PNG.",
+      });
+
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
-      toast.error("Ukuran file maksimal 10MB.");
+      clearSelectedFile();
+
+      toast.error("Ukuran file terlalu besar.", {
+        description: `Ukuran file Anda ${formatFileSize(
+          file.size,
+        )}. Maksimal ukuran file adalah 10MB.`,
+      });
+
       return;
     }
 
@@ -220,6 +287,10 @@ export default function EyeScanForm() {
 
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
+
+    toast.success("Gambar berhasil dipilih.", {
+      description: "Klik Analisis Foto untuk mulai memproses gambar.",
+    });
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -290,16 +361,11 @@ export default function EyeScanForm() {
       setProgress(0);
       setLoadingText("Analisis gagal.");
 
-      if (axios.isAxiosError(error)) {
-        toast.error(
-          error.response?.data?.message ||
-            error.response?.data?.error ||
-            "Gagal melakukan analisis foto.",
-        );
-        return;
-      }
+      const friendlyError = getApiErrorMessage(error);
 
-      toast.error("Gagal melakukan analisis foto.");
+      toast.error(friendlyError.title, {
+        description: friendlyError.description,
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -322,7 +388,7 @@ export default function EyeScanForm() {
           ref={fileInputRef}
           type="file"
           name="image"
-          accept=".jpg,.jpeg,.png,.heic,image/jpeg,image/png,image/heic"
+          accept=".jpg,.jpeg,.png,image/jpeg,image/png"
           className="hidden"
           onChange={handleFileChange}
           disabled={isSubmitting}
@@ -330,30 +396,18 @@ export default function EyeScanForm() {
 
         {previewUrl && selectedFile ? (
           <div className="flex w-full flex-col items-center gap-3 px-4">
-            {isPreviewableFile(selectedFile) ? (
-              <Image
-                src={previewUrl}
-                alt="Eye preview"
-                className="max-h-56 rounded-lg object-contain"
-                width={400}
-                height={400}
-                unoptimized
-                style={{
-                  width: "auto",
-                  height: "auto",
-                }}
-              />
-            ) : (
-              <div className="flex h-40 w-full max-w-sm flex-col items-center justify-center rounded-xl border border-gray-200 bg-white">
-                <FileImage className="mb-2 h-9 w-9 text-blue-500" />
-                <p className="text-sm font-medium text-gray-700">
-                  File HEIC siap dianalisis
-                </p>
-                <p className="mt-1 text-xs text-gray-400">
-                  Preview HEIC mungkin tidak tampil di browser.
-                </p>
-              </div>
-            )}
+            <Image
+              src={previewUrl}
+              alt="Eye preview"
+              className="max-h-56 rounded-lg object-contain"
+              width={400}
+              height={400}
+              unoptimized
+              style={{
+                width: "auto",
+                height: "auto",
+              }}
+            />
 
             <div className="max-w-full rounded-full bg-white px-3 py-1 text-xs text-gray-500 shadow-sm">
               {selectedFile.name}
@@ -370,7 +424,7 @@ export default function EyeScanForm() {
             </p>
 
             <p className="mt-1 text-xs text-gray-400">
-              Mendukung JPG, JPEG, PNG, HEIC. Maksimal 10MB.
+              Mendukung JPG, JPEG, PNG. Maksimal 10MB.
             </p>
           </>
         )}
@@ -406,6 +460,20 @@ export default function EyeScanForm() {
                 ? "Realtime progress aktif"
                 : "Socket belum terhubung, progress tetap diproses setelah submit"}
             </span>
+          </div>
+        </div>
+      )}
+
+      {scanError && (
+        <div className="mx-4 mb-4 flex items-start gap-2 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm text-red-600">
+          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+
+          <div>
+            <p className="font-semibold">Analisis foto gagal.</p>
+            <p className="mt-1 text-xs leading-relaxed">
+              Silakan pastikan foto mata terlihat jelas, format file JPG/PNG,
+              dan ukuran file maksimal 10MB.
+            </p>
           </div>
         </div>
       )}

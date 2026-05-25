@@ -6,6 +6,8 @@ import LogBiometricsContent from "@/components/user/metric/biometric/BiometricFo
 import HeaderSection from "@/components/user/metric/biometric/HeaderSection";
 import { Suspense } from "react";
 import { LogBiometricsSkeleton } from "@/components/user/metric/biometric/BiometricsSkeleton";
+import MobileBottomNav from "@/components/MobilrButtomNav";
+import MobileTopHeader from "@/components/MobileTopHeader";
 
 export const metadata: Metadata = {
   title: "Cholestify - Log Biometrics",
@@ -21,9 +23,20 @@ export default function LogBiometricsPage() {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      {/* sidebar */}
+      <div className="hidden md:block">
+        <AppSidebar variant="inset" />
+      </div>
+
+      {/* Navbar Mobile */}
+      <MobileBottomNav />
+
       <SidebarInset>
-        <SiteHeader />
+        {/* site header dekstop */}
+        <div className="hidden md:block">
+          <SiteHeader />
+        </div>
+        <MobileTopHeader />
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-6 md:gap-6 md:py-8">

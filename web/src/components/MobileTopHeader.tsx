@@ -1,0 +1,108 @@
+"use client";
+
+import Link from "next/link";
+import { Leaf } from "lucide-react";
+import { useFetchData } from "@/hooks/useFetchData";
+import Image from "next/image";
+
+type ApiResponse<T> = {
+  success: boolean;
+  message: string;
+  metadata?: {
+    status?: number;
+  };
+  data: T;
+};
+
+type UserProfile = {
+  id?: number | string;
+  nama?: string;
+  email?: string;
+  notelp?: string;
+  avatar?: string | null;
+  avatarUrl?: string | null;
+  imageUrl?: string | null;
+  profileImage?: string | null;
+};
+
+function getAvatarUrl(src?: string | null) {
+  if (!src) return null;
+
+  if (
+    src.startsWith("http://") ||
+    src.startsWith("https://") ||
+    src.startsWith("blob:") ||
+    src.startsWith("data:")
+  ) {
+    return src;
+  }
+
+  const apiOrigin = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(
+    /\/api\/?$/,
+    "",
+  );
+
+  if (!apiOrigin) return src;
+
+  return `${apiOrigin}${src.startsWith("/") ? src : `/${src}`}`;
+}
+
+function UserAvatar({
+  name,
+  src,
+}: {
+  name: string;
+  src?: string | null;
+}) {
+  const initials = name
+    .split(" ")
+    .filter(Boolean)
+    .map((item) => item[0])
+    .join("")
+    .slice(0, 1)
+    .toUpperCase();
+
+  return (
+    <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-blue-600 text-sm font-bold text-white shadow-sm">
+      {src ? (
+        <Image
+          src={src}
+          alt={name || "User avatar"}
+          fill
+          sizes="40px"
+          className="object-cover"
+          unoptimized
+        />
+      ) : (
+        initials || "U"
+      )}
+    </div>
+  );
+}
+
+export default function MobileTopHeader() {
+  const { data } = useFetchData<ApiResponse<UserProfile>>("/users/me");
+
+  const user = data?.data;
+  const displayName = user?.nama ?? "User";
+
+  const avatarUrl = getAvatarUrl(
+    user?.avatarUrl ?? user?.avatar ?? user?.imageUrl ?? user?.profileImage,
+  );
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur md:hidden">
+      <div className="flex items-center justify-between">
+        <Link href="/user/dashboard" className="flex items-center gap-2">
+          <span className="text-xl font-extrabold tracking-tight text-blue-600">
+            Cholestify
+          </span>
+        </Link>
+
+        <Link href="/user/profile/account-setting">
+          <UserAvatar name={displayName} src={avatarUrl} />
+        </Link>
+      </div>
+    </header>
+  );
+}

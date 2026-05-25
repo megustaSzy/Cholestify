@@ -4,6 +4,13 @@ import { SiteHeader } from "@/components/site-header";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import AccountSettingContent from "@/components/user/profile/AccountSettingContent";
 import { AccountSettingSkeleton } from "@/components/user/profile/skeleton/AccountSettingSkeleton";
+import MobileBottomNav from "@/components/MobilrButtomNav";
+import MobileTopHeader from "@/components/MobileTopHeader";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Pengaturan Akun - Cholestify",
+};
 
 export default function AccountSettingsPage() {
   return (
@@ -15,12 +22,25 @@ export default function AccountSettingsPage() {
         } as CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      {/* sidebar */}
+      <div className="hidden md:block">
+        <AppSidebar variant="inset" />
+      </div>
+
+      {/* Navbar Mobile */}
+      <MobileBottomNav />
+
       <SidebarInset>
-        <Suspense fallback={<AccountSettingSkeleton/>}>
+        {/* site header dekstop */}
+        <div className="hidden md:block">
           <SiteHeader />
-          <AccountSettingContent />
-        </Suspense>
+        </div>
+        <MobileTopHeader />
+        <main className="flex flex-1 flex-col pb-[140px] md:pb-0">
+          <Suspense fallback={<AccountSettingSkeleton />}>
+            <AccountSettingContent />
+          </Suspense>
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

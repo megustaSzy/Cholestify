@@ -1,17 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactNode } from "react";
-import {
-  AlertTriangle,
-  ArrowDown,
-  ArrowUp,
-  CalendarDays,
-  ChevronLeft,
-  ChevronRight,
-  Download,
-  HeartPulse,
-  TrendingUp,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Download } from "lucide-react";
 
 import { useFetchData } from "@/hooks/useFetchData";
 import { Badge } from "@/components/ui/badge";
@@ -28,15 +18,34 @@ import {
 import { API } from "@/lib/utils";
 import { toast } from "sonner";
 import axios from "axios";
+import { isAuthError, isNoDataError } from "@/lib/ApiErrorResponse";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import { getPaginationItems } from "@/hooks/usePagination";
 
 type ApiResponse<T> = {
   success: boolean;
   message: string;
   metadata?: {
     status?: number;
+    page?: number;
+    limit?: number;
+    totalItems?: number;
+    totalPages?: number;
+    prev?: string | null;
+    next?: string | null;
   };
   data: T;
 };
+
+const LIMIT = 10;
 
 type LipidPanel = {
   id: number;
@@ -48,6 +57,32 @@ type LipidPanel = {
   createdAt?: string;
   updatedAt?: string;
 };
+
+type ApiErrorLike = {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+      error?: string;
+      metadata?: {
+        status?: number;
+      };
+    };
+  };
+  message?: string;
+};
+
+function getApiResponseMessage(error: unknown, fallback: string) {
+  if (!error || typeof error !== "object") return fallback;
+
+  const apiError = error as ApiErrorLike;
+
+  return (
+    apiError.response?.data?.message ||
+    apiError.response?.data?.error ||
+    fallback
+  );
+}
 
 type LipidStatus = "Normal" | "High" | "Beresiko";
 
@@ -122,14 +157,35 @@ function TrendValue({
 function EmptyState({
   title,
   description,
+  variant = "default",
 }: {
   title: string;
   description: string;
+  variant?: "default" | "error" | "info" | "warning";
 }) {
+  const colorClass =
+    variant === "error"
+      ? "text-red-600"
+      : variant === "warning"
+        ? "text-amber-600"
+        : variant === "info"
+          ? "text-blue-600"
+          : "text-gray-950";
+
+  const descriptionClass =
+    variant === "error"
+      ? "text-red-500"
+      : variant === "warning"
+        ? "text-amber-600"
+        : variant === "info"
+          ? "text-blue-600"
+          : "text-muted-foreground";
+
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center justify-center px-6 py-12 text-center">
-      <h3 className="text-base font-semibold text-gray-950">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+    <div className="mx-auto flex min-h-40 max-w-md flex-col items-center justify-center px-6 py-12 text-center">
+      <h3 className={`text-base font-semibold ${colorClass}`}>{title}</h3>
+
+      <p className={`mt-2 text-sm leading-relaxed ${descriptionClass}`}>
         {description}
       </p>
     </div>
@@ -238,37 +294,44 @@ function MobileLipidCard({
 }
 
 export default function LipidPanelHistoryContent() {
+  const [page, setPage] = useState(1);
+
   const {
     data: lipidResponse,
     isLoading,
     error,
-  } = useFetchData<ApiResponse<LipidPanel[]>>("/lipid-panels/me");
+  } = useFetchData<ApiResponse<LipidPanel[]>>(
+    `/lipid-panels/me?page=${page}&limit=${LIMIT}`,
+  );
 
-  const lipidPanels = useMemo(() => {
-    const data = lipidResponse?.data ?? [];
+  const lipidPanels = Array.isArray(lipidResponse?.data)
+    ? lipidResponse.data
+    : [];
 
-    return [...data].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
-  }, [lipidResponse?.data]);
+  const metadata = lipidResponse?.metadata;
 
-  const [page, setPage] = useState(1);
-  const limit = 10;
+  const hasAuthError = isAuthError(error);
+  const hasNoDataError = isNoDataError(error);
 
-  const totalItems = lipidPanels.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / limit));
+  const hasUnknownError = Boolean(error) && !hasAuthError && !hasNoDataError;
 
-  const currentPage = Math.min(page, totalPages);
+  const emptyLipidMessage = getApiResponseMessage(
+    error,
+    "Riwayat lipid panel belum ada.",
+  );
 
-  const shouldShowPagination = totalItems > limit;
+  const totalItems = metadata?.totalItems ?? lipidPanels.length;
+  const totalPages = Math.max(1, metadata?.totalPages ?? 1);
+  const currentPage = metadata?.page ?? page;
+  const currentLimit = metadata?.limit ?? LIMIT;
 
-  const startIndex = (currentPage - 1) * limit;
-  const endIndex = startIndex + limit;
+  const shouldShowPagination =
+    totalItems > currentLimit && !hasAuthError && !hasUnknownError;
 
-  const startRecord = totalItems === 0 ? 0 : startIndex + 1;
-  const endRecord = Math.min(endIndex, totalItems);
+  const startRecord =
+    totalItems === 0 ? 0 : (currentPage - 1) * currentLimit + 1;
 
-  const paginatedLipids = lipidPanels.slice(startIndex, endIndex);
+  const endRecord = Math.min(currentPage * currentLimit, totalItems);
 
   const latestLipid = lipidPanels[0];
   const previousLipid = lipidPanels[1];
@@ -304,26 +367,50 @@ export default function LipidPanelHistoryContent() {
 
       toast.success("PDF riwayat lipid panel berhasil diunduh.");
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(
-          error.response?.data?.message ||
-            "Gagal mengunduh PDF riwayat lipid panel.",
-        );
+      if (isNoDataError(error)) {
+        toast.info("Riwayat lipid panel belum ada.", {
+          description: getApiResponseMessage(
+            error,
+            "Belum ada data yang bisa diunduh.",
+          ),
+        });
         return;
       }
 
-      toast.error("Gagal mengunduh PDF riwayat lipid panel.");
+      if (isAuthError(error)) {
+        toast.error("Sesi login berakhir.", {
+          description: "Silakan login ulang lalu coba unduh PDF kembali.",
+        });
+        return;
+      }
+
+      if (axios.isAxiosError(error)) {
+        toast.error("Gagal mengunduh PDF riwayat lipid panel.", {
+          description:
+            error.response?.data?.message ||
+            "Terjadi kendala saat membuat file PDF.",
+        });
+        return;
+      }
+
+      toast.error("Gagal mengunduh PDF riwayat lipid panel.", {
+        description: "Silakan coba lagi beberapa saat.",
+      });
     } finally {
       setIsDownloadingPdf(false);
     }
   };
 
   const handlePrev = () => {
-    setPage(Math.max(currentPage - 1, 1));
+    if (currentPage > 1) {
+      setPage(currentPage - 1);
+    }
   };
 
   const handleNext = () => {
-    setPage(Math.min(currentPage + 1, totalPages));
+    if (currentPage < totalPages) {
+      setPage(currentPage + 1);
+    }
   };
 
   return (
@@ -432,7 +519,11 @@ export default function LipidPanelHistoryContent() {
               variant="outline"
               onClick={handleDownloadPDF}
               disabled={
-                isDownloadingPdf || isLoading || lipidPanels.length === 0
+                isDownloadingPdf ||
+                isLoading ||
+                hasAuthError ||
+                hasUnknownError ||
+                lipidPanels.length === 0
               }
               className="w-full gap-2 rounded-xl border-gray-100 bg-gray-200 text-gray-700 hover:bg-gray-100 hover:text-blue-500 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
@@ -478,19 +569,29 @@ export default function LipidPanelHistoryContent() {
                       Memuat riwayat lipid panel...
                     </TableCell>
                   </TableRow>
-                ) : error ? (
+                ) : hasAuthError ? (
                   <TableRow>
                     <TableCell colSpan={6}>
                       <EmptyState
-                        title="Riwayat lipid panel gagal dimuat"
-                        description="Pastikan sesi login masih valid, lalu coba muat ulang halaman."
+                        title="Sesi login berakhir"
+                        description="Silakan login ulang untuk melihat riwayat lipid panel Anda."
+                        variant="error"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ) : hasNoDataError ? (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      <EmptyState
+                        title="Riwayat lipid panel belum ada"
+                        description={emptyLipidMessage}
+                        variant="error"
                       />
                     </TableCell>
                   </TableRow>
                 ) : lipidPanels.length > 0 ? (
-                  paginatedLipids.map((lipid, index) => {
-                    const globalIndex = (currentPage - 1) * limit + index;
-                    const previousItem = lipidPanels[globalIndex + 1];
+                  lipidPanels.map((lipid, index) => {
+                    const previousItem = lipidPanels[index + 1];
                     const status = getLipidStatus(lipid);
 
                     return (
@@ -539,12 +640,23 @@ export default function LipidPanelHistoryContent() {
                       </TableRow>
                     );
                   })
+                ) : hasUnknownError ? (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      <EmptyState
+                        title="Riwayat lipid panel belum berhasil dimuat"
+                        description="Terjadi kendala saat mengambil data. Silakan muat ulang halaman atau coba lagi beberapa saat."
+                        variant="warning"
+                      />
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   <TableRow>
                     <TableCell colSpan={6}>
                       <EmptyState
-                        title="Belum ada riwayat lipid panel"
+                        title="Riwayat lipid panel belum ada"
                         description="Silakan input lipid panel terlebih dahulu agar riwayat pemeriksaan dapat ditampilkan."
+                        variant="error"
                       />
                     </TableCell>
                   </TableRow>
@@ -558,15 +670,21 @@ export default function LipidPanelHistoryContent() {
               <div className="rounded-2xl border border-gray-200 bg-white p-6 text-center text-sm text-muted-foreground">
                 Memuat riwayat lipid panel...
               </div>
-            ) : error ? (
+            ) : hasAuthError ? (
               <EmptyState
-                title="Riwayat lipid panel gagal dimuat"
-                description="Pastikan sesi login masih valid, lalu coba muat ulang halaman."
+                title="Sesi login berakhir"
+                description="Silakan login ulang untuk melihat riwayat lipid panel Anda."
+                variant="error"
+              />
+            ) : hasNoDataError ? (
+              <EmptyState
+                title="Riwayat lipid panel belum ada"
+                description={emptyLipidMessage}
+                variant="error"
               />
             ) : lipidPanels.length > 0 ? (
-              paginatedLipids.map((lipid, index) => {
-                const globalIndex = (currentPage - 1) * limit + index;
-                const previousItem = lipidPanels[globalIndex + 1];
+              lipidPanels.map((lipid, index) => {
+                const previousItem = lipidPanels[index + 1];
 
                 return (
                   <MobileLipidCard
@@ -576,54 +694,95 @@ export default function LipidPanelHistoryContent() {
                   />
                 );
               })
+            ) : hasUnknownError ? (
+              <EmptyState
+                title="Riwayat lipid panel belum berhasil dimuat"
+                description="Terjadi kendala saat mengambil data. Silakan muat ulang halaman atau coba lagi beberapa saat."
+                variant="warning"
+              />
             ) : (
               <EmptyState
-                title="Belum ada riwayat lipid panel"
+                title="Riwayat lipid panel belum ada"
                 description="Silakan input lipid panel terlebih dahulu agar riwayat pemeriksaan dapat ditampilkan."
+                variant="error"
               />
             )}
           </div>
 
           {shouldShowPagination && (
-            <div className="flex flex-col gap-3 border-t bg-gray-50/70 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-              <p className="text-center text-sm text-muted-foreground sm:text-left">
-                Menampilkan{" "}
-                <span className="">
-                  {startRecord}
-                </span>{" "}
-                sampai{" "}
-                <span className="">{endRecord}</span>{" "}
-                dari{" "}
-                <span className="">
-                  {totalItems}
-                </span>{" "}
-                data
-              </p>
+            <div className="border-t bg-white px-5 py-4">
+              <div className="grid gap-3 md:grid-cols-[1fr_auto_1fr] md:items-center">
+                <p className="text-center text-sm text-muted-foreground md:text-left">
+                  Menampilkan{" "}
+                  <span className="font-semibold text-gray-700">
+                    {startRecord}
+                  </span>{" "}
+                  Sampai{" "}
+                  <span className="font-semibold text-gray-700">
+                    {endRecord}
+                  </span>{" "}
+                  Dari{" "}
+                  <span className="font-semibold text-gray-700">
+                    {totalItems}
+                  </span>{" "}
+                  Data
+                </p>
 
-              <div className="flex items-center justify-center gap-2">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handlePrev}
-                  disabled={currentPage === 1}
-                  className="size-9 rounded-full"
-                >
-                  <ChevronLeft className="size-4" />
-                </Button>
+                <div className="flex justify-center">
+                  <Pagination className="mx-auto w-auto">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious
+                          onClick={handlePrev}
+                          aria-disabled={currentPage === 1 || isLoading}
+                          className={
+                            currentPage === 1 || isLoading
+                              ? "pointer-events-none opacity-50"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
 
-                <span className="min-w-20 text-center text-sm font-medium text-gray-700">
-                  {currentPage} / {totalPages}
-                </span>
+                      {getPaginationItems(currentPage, totalPages).map(
+                        (pageItem, index) => (
+                          <PaginationItem key={`${pageItem}-${index}`}>
+                            {pageItem === "..." ? (
+                              <PaginationEllipsis />
+                            ) : (
+                              <PaginationLink
+                                href={`?page=${pageItem}`}
+                                isActive={currentPage === pageItem}
+                                onClick={(event) => {
+                                  event.preventDefault();
+                                  setPage(pageItem);
+                                }}
+                                className="cursor-pointer"
+                              >
+                                {pageItem}
+                              </PaginationLink>
+                            )}
+                          </PaginationItem>
+                        ),
+                      )}
 
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleNext}
-                  disabled={currentPage === totalPages}
-                  className="size-9 rounded-full"
-                >
-                  <ChevronRight className="size-4" />
-                </Button>
+                      <PaginationItem>
+                        <PaginationNext
+                          onClick={handleNext}
+                          aria-disabled={
+                            currentPage === totalPages || isLoading
+                          }
+                          className={
+                            currentPage === totalPages || isLoading
+                              ? "pointer-events-none opacity-50"
+                              : "cursor-pointer"
+                          }
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+
+                <div className="hidden md:block" aria-hidden="true" />
               </div>
             </div>
           )}
