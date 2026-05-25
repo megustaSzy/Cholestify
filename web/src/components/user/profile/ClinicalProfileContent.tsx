@@ -4,6 +4,8 @@ import { ReactNode } from "react";
 import { Mail, Phone } from "lucide-react";
 import { useFetchData } from "@/hooks/useFetchData";
 import { isAuthError, isNoDataError } from "@/lib/ApiErrorResponse";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import Image from "next/image";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -67,10 +69,12 @@ function Avatar({ name, src }: { name: string; src?: string | null }) {
   return (
     <div className="relative flex h-16 w-16 flex-shrink-0 items-center justify-center overflow-hidden rounded-full bg-gray-300 text-xl font-semibold text-gray-700">
       {src ? (
-        <img
+        <Image
           src={src}
           alt={name || "User avatar"}
-          className="h-full w-full object-cover"
+          fill
+          sizes="64px"
+          className="object-cover"
         />
       ) : (
         initials || "U"
@@ -178,7 +182,7 @@ export default function ClinicalProfileContent() {
     data: userResponse,
     error: userError,
     isLoading: isUserLoading,
-  } = useFetchData<ApiResponse<UserProfile>>("/users/me");
+  } = useCurrentUser();
 
   const {
     data: healthResponse,
@@ -190,12 +194,13 @@ export default function ClinicalProfileContent() {
     data: lipidHistoryResponse,
     error: lipidHistoryError,
     isLoading: isLipidHistoryLoading,
-  } = useFetchData<ApiResponse<LipidPanel[]>>("/lipid-panels/me");
+  } = useFetchData<ApiResponse<LipidPanel[]>>(
+    "/lipid-panels/me?page=1&limit=1",
+  );
 
   const user = userResponse?.data;
   const healthSummary = healthResponse?.data;
   const biometrics = healthSummary?.biometrics;
-  const recommendation = healthSummary?.recommendation;
 
   const summaryLipidPanel = healthSummary?.lipidPanel ?? null;
   const latestHistoryLipidPanel = lipidHistoryResponse?.data?.[0] ?? null;

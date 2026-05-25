@@ -8,6 +8,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 import axios from "axios";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -60,12 +61,7 @@ function Avatar({ nama, src }: { nama: string; src?: string | null }) {
 }
 
 export default function AccountSettingContent() {
-  const {
-    data: userResponse,
-    error,
-    isLoading,
-    mutate,
-  } = useFetchData<ApiResponse<UserProfile>>("/users/me");
+  const { data: userResponse, error, isLoading, mutate } = useCurrentUser();
 
   const user = userResponse?.data;
   const displayName = user?.nama ?? "";
