@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import axios from "axios";
 import { io, type Socket } from "socket.io-client";
@@ -9,6 +9,7 @@ import {
   CloudUpload,
   HelpCircle,
   Loader2,
+  RefreshCw,
   ScanEye,
   Trash2,
 } from "lucide-react";
@@ -165,12 +166,43 @@ function formatPercent(value?: number) {
   return `${value.toFixed(2)}%`;
 }
 
+function UploadInfoMessage() {
+  return (
+    <div className="mx-4 mb-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-700">
+      <div className="flex items-start gap-2">
+        <HelpCircle className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+
+        <div className="space-y-2">
+          <div>
+            <p className="font-semibold text-blue-800">Ketentuan upload foto</p>
+
+            <p className="mt-1 leading-relaxed">
+              Gunakan foto mata dengan format{" "}
+              <span className="font-semibold">JPG, JPEG, atau PNG</span>. Ukuran
+              maksimal file adalah <span className="font-semibold">10MB</span>.
+            </p>
+          </div>
+
+          <div className="flex items-start gap-2 rounded-lg border border-blue-100 bg-white/70 px-3 py-2 text-blue-700">
+            <p className="leading-relaxed">
+              Jika tombol <span className="font-semibold">Analisis Foto</span>{" "}
+              tidak dapat digunakan setelah proses gagal atau halaman terlalu
+              lama terbuka, silakan refresh halaman lalu upload ulang gambar.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function EyeScanForm() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const socketRef = useRef<Socket | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const isMountedRef = useRef(false);
   const isSubmittingRef = useRef(false);
+  const connectPromiseRef = useRef<Promise<string | null> | null>(null);
 
   const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -189,82 +221,115 @@ export default function EyeScanForm() {
     ScreeningResponse["data"] | null
   >(null);
 
-  useEffect(() => {
-    isMountedRef.current = true;
+  const resetSocketState = useCallback(() => {
+    if (!isMountedRef.current) return;
+
+    setSocketId(null);
+    setIsSocketConnected(false);
+  }, []);
+
+  const abortActiveRequest = useCallback(() => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+  }, []);
+
+  const disconnectSocket = useCallback(() => {
+    const socket = socketRef.current;
+
+    if (socket) {
+      socket.removeAllListeners();
+      socket.disconnect();
+      socketRef.current = null;
+    }
+
+    connectPromiseRef.current = null;
+    resetSocketState();
+  }, [resetSocketState]);
+
+  const connectSocket = useCallback(() => {
+    const activeSocket = socketRef.current;
+
+    if (activeSocket?.connected) {
+      return Promise.resolve(activeSocket.id ?? null);
+    }
+
+    if (connectPromiseRef.current) {
+      return connectPromiseRef.current;
+    }
+
+    disconnectSocket();
 
     const socket = io(SOCKET_URL, {
       withCredentials: true,
-      transports: ["websocket", "polling"],
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-      timeout: 10000,
+      transports: ["websocket"],
+      reconnection: false,
+      timeout: 8000,
+      autoConnect: false,
     });
 
     socketRef.current = socket;
 
-    const handleConnect = () => {
-      if (!isMountedRef.current) return;
+    connectPromiseRef.current = new Promise<string | null>((resolve) => {
+      const finishConnection = (id: string | null) => {
+        connectPromiseRef.current = null;
+        resolve(id);
+      };
 
-      setSocketId(socket.id ?? null);
-      setIsSocketConnected(true);
-    };
+      socket.once("connect", () => {
+        if (!isMountedRef.current) {
+          socket.disconnect();
+          finishConnection(null);
+          return;
+        }
 
-    const handleConnectError = () => {
-      if (!isMountedRef.current) return;
+        const id = socket.id ?? null;
 
-      setSocketId(null);
-      setIsSocketConnected(false);
-    };
+        setSocketId(id);
+        setIsSocketConnected(true);
+        finishConnection(id);
+      });
 
-    const handleDisconnect = () => {
-      if (!isMountedRef.current) return;
-
-      setSocketId(null);
-      setIsSocketConnected(false);
-    };
-
-    const handleScanProgress = (data: ScanProgressPayload) => {
-      if (!isMountedRef.current) return;
-
-      const safeProgress = Math.min(
-        95,
-        Math.max(0, Number(data.progress) || 0),
-      );
-
-      setProgress(safeProgress);
-      setLoadingText(data.message || "Memproses gambar...");
-    };
-
-    const disconnectSocket = () => {
-      socket.off("connect", handleConnect);
-      socket.off("connect_error", handleConnectError);
-      socket.off("disconnect", handleDisconnect);
-      socket.off("scan_progress", handleScanProgress);
-
-      if (socket.connected) {
+      socket.once("connect_error", () => {
+        socket.removeAllListeners();
         socket.disconnect();
-      }
 
-      if (socketRef.current === socket) {
-        socketRef.current = null;
-      }
-    };
+        if (socketRef.current === socket) {
+          socketRef.current = null;
+        }
 
-    const abortActiveRequest = () => {
-      abortControllerRef.current?.abort();
-      abortControllerRef.current = null;
-    };
+        resetSocketState();
+        finishConnection(null);
+      });
+
+      socket.on("disconnect", () => {
+        resetSocketState();
+      });
+
+      socket.on("scan_progress", (data: ScanProgressPayload) => {
+        if (!isMountedRef.current) return;
+
+        const safeProgress = Math.min(
+          95,
+          Math.max(0, Number(data.progress) || 0),
+        );
+
+        setProgress(safeProgress);
+        setLoadingText(data.message || "Memproses gambar...");
+      });
+
+      socket.connect();
+    });
+
+    return connectPromiseRef.current;
+  }, [disconnectSocket, resetSocketState]);
+
+  useEffect(() => {
+    isMountedRef.current = true;
 
     const handlePageHide = () => {
       abortActiveRequest();
       disconnectSocket();
     };
-
-    socket.on("connect", handleConnect);
-    socket.on("connect_error", handleConnectError);
-    socket.on("disconnect", handleDisconnect);
-    socket.on("scan_progress", handleScanProgress);
 
     window.addEventListener("pagehide", handlePageHide);
 
@@ -276,12 +341,15 @@ export default function EyeScanForm() {
       abortActiveRequest();
       disconnectSocket();
     };
-  }, []);
+  }, [abortActiveRequest, disconnectSocket]);
 
   const clearSelectedFile = () => {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
+
+    abortActiveRequest();
+    disconnectSocket();
 
     setSelectedFile(null);
     setPreviewUrl(null);
@@ -367,28 +435,33 @@ export default function EyeScanForm() {
     if (isSubmittingRef.current) {
       return;
     }
+
     if (!selectedFile) {
       toast.error("Pilih gambar mata terlebih dahulu.");
       return;
     }
 
-    const activeSocketId = socketRef.current?.id ?? socketId;
-
-    const formData = new FormData();
-    formData.append("image", selectedFile, selectedFile.name);
-
     const controller = new AbortController();
+
     abortControllerRef.current = controller;
     isSubmittingRef.current = true;
-
-    if (activeSocketId) {
-      formData.append("socketId", activeSocketId);
-    }
 
     try {
       setIsSubmitting(true);
       setScreeningResult(null);
       setScanError(false);
+      setProgress(3);
+      setLoadingText("Menyiapkan koneksi realtime...");
+
+      const activeSocketId = await connectSocket();
+
+      const formData = new FormData();
+      formData.append("image", selectedFile, selectedFile.name);
+
+      if (activeSocketId) {
+        formData.append("socketId", activeSocketId);
+      }
+
       setProgress(5);
       setLoadingText(
         activeSocketId
@@ -404,11 +477,19 @@ export default function EyeScanForm() {
         },
       );
 
+      if (!isMountedRef.current) return;
+
       setScreeningResult(response.data.data);
       setProgress(100);
       setLoadingText("Selesai. Hasil siap ditampilkan.");
       toast.success(response.data.message || "Analisis foto berhasil.");
     } catch (error) {
+      if (axios.isAxiosError(error) && error.code === "ERR_CANCELED") {
+        return;
+      }
+
+      if (!isMountedRef.current) return;
+
       setScanError(true);
       setProgress(0);
       setLoadingText("Analisis gagal.");
@@ -419,7 +500,17 @@ export default function EyeScanForm() {
         description: friendlyError.description,
       });
     } finally {
-      setIsSubmitting(false);
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+      }
+
+      isSubmittingRef.current = false;
+
+      disconnectSocket();
+
+      if (isMountedRef.current) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -481,6 +572,8 @@ export default function EyeScanForm() {
           </>
         )}
       </div>
+
+      <UploadInfoMessage />
 
       {(isSubmitting || progress > 0) && (
         <div className="mx-4 mb-4 rounded-xl border border-blue-100 bg-blue-50 p-4">
@@ -592,9 +685,11 @@ export default function EyeScanForm() {
         <div className="flex items-center gap-2 text-sm text-gray-400">
           <HelpCircle className="h-4 w-4" />
           <span>
-            {selectedFile
-              ? "Gambar siap dianalisis."
-              : "Upload gambar mata terlebih dahulu."}
+            {isSubmitting
+              ? "Foto sedang dianalisis, mohon tunggu."
+              : selectedFile
+                ? "Gambar siap dianalisis."
+                : "Upload gambar mata terlebih dahulu."}
           </span>
         </div>
 

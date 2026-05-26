@@ -9,24 +9,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
-import { useFetchData } from "@/hooks/useFetchData";
-
-type ApiResponse<T> = {
-  success: boolean;
-  message: string;
-  metadata?: {
-    status?: number;
-  };
-  data: T;
-};
-
-type UserProfile = {
-  nama?: string;
-  email?: string;
-  avatar?: string | null;
-};
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 function getInitials(name: string) {
   return name
@@ -38,17 +22,40 @@ function getInitials(name: string) {
     .toUpperCase();
 }
 
-export function NavUser() {
-  const { isMobile } = useSidebar();
+function getAvatarUrl(src?: string | null) {
+  if (!src) return "";
 
-  const { data, isLoading } =
-    useFetchData<ApiResponse<UserProfile>>("/users/me");
+  if (
+    src.startsWith("http://") ||
+    src.startsWith("https://") ||
+    src.startsWith("blob:") ||
+    src.startsWith("data:")
+  ) {
+    return src;
+  }
+
+  const apiOrigin = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(
+    /\/api\/?$/,
+    "",
+  );
+
+  if (!apiOrigin) return src;
+
+  return `${apiOrigin}${src.startsWith("/") ? src : `/${src}`}`;
+}
+
+export function NavUser() {
+  const { data, isLoading } = useCurrentUser();
 
   const user = data?.data;
 
-  const name = user?.nama || "User";
+  const name = user?.nama || user?.name || "User";
   const email = user?.email || "Email belum tersedia";
-  const avatar = user?.avatar || "";
+
+  const avatar = getAvatarUrl(
+    user?.avatarUrl ?? user?.avatar ?? user?.imageUrl ?? user?.profileImage,
+  );
+
   const initials = getInitials(name) || "U";
 
   return (
@@ -63,7 +70,7 @@ export function NavUser() {
               />
             }
           >
-            <Avatar className="size-8 rounded-lg grayscale">
+            <Avatar className="size-8 rounded-lg">
               <AvatarImage src={avatar} alt={name} />
               <AvatarFallback className="rounded-lg">
                 {isLoading ? "..." : initials}
@@ -74,6 +81,7 @@ export function NavUser() {
               <span className="truncate font-medium">
                 {isLoading ? "Loading..." : name}
               </span>
+
               <span className="truncate text-xs text-foreground/70">
                 {isLoading ? "Mengambil data..." : email}
               </span>

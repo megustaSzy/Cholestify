@@ -1,29 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Leaf } from "lucide-react";
-import { useFetchData } from "@/hooks/useFetchData";
 import Image from "next/image";
-
-type ApiResponse<T> = {
-  success: boolean;
-  message: string;
-  metadata?: {
-    status?: number;
-  };
-  data: T;
-};
-
-type UserProfile = {
-  id?: number | string;
-  nama?: string;
-  email?: string;
-  notelp?: string;
-  avatar?: string | null;
-  avatarUrl?: string | null;
-  imageUrl?: string | null;
-  profileImage?: string | null;
-};
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 function getAvatarUrl(src?: string | null) {
   if (!src) return null;
@@ -47,13 +26,7 @@ function getAvatarUrl(src?: string | null) {
   return `${apiOrigin}${src.startsWith("/") ? src : `/${src}`}`;
 }
 
-function UserAvatar({
-  name,
-  src,
-}: {
-  name: string;
-  src?: string | null;
-}) {
+function UserAvatar({ name, src }: { name: string; src?: string | null }) {
   const initials = name
     .split(" ")
     .filter(Boolean)
@@ -81,7 +54,7 @@ function UserAvatar({
 }
 
 export default function MobileTopHeader() {
-  const { data } = useFetchData<ApiResponse<UserProfile>>("/users/me");
+  const { data } = useCurrentUser();
 
   const user = data?.data;
   const displayName = user?.nama ?? "User";
@@ -93,13 +66,20 @@ export default function MobileTopHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur md:hidden">
       <div className="flex items-center justify-between">
-        <Link href="/user/dashboard" className="flex items-center gap-2">
-          <span className="text-xl font-extrabold tracking-tight text-blue-600">
-            Cholestify
-          </span>
+        <Link href="/" className="flex items-center">
+          <div className="relative h-10 w-[150px] overflow-hidden">
+            <Image
+              src="/Logo.png"
+              alt="Cholestify"
+              width={220}
+              height={80}
+              className="absolute left-0 top-1/2 w-[145px] -translate-y-1/2 object-contain"
+              priority
+            />
+          </div>
         </Link>
 
-        <Link href="/user/profile/account-setting">
+        <Link href="/user/profile/profile-klinis">
           <UserAvatar name={displayName} src={avatarUrl} />
         </Link>
       </div>

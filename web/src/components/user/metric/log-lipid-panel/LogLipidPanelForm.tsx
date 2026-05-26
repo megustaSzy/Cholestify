@@ -97,6 +97,11 @@ export function LogLipidPanelForm() {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const today = new Date();
+  const maxDate = `${today.getFullYear()}-${String(
+    today.getMonth() + 1,
+  ).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
+
   const handleChange = (key: keyof FormState, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
     setErrorMessage("");
@@ -186,7 +191,14 @@ export function LogLipidPanelForm() {
                       id="date"
                       type="date"
                       value={form.date}
-                      onChange={(e) => handleChange("date", e.target.value)}
+                      max={maxDate}
+                      onChange={(e) => {
+                        const selectedDate = e.target.value;
+
+                        if (selectedDate > maxDate) return;
+
+                        handleChange("date", selectedDate);
+                      }}
                       className="pl-9 w-full"
                     />
                   </div>
@@ -308,7 +320,9 @@ export function LogLipidPanelForm() {
                   <span className="text-right">&lt; 100 mg/dL</span>
                 </li>
                 <li className="flex justify-between gap-2">
-                  <span className="font-medium text-foreground">HDL (Pria)</span>
+                  <span className="font-medium text-foreground">
+                    HDL (Pria)
+                  </span>
                   <span className="text-right">&gt; 40 mg/dL</span>
                 </li>
                 <li className="flex justify-between gap-2">

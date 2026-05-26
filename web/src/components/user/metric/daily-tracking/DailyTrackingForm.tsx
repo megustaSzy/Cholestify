@@ -11,12 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import {
-  FlameIcon,
-  DumbbellIcon,
-  SaveIcon,
-  UtensilsIcon,
-} from "lucide-react";
+import { SaveIcon } from "lucide-react";
 
 interface DailyTrackingFormProps {
   calories: string;
@@ -64,15 +59,14 @@ export default function DailyTrackingForm({
             Kalori Harian (kcal)
           </Label>
           <div className="relative">
-            <FlameIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               id="daily-calories"
               type="number"
-              placeholder="Contoh: 2000"
+              placeholder="2000"
               value={calories}
               min={0}
               onChange={(e) => onCaloriesChange(e.target.value)}
-              className="pl-9"
+              className="pl-3"
             />
           </div>
         </div>
@@ -86,15 +80,14 @@ export default function DailyTrackingForm({
             Protein Harian (g)
           </Label>
           <div className="relative">
-            <FlameIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               id="daily-protein"
               type="number"
-              placeholder="Contoh: 2000"
+              placeholder="2000"
               value={protein}
               min={0}
               onChange={(e) => onProteinChange(e.target.value)}
-              className="pl-9"
+              className="pl-3"
             />
           </div>
         </div>
@@ -108,15 +101,14 @@ export default function DailyTrackingForm({
             Menit Olahraga
           </Label>
           <div className="relative">
-            <DumbbellIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               id="exercise-minutes"
               type="number"
-              placeholder="Contoh: 45"
+              placeholder="45"
               value={exerciseMinutes}
               min={0}
               onChange={(e) => onExerciseMinutesChange(e.target.value)}
-              className="pl-9"
+              className="pl-3"
             />
           </div>
         </div>
@@ -130,14 +122,13 @@ export default function DailyTrackingForm({
             Catatan Konsumsi Makanan
           </Label>
           <div className="relative">
-            <UtensilsIcon className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
             <textarea
               id="food-notes"
               placeholder="Tuliskan asupan makanan Anda disini..."
               value={foodNotes}
               onChange={(e) => onFoodNotesChange(e.target.value)}
               rows={4}
-              className="w-full pl-9 pr-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+              className="w-full px-3 py-2 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
             />
           </div>
         </div>
