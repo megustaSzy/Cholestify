@@ -12,7 +12,7 @@ const options = {
     },
     servers: [
       {
-        url: "http://localhost:3001",
+        url: process.env.API_URL,
         description: "Development server",
       },
     ],
@@ -59,4 +59,3 @@ const options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 export { swaggerUi, swaggerSpec };
-
