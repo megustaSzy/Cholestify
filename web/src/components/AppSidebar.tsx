@@ -24,6 +24,7 @@ import {
 import { NavSecondary } from "./NavSecondary";
 import { logout } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 
 const data = {
   // user: {
@@ -135,18 +136,23 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="offcanvas" {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="px-5 pt-5 pb-3">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="data-[slot=sidebar-menu-button]:p-1.5! h-auto hover:bg-transparent hover:text-inherit active:bg-transparent active:text-inherit cursor-default">
-              {/* <CommandIcon className="size-5!" /> */}
-              <div className="flex flex-col items-start leading-tight ml-5">
-                <Link href="/">
-                  <span className="text-2xl font-semibold text-blue-600">
-                    Cholestify
-                  </span>
-                </Link>
-                <span className="text-sm text-muted-foreground">
+            <SidebarMenuButton className="h-auto cursor-default p-0 hover:bg-transparent hover:text-inherit active:bg-transparent active:text-inherit">
+              <div className="flex w-full flex-col items-start">
+                <div className="relative h-9 w-[170px] overflow-hidden">
+                  <Image
+                    src="/Logo.png"
+                    alt="Cholestify"
+                    width={220}
+                    height={80}
+                    className="absolute left-0 top-1/2 w-[160px] -translate-y-1/2 object-contain"
+                    priority
+                  />
+                </div>
+
+                <span className="mt-2 text-xs font-medium text-muted-foreground pl-3">
                   Version 1.0
                 </span>
               </div>
@@ -157,7 +163,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         {/* <NavMain items={data.navMain} /> */}
         <NavMenuSidebar className="font-semibold" items={data.menu} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavSecondary
+          items={data.navSecondary}
+          className="mt-auto px-5 pb-4 pt-2"
+        />
       </SidebarContent>
       {/* <SidebarFooter>
         <NavUser />

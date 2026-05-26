@@ -22,6 +22,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Cholestify",
   description: "Aplikasi kesehatan untuk pemantauan kolesterol",
+  icons: {
+    icon: [
+      {
+        url: "/icon.png",
+        type: "image/png",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

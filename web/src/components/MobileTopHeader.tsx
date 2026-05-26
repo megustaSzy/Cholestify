@@ -66,10 +66,17 @@ export default function MobileTopHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/95 px-4 py-3 shadow-sm backdrop-blur md:hidden">
       <div className="flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-extrabold tracking-tight text-blue-600">
-            Cholestify
-          </span>
+        <Link href="/" className="flex items-center">
+          <div className="relative h-10 w-[150px] overflow-hidden">
+            <Image
+              src="/Logo.png"
+              alt="Cholestify"
+              width={220}
+              height={80}
+              className="absolute left-0 top-1/2 w-[145px] -translate-y-1/2 object-contain"
+              priority
+            />
+          </div>
         </Link>
 
         <Link href="/user/profile/profile-klinis">

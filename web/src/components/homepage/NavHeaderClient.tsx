@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Input } from "../ui/input";
+import Image from "next/image";
 
 type NavHeaderClientProps = {
   hasToken: boolean;
@@ -37,9 +38,15 @@ export default function NavHeaderClient({ hasToken }: NavHeaderClientProps) {
       <Input type="checkbox" id="mobile-menu" className="hidden" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-16 h-16 flex items-center justify-between">
-        <span className="text-3xl font-extrabold text-blue-600 tracking-tight select-none">
-          Cholestify
-        </span>
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/Logo.png"
+            alt="Cholestify"
+            width={150}
+            height={40}
+            priority
+          />
+        </Link>
 
         <div className="hidden md:flex items-center gap-8">
           {menus.map(({ label, href }) => {
