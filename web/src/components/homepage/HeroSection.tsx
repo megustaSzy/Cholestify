@@ -7,7 +7,7 @@ import React from "react";
 export default function HeroForm() {
   return (
     <section className="bg-slate-50 px-4 sm:px-6 lg:px-16">
-      <div className="max-w-7xl mx-auto py-16 md:py-24 flex flex-col md:flex-row items-center gap-10 md:gap-12">
+      <div className="max-w-7xl mx-auto pt-12 pb-24 md:pt-16 md:pb-32 lg:pt-20 lg:pb-36 flex flex-col md:flex-row items-center gap-10 md:gap-12">
         <div className="flex-1 min-w-0 flex flex-col items-center md:items-start text-center md:text-left">
           <div className="inline-flex items-center gap-2 border border-gray-300 rounded-full px-4 py-1.5 mb-7">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
@@ -17,7 +17,7 @@ export default function HeroForm() {
           </div>
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-[1.1] tracking-tight text-slate-900 mb-6">
-            Pantau
+            Pantau {""}
             <br className="hidden md:block" />
             Kolesterol
             <br />
@@ -44,29 +44,8 @@ export default function HeroForm() {
               <span className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
                 <IconPlay />
               </span>
-              Watch Science
+              <span>Watch Demo</span>
             </Link>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 sm:gap-3">
-            <div className="flex">
-              {avatarLetters.map((letter, i) => (
-                <div
-                  key={i}
-                  className={`w-8 h-8 rounded-full border-2 border-white ${avatarColors[i]} text-white text-xs font-bold flex items-center justify-center ${i !== 0 ? "-ml-2.5" : ""}`}
-                >
-                  {letter}
-                </div>
-              ))}
-              <div className="w-8 h-8 rounded-full border-2 border-white bg-blue-600 text-white text-[10px] font-bold flex items-center justify-center -ml-2.5">
-                +2k
-              </div>
-            </div>
-            <p className="text-sm text-gray-500">
-              Trusted by{" "}
-              <strong className="text-gray-800 font-semibold">2,000+</strong>{" "}
-              medical professionals
-            </p>
           </div>
         </div>
 

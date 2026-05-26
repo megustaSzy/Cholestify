@@ -2,7 +2,12 @@ import FoodDirectoryContent from "@/components/homepage/food-directory/FoodDirec
 import FooterForm from "@/components/homepage/Footer";
 import NavHeader from "@/components/homepage/NavHeader";
 import { FoodDirectorySkeleton } from "@/components/user/food-table/FoodDirectorySkeleton";
+import { Metadata } from "next";
 import React, { Suspense } from "react";
+
+export const metadata: Metadata = {
+  title: "List Makanan - Cholestify",
+};
 
 export default function FoodDirectoryPage() {
   return (

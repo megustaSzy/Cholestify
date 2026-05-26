@@ -2,6 +2,11 @@ import CalculatesContent from "@/components/homepage/Calculator-HDR/CalculatesCo
 import CalculatesForm from "@/components/homepage/Calculator-HDR/CalculatesForm";
 import FooterForm from "@/components/homepage/Footer";
 import NavHeader from "@/components/homepage/NavHeader";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Calculator RHR - Cholestify",
+};
 
 export default function CalculatorPage() {
   return (
