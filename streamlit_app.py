@@ -1,26 +1,39 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-# import matplotlib.pyplot as plt
-# import seaborn as sns
+import matplotlib.pyplot as plt
 
 import plotly.express as px
 import plotly.graph_objects as go
 from scipy.stats import shapiro, levene, ttest_ind, mannwhitneyu, spearmanr
 from scipy import stats
 
-from tensorflow import keras
-import tensorflow as tf
-from PIL import Image
+import io
+import time
 import cv2
+import keras
+from PIL import Image
 
-# Konfigurasi Halaman
+# ═══ Konfigurasi Halaman ═════════════════════════════════════════════════════════
 st.set_page_config(page_title="Cholestify Dashboard", layout="wide")
 
-# --- CSS ---
+# ═══ Konstanta ═══════════════════════════════════════════════════════════════════
+ALPHA           = 0.05
+MAX_DIM         = 800
+MAX_FILE_SIZE   = 10 * 1024 * 1024
+
+CAT_ORDER       = ["Normal", "Berisiko", "Kolesterol"]
+IMG_SIZE        = (240, 240)
+MODEL_PATH      = "model/cholestify_efficientb0_final.h5"
+CLASS_NAMES     = ["normal", "beresiko", "kolesterol"]
+
+C_NORMAL        = "#22C55E"
+C_BERISIKO      = "#F59E0B"
+C_KOLESTEROL    = "#EF4444"
+
+# ═══ CSS ═════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
-    /* Main header */
     .main-title {
         font-size: 2.2rem;
         font-weight: 800;
@@ -32,8 +45,6 @@ st.markdown("""
         color: #64748b;
         margin-bottom: 1.5rem;
     }
-
-    /* Metric cards */
     [data-testid="metric-container"] {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
@@ -42,8 +53,6 @@ st.markdown("""
     }
     [data-testid="stMetricLabel"] { font-size: 0.8rem; color: #64748b; }
     [data-testid="stMetricValue"] { font-size: 1.8rem; color: #1e293b; }
-
-    /* Tab styling */
     .stTabs [data-baseweb="tab-list"] { gap: 6px; }
     .stTabs [data-baseweb="tab"] {
         border-radius: 8px 8px 0 0;
@@ -51,8 +60,6 @@ st.markdown("""
         font-weight: 600;
         font-size: 0.88rem;
     }
-
-    /* Insight box */
     .insight-box {
         background: #f0f9ff;
         border-left: 4px solid #0ea5e9;
@@ -64,8 +71,6 @@ st.markdown("""
         line-height: 1.65;
     }
     .insight-box strong { color: #0369a1; }
-
-    /* Stat box */
     .stat-badge {
         display: inline-block;
         background: #dcfce7;
@@ -76,105 +81,246 @@ st.markdown("""
         font-weight: 600;
         margin: 2px;
     }
-    .stat-badge.red { background: #fee2e2; color: #991b1b; }
+    .stat-badge.red    { background: #fee2e2; color: #991b1b; }
     .stat-badge.yellow { background: #fef9c3; color: #854d0e; }
-    .stat-badge.blue { background: #dbeafe; color: #1e40af; }
+    .stat-badge.blue   { background: #dbeafe; color: #1e40af; }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Colour palette ---
-C_NORMAL    = "#22C55E"
-C_BERISIKO  = "#F59E0B"
-C_KOLESTEROL = "#EF4444"
 
-# Constanta
-ALPHA = 0.05
-cat_order = ["Normal", "Berisiko", "Kolesterol"]
-IMG_SIZE = (240, 240)
+# ═══ Custom Keras Layers ═══════════════════════════════════════════════════════════════
+@keras.saving.register_keras_serializable(package="compat")
+class CompatBatchNorm(keras.layers.BatchNormalization):
+    """Buang parameter renorm* yang dihapus di Keras 3."""
+    def __init__(self, **kwargs):
+        kwargs.pop("renorm", None)
+        kwargs.pop("renorm_clipping", None)
+        kwargs.pop("renorm_momentum", None)
+        super().__init__(**kwargs)
 
-# --- HELPERS ---
-def ab_test_totchol(group_a: pd.Series, group_b: pd.Series):
-    """Returns (test_name, stat, p_value)."""
-    normal_a = shapiro(group_a)[1] > ALPHA if len(group_a) <= 5000 else \
-               stats.kstest(group_a, "norm", args=(group_a.mean(), group_a.std()))[1] > ALPHA
-    normal_b = shapiro(group_b)[1] > ALPHA if len(group_b) <= 5000 else \
-               stats.kstest(group_b, "norm", args=(group_b.mean(), group_b.std()))[1] > ALPHA
+    def get_config(self):
+        return super().get_config()
 
-    if normal_a and normal_b:
-        var_same = levene(group_a, group_b)[1] > ALPHA
-        if var_same:
-            stat, p = ttest_ind(group_a, group_b, equal_var=True)
-            return "Independent t-test", stat, p
+
+@keras.saving.register_keras_serializable(package="compat")
+class CompatInputLayer(keras.layers.InputLayer):
+    def __init__(self, **kwargs):
+        kwargs.pop("optional", None)
+        batch_shape = kwargs.pop("batch_shape", None)
+        input_shape = kwargs.pop("input_shape", None)
+        given_shape = kwargs.pop("shape", None)
+
+        if given_shape is not None:
+            final_shape = given_shape
+        elif input_shape is not None:
+            final_shape = input_shape
+        elif batch_shape is not None:
+            final_shape = batch_shape[1:]
         else:
-            stat, p = ttest_ind(group_a, group_b, equal_var=False)
-            return "Welch's t-test", stat, p
+            final_shape = list(IMG_SIZE) + [3]
+
+        kwargs["shape"] = final_shape
+        super().__init__(**kwargs)
+
+    def get_config(self):
+        return super().get_config()
+
+
+@keras.saving.register_keras_serializable(package="compat")
+class CompatDense(keras.layers.Dense):
+    def __init__(self, **kwargs):
+        kwargs.pop("quantization_config", None)
+        super().__init__(**kwargs)
+
+    def get_config(self):
+        return super().get_config()
+
+
+CUSTOM_OBJECTS = {
+    "BatchNormalization": CompatBatchNorm,
+    "InputLayer":        CompatInputLayer,
+    "Dense":             CompatDense,
+}
+
+
+# ═══ Loaders ════════════════════════════════════════════════════════════════════════
+@st.cache_data(show_spinner="Memuat data...")
+def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Load kedua dataset CSV. Mengembalikan (df_cholesterol, df_nutrition)."""
+    try:
+        df_cholesterol = pd.read_csv("data/cholesterol_clean.csv")
+        df_nutrition   = pd.read_csv("data/nutrition.csv")
+        return df_cholesterol, df_nutrition
+    except FileNotFoundError as e:
+        st.error(f"❌ File data tidak ditemukan: {e}")
+        st.stop()
+
+
+@st.cache_resource(show_spinner="Memuat model...")
+def load_model(path: str):
+    """Load model Keras dengan custom objects. Mengembalikan (model, error_str | None)."""
+    try:
+        model = keras.saving.load_model(
+            path,
+            custom_objects=CUSTOM_OBJECTS,
+            compile=False,
+        )
+        return model, None
+    except Exception as e:
+        return None, str(e)
+
+
+# ═══ Helper ════════════════════════════════════════════════════════════════════════
+def ab_test_totchol(group_a: pd.Series, group_b: pd.Series):
+    """Pilih uji statistik yang tepat. Mengembalikan (test_name, stat, p_value)."""
+    def is_normal(s):
+        if len(s) <= 5000:
+            return shapiro(s)[1] > ALPHA
+        return stats.kstest(s, "norm", args=(s.mean(), s.std()))[1] > ALPHA
+
+    if is_normal(group_a) and is_normal(group_b):
+        equal_var = levene(group_a, group_b)[1] > ALPHA
+        stat, p   = ttest_ind(group_a, group_b, equal_var=equal_var)
+        name      = "Independent t-test" if equal_var else "Welch's t-test"
     else:
         stat, p = mannwhitneyu(group_a, group_b, alternative="two-sided")
-        return "Mann-Whitney U", stat, p
+        name    = "Mann-Whitney U"
 
-def load_data():
-    df_cholesterol = pd.read_csv('data/cholesterol_clean.csv')
-    df_foodtable = pd.read_csv('data/nutrition.csv')
-    return df_cholesterol, df_foodtable
+    return name, stat, p
 
-@st.cache_resource
-def load_model():
-    try:
-        model = keras.models.load_model('model/cholestify_fase3.keras', compile=False)
-        return model
-    except FileNotFoundError:
-        st.error("File 'cholestify_fase3.keras' tidak ditemukan.")
+def process_eye_image(
+    image_input,
+    target_size: tuple[int, int] = IMG_SIZE,
+    clip_limit: float = 2.0,
+) -> tuple:
+    """
+    Proses gambar mata untuk prediksi kolesterol.
+
+    Parameters
+    ----------
+    image_input : file-like object (st.file_uploader) atau numpy array RGB uint8
+    target_size : (width, height) output
+    clip_limit  : nilai CLAHE clip limit
+
+    Returns
+    -------
+    (processed_rgb, original_rgb, crop_method, debug_info | error_str)
+    """
+    if isinstance(image_input, np.ndarray):
+        rgb_original = image_input.copy()
+    else:
+        image_input.seek(0)
+        file_bytes   = np.frombuffer(image_input.read(), np.uint8)
+        bgr          = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
+        if bgr is None:
+            return None, None, None, "Gagal membaca gambar"
+        rgb_original = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
+
+    img    = rgb_original.copy()
+    h0, w0 = img.shape[:2]
+
+    if max(h0, w0) > MAX_DIM:
+        scale = MAX_DIM / max(h0, w0)
+        img   = cv2.resize(img, (int(w0 * scale), int(h0 * scale)), interpolation=cv2.INTER_AREA)
+
+    gray         = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    h, w         = gray.shape
+    circles      = cv2.HoughCircles(
+        gray, cv2.HOUGH_GRADIENT, 1.2, 100,
+        param1=50, param2=30,
+        minRadius=int(h * 0.1),
+        maxRadius=int(h * 0.5),
+    )
+
+    debug_info = {}
+    if circles is not None:
+        x, y, r = np.round(circles[0, 0]).astype(int)
+        r        = int(r * 1.1)
+        crop     = img[max(0, y - r):min(h, y + r), max(0, x - r):min(w, x + r)]
+        method   = "Hough Circle"
+        debug_info["circle"] = (int(x), int(y), int(r))
+    else:
+        ch, cw = int(h * 0.8), int(w * 0.8)
+        y1, x1 = (h - ch) // 2, (w - cw) // 2
+        crop   = img[y1:y1 + ch, x1:x1 + cw]
+        method = "Center Crop"
+
+    if crop.size == 0:
+        return None, rgb_original, None, "Crop kosong — coba gambar lain"
+
+    resized = cv2.resize(crop, target_size, interpolation=cv2.INTER_AREA)
+
+    # CLAHE pada channel L
+    lab         = cv2.cvtColor(resized, cv2.COLOR_RGB2LAB)
+    l, a, b     = cv2.split(lab)
+    clahe       = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=(8, 8))
+    final       = cv2.cvtColor(cv2.merge((clahe.apply(l), a, b)), cv2.COLOR_LAB2RGB)
+
+    return final, rgb_original, method, debug_info
 
 
-# --- LOAD DATA & MODEL ---
-# @st.cache_data
-df_tab1, df_tab2 = load_data()
-#model = load_model()
+def prepare_input(processed_img: np.ndarray) -> np.ndarray:
+    """
+    Kirim nilai [0, 255] sebagai float32.
+    Layer Rescaling di dalam model (scale=1/255) yang akan menormalisasi.
+    """
+    arr = processed_img.astype(np.float32)
+    return np.expand_dims(arr, axis=0)  # (1, H, W, 3)
 
-# --- INITIALIZE SESSION STATE ---
-# Ini untuk menyimpan halaman yang sedang aktif agar tidak hilang saat klik tombol lain
-if 'page' not in st.session_state:
+
+def predict(model, img_array: np.ndarray, class_names: list[str]) -> dict[str, float]:
+    """Mengembalikan dict {class_name: probability}."""
+    probs = model.predict(img_array, verbose=0)[0]
+    return {class_names[i]: float(probs[i]) for i in range(len(class_names))}
+
+
+def show_comparison(original_rgb: np.ndarray, processed_rgb: np.ndarray, method: str):
+    """Tampilkan gambar asli vs processed secara berdampingan."""
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4))
+    axes[0].imshow(original_rgb)
+    axes[0].set_title("Gambar Asli", fontsize=13)
+    axes[0].axis("off")
+    axes[1].imshow(processed_rgb)
+    axes[1].set_title(
+        f"Processed {processed_rgb.shape[1]}×{processed_rgb.shape[0]}\n({method})",
+        fontsize=13,
+    )
+    axes[1].axis("off")
+    plt.tight_layout()
+    return fig
+
+
+# ═══ Session State Init ═════════════════════════════════════════════════════════
+if "page" not in st.session_state:
     st.session_state.page = "📊 Cholesterol Data"
 
-# --- SIDEBAR NAVIGATION ---
-with st.sidebar:
-    ## logo
-    # st.markdown(
-    #     """
-    #     <div style="display: flex; justify-content: center;">
-    #         <img src="https://www.dicoding.com/blog/wp-content/uploads/2014/12/dicoding-header-logo.png" width="200">
-    #     </div>
-    #     """,
-    #     unsafe_allow_html=True
-    # )
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    st.markdown("### Menu")
-    
-    # Tombol pertama: Visualisasi Dataset Kolesterol
-    if st.button("📊 Cholesterol Data", use_container_width=True, 
-                 type="primary" if st.session_state.page == "📊 Cholesterol Data" else "secondary"):
-        st.session_state.page = "📊 Cholesterol Data"
-        st.rerun()
-    
-    # Tombol kedua: Visualisasi Food Table
-    if st.button("🍔 Food Table", use_container_width=True, 
-                 type="primary" if st.session_state.page == "🍔 Food Table" else "secondary"):
-        st.session_state.page = "🍔 Food Table"
-        st.rerun()
+if "prediction_history" not in st.session_state:
+    st.session_state.prediction_history = []
 
-    # Tombol ketiga: Prediksi Cholestify (fitur utama)
-    if st.button("🔍 Prediction", use_container_width=True,
-                 type="primary" if st.session_state.page == "🔍 Prediction" else "secondary"):
-        st.session_state.page = "🔍 Prediction"
-        st.rerun()
+
+# ═══ Sidebar ════════════════════════════════════════════════════════════════════
+with st.sidebar:
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("### Menu")
+
+    pages = ["📊 Cholesterol Data", "🍔 Food Table", "🔍 Prediction"]
+    for page in pages:
+        is_active = st.session_state.page == page
+        if st.button(page, use_container_width=True, type="primary" if is_active else "secondary"):
+            st.session_state.page = page
+            st.rerun()
 
     st.markdown("---")
-    st.info("💡 **Tips:** Gunakan halaman 'Prediction' untuk simulasi risiko Kolesterol.")
+    st.info("💡 **Tips:** Gunakan halaman 'Prediction' untuk simulasi risiko kolesterol.")
 
-# --- RENDER HALAMAN BERDASARKAN PILIHAN SIDEBAR ---
 
+# ═══ Load Data ═════════════════════════════════════════════════════════════════
+df_cholesterol, df_nutrition = load_data()
+
+
+# ════════════════════════════════════════════════════════════════════════════════
+# HALAMAN 1: Cholesterol Data
+# ════════════════════════════════════════════════════════════════════════════════
 if st.session_state.page == "📊 Cholesterol Data":
     st.title("Cholesterol Dashboard")
     st.markdown("Dashboard ini menampilkan tren data terkait dataset kolesterol.")
@@ -193,10 +339,10 @@ if st.session_state.page == "📊 Cholesterol Data":
     with tab1:
         st.subheader("📋 Struktur & Distribusi Data")
         # KPI cards
-        n_total    = len(df_tab1)
-        n_kolesterol = (df_tab1["catChol"] == "Kolesterol").sum()
-        n_berisiko   = (df_tab1["catChol"] == "Berisiko").sum()
-        n_normal     = (df_tab1["catChol"] == "Normal").sum()
+        n_total    = len(df_cholesterol)
+        n_kolesterol = (df_cholesterol["catChol"] == "Kolesterol").sum()
+        n_berisiko   = (df_cholesterol["catChol"] == "Berisiko").sum()
+        n_normal     = (df_cholesterol["catChol"] == "Normal").sum()
 
         col_left, col_right = st.columns(2)
 
@@ -204,7 +350,7 @@ if st.session_state.page == "📊 Cholesterol Data":
             st.markdown("#### Statistik Deskriptif")
             num_cols = ["age", "sysBP", "diaBP", "BMI", "heartRate", "glucose", "totChol"]
             st.dataframe(
-                df_tab1[num_cols].describe().round(2).T
+                df_cholesterol[num_cols].describe().round(2).T
                 .rename(columns={"count": "n", "mean": "mean", "std": "std",
                                 "min": "min", "25%": "Q1", "50%": "median",
                                 "75%": "Q3", "max": "max"}),
@@ -223,7 +369,7 @@ if st.session_state.page == "📊 Cholesterol Data":
             }
             rows = []
             for c in cat_cols:
-                vc = df_tab1[c].value_counts()
+                vc = df_cholesterol[c].value_counts()
                 for v, cnt in vc.items():
                     rows.append({"Variabel": cat_labels[c], "Nilai": int(v),
                                 "Jumlah": cnt, "Proporsi (%)": f"{cnt/n_total*100:.1f}%"})
@@ -235,7 +381,7 @@ if st.session_state.page == "📊 Cholesterol Data":
         st.markdown("#### Distribusi Variabel Numerik")
         hist_col = st.selectbox("Pilih variabel:", num_cols, index=6)
         fig_hist = px.histogram(
-            df_tab1, x=hist_col, nbins=30,
+            df_cholesterol, x=hist_col, nbins=30,
             color_discrete_sequence=["#3b82f6"],
             labels={hist_col: hist_col},
             title=f"Distribusi {hist_col}",
@@ -251,9 +397,9 @@ if st.session_state.page == "📊 Cholesterol Data":
         st.markdown("#### Heatmap Korelasi Pearson")
         exclude = ["catChol", "age_group", "bmi_category", "smoking_intensity",
                 "glucose_risk", "smoker_x_age"]
-        num_for_corr = [c for c in df_tab1.columns
-                        if c not in exclude and df_tab1[c].dtype in ["int64", "float64"]]
-        corr_mtx = df_tab1[num_for_corr].corr()
+        num_for_corr = [c for c in df_cholesterol.columns
+                        if c not in exclude and df_cholesterol[c].dtype in ["int64", "float64"]]
+        corr_mtx = df_cholesterol[num_for_corr].corr()
 
         fig_heat = go.Figure(go.Heatmap(
             z=corr_mtx.values.round(2),
@@ -286,13 +432,13 @@ if st.session_state.page == "📊 Cholesterol Data":
     with tab2:
         st.subheader("PB1 · Seberapa banyak pasien dengan kolesterol tinggi?")
 
-        counts = df_tab1["catChol"].value_counts().reindex(cat_order).fillna(0)
+        counts = df_cholesterol["catChol"].value_counts().reindex(CAT_ORDER).fillna(0)
 
         col1, col2 = st.columns([1, 1])
 
         with col1:
             fig_pie = go.Figure(go.Pie(
-                labels=cat_order,
+                labels=CAT_ORDER,
                 values=counts.values,
                 marker_colors=[C_NORMAL, C_BERISIKO, C_KOLESTEROL],
                 hole=0.45,
@@ -312,7 +458,7 @@ if st.session_state.page == "📊 Cholesterol Data":
         with col2:
             st.markdown("#### Ringkasan Jumlah")
             for cat, color_hex, bg in zip(
-                cat_order,
+                CAT_ORDER,
                 [C_NORMAL, C_BERISIKO, C_KOLESTEROL],
                 ["#dcfce7", "#fef9c3", "#fee2e2"],
             ):
@@ -342,30 +488,30 @@ if st.session_state.page == "📊 Cholesterol Data":
 
         # Pivot
         pivot_g = (
-            df_tab1.groupby("male")["catChol"]
+            df_cholesterol.groupby("male")["catChol"]
             .value_counts(normalize=True).mul(100).rename("Pct")
             .reset_index()
         )
         pivot_g["Gender"] = pivot_g["male"].map({0: "Perempuan", 1: "Laki-laki"})
         pivot_g_wide = (
             pivot_g.pivot(index="Gender", columns="catChol", values="Pct")
-            .reindex(columns=cat_order).fillna(0).round(2)
+            .reindex(columns=CAT_ORDER).fillna(0).round(2)
         )
         pivot_g_cnt = (
-            df_tab1.groupby("male")["catChol"]
+            df_cholesterol.groupby("male")["catChol"]
             .value_counts().rename("Cnt").reset_index()
         )
         pivot_g_cnt["Gender"] = pivot_g_cnt["male"].map({0: "Perempuan", 1: "Laki-laki"})
         pivot_g_cnt_wide = (
             pivot_g_cnt.pivot(index="Gender", columns="catChol", values="Cnt")
-            .reindex(columns=cat_order).fillna(0).astype(int)
+            .reindex(columns=CAT_ORDER).fillna(0).astype(int)
         )
 
         col1, col2 = st.columns(2)
 
         with col1:
             fig_bar_g = go.Figure()
-            for cat, color in zip(cat_order, [C_NORMAL, C_BERISIKO, C_KOLESTEROL]):
+            for cat, color in zip(CAT_ORDER, [C_NORMAL, C_BERISIKO, C_KOLESTEROL]):
                 fig_bar_g.add_trace(go.Bar(
                     name=cat,
                     x=pivot_g_wide.index.tolist(),
@@ -387,7 +533,7 @@ if st.session_state.page == "📊 Cholesterol Data":
 
         with col2:
             fig_bar_g2 = go.Figure()
-            for cat, color in zip(cat_order, [C_NORMAL, C_BERISIKO, C_KOLESTEROL]):
+            for cat, color in zip(CAT_ORDER, [C_NORMAL, C_BERISIKO, C_KOLESTEROL]):
                 fig_bar_g2.add_trace(go.Bar(
                     name=cat,
                     x=pivot_g_wide.index.tolist(),
@@ -410,8 +556,8 @@ if st.session_state.page == "📊 Cholesterol Data":
 
         # A/B Testing
         st.markdown("#### 🧪 A/B Testing – totChol: Perempuan vs Laki-laki")
-        perempuan = df_tab1[df_tab1["male"] == 0]["totChol"].dropna()
-        laki_laki = df_tab1[df_tab1["male"] == 1]["totChol"].dropna()
+        perempuan = df_cholesterol[df_cholesterol["male"] == 0]["totChol"].dropna()
+        laki_laki = df_cholesterol[df_cholesterol["male"] == 1]["totChol"].dropna()
 
         if len(perempuan) > 1 and len(laki_laki) > 1:
             test_name, stat, p_val = ab_test_totchol(perempuan, laki_laki)
@@ -447,20 +593,20 @@ if st.session_state.page == "📊 Cholesterol Data":
 
         age_order = ["< 35", "35-55", "> 55"]
         pivot_age = (
-            df_tab1.groupby("age_group", observed=True)["catChol"]
+            df_cholesterol.groupby("age_group", observed=True)["catChol"]
             .value_counts(normalize=True).mul(100).rename("Proporsi")
             .reset_index()
         )
         pivot_age_wide = (
             pivot_age.pivot(index="age_group", columns="catChol", values="Proporsi")
-            .reindex(index=age_order, columns=cat_order).fillna(0)
+            .reindex(index=age_order, columns=CAT_ORDER).fillna(0)
         )
 
         col1, col2 = st.columns([3, 2])
 
         with col1:
             fig_stacked = go.Figure()
-            for cat, color in zip(cat_order, [C_NORMAL, C_BERISIKO, C_KOLESTEROL]):
+            for cat, color in zip(CAT_ORDER, [C_NORMAL, C_BERISIKO, C_KOLESTEROL]):
                 vals = [pivot_age_wide.loc[ag, cat] if ag in pivot_age_wide.index else 0
                         for ag in age_order]
                 fig_stacked.add_trace(go.Bar(
@@ -484,7 +630,7 @@ if st.session_state.page == "📊 Cholesterol Data":
 
         with col2:
             age_mean = (
-                df_tab1.groupby("age_group", observed=True)["totChol"]
+                df_cholesterol.groupby("age_group", observed=True)["totChol"]
                 .mean().reindex(age_order).round(1).reset_index()
             )
             age_mean.columns = ["Kelompok Usia", "Mean totChol (mg/dL)"]
@@ -507,7 +653,7 @@ if st.session_state.page == "📊 Cholesterol Data":
         # Scatter age vs totChol
         st.markdown("#### Scatter: Usia vs Total Kolesterol")
         fig_scatter = px.scatter(
-            df_tab1.sample(min(1500, len(df_tab1)), random_state=1),
+            df_cholesterol.sample(min(1500, len(df_cholesterol)), random_state=1),
             x="age", y="totChol", color="catChol",
             color_discrete_map={
                 "Normal": C_NORMAL,
@@ -540,21 +686,21 @@ if st.session_state.page == "📊 Cholesterol Data":
 
         # Chart 1 – Stacked bar by highBP
         pivot_bp = (
-            df_tab1.groupby("highBP")["catChol"]
+            df_cholesterol.groupby("highBP")["catChol"]
             .value_counts(normalize=True).mul(100).rename("Pct")
             .reset_index()
         )
         pivot_bp["Hipertensi"] = pivot_bp["highBP"].map({0: "Tanpa Hipertensi", 1: "Hipertensi"})
         pivot_bp_wide = (
             pivot_bp.pivot(index="Hipertensi", columns="catChol", values="Pct")
-            .reindex(columns=cat_order)
+            .reindex(columns=CAT_ORDER)
         )
 
         col1, col2 = st.columns(2)
 
         with col1:
             fig_bp = go.Figure()
-            for cat, color in zip(cat_order, [C_NORMAL, C_BERISIKO, C_KOLESTEROL]):
+            for cat, color in zip(CAT_ORDER, [C_NORMAL, C_BERISIKO, C_KOLESTEROL]):
                 idx = ["Tanpa Hipertensi", "Hipertensi"]
                 vals = [pivot_bp_wide.loc[i, cat] if i in pivot_bp_wide.index else 0 for i in idx]
                 fig_bp.add_trace(go.Bar(
@@ -579,7 +725,7 @@ if st.session_state.page == "📊 Cholesterol Data":
             # Heatmap BP × BMI
             bmi_order = ["Underweight", "Normal", "Overweight", "Obese"]
             heatmap_data = (
-                df_tab1.groupby(["highBP", "bmi_category"], observed=True)["totChol"]
+                df_cholesterol.groupby(["highBP", "bmi_category"], observed=True)["totChol"]
                 .mean().unstack()
                 .reindex(columns=bmi_order)
                 .round(1)
@@ -609,7 +755,7 @@ if st.session_state.page == "📊 Cholesterol Data":
         # Chart 3 – Obesitas × Hipertensi
         st.markdown("#### Kombinasi Obesitas & Hipertensi")
         pivot_oxh = (
-            df_tab1.groupby("obese_x_hyp")["catChol"]
+            df_cholesterol.groupby("obese_x_hyp")["catChol"]
             .value_counts(normalize=True).mul(100).rename("Pct")
             .reset_index()
         )
@@ -654,7 +800,7 @@ if st.session_state.page == "📊 Cholesterol Data":
         st.subheader("PB5 · Perbedaan risiko kolesterol antara perokok dan non-perokok")
 
         pivot_smoke_age = (
-            df_tab1.groupby(["age_group", "currentSmoker"], observed=True)["totChol"]
+            df_cholesterol.groupby(["age_group", "currentSmoker"], observed=True)["totChol"]
             .mean().unstack()
         )
         pivot_smoke_age.index = pd.CategoricalIndex(
@@ -692,8 +838,8 @@ if st.session_state.page == "📊 Cholesterol Data":
 
         with col2:
             # Age distribution by smoker status
-            age_ns = df_tab1[df_tab1["currentSmoker"] == 0]["age"]
-            age_s  = df_tab1[df_tab1["currentSmoker"] == 1]["age"]
+            age_ns = df_cholesterol[df_cholesterol["currentSmoker"] == 0]["age"]
+            age_s  = df_cholesterol[df_cholesterol["currentSmoker"] == 1]["age"]
 
             fig_age_dist = go.Figure()
             fig_age_dist.add_trace(go.Histogram(
@@ -738,8 +884,8 @@ if st.session_state.page == "📊 Cholesterol Data":
 
         exclude_cols = ["catChol", "age_group", "bmi_category", "smoking_intensity",
                         "glucose_risk", "totChol"]
-        numeric_cols = [c for c in df_tab1.columns
-                        if c not in exclude_cols and df_tab1[c].dtype in ["int64", "float64"]]
+        numeric_cols = [c for c in df_cholesterol.columns
+                        if c not in exclude_cols and df_cholesterol[c].dtype in ["int64", "float64"]]
 
         label_map = {
             "age": "Usia", "sysBP": "sysBP", "diaBP": "diaBP",
@@ -755,7 +901,7 @@ if st.session_state.page == "📊 Cholesterol Data":
 
         spearman_results = {}
         for col in numeric_cols:
-            r, p = spearmanr(df_tab1[col], df_tab1["totChol"], nan_policy="omit")
+            r, p = spearmanr(df_cholesterol[col], df_cholesterol["totChol"], nan_policy="omit")
             spearman_results[label_map.get(col, col)] = {"r": r, "p": p}
 
         spearman_df = pd.DataFrame(spearman_results).T.reset_index()
@@ -814,23 +960,125 @@ if st.session_state.page == "📊 Cholesterol Data":
         </div>
         """, unsafe_allow_html=True)
 
-
-
+# ════════════════════════════════════════════════════════════════════════════════
+# HALAMAN 2: Food Table
+# ════════════════════════════════════════════════════════════════════════════════
 elif st.session_state.page == "🍔 Food Table":
     st.title("Food Table Dashboard")
     st.markdown("Dashboard ini menampilkan tren data terkait pantangan makanan bagi penderita kolesterol.")
+    st.dataframe(df_nutrition, use_container_width=True)
 
-    st.write(df_tab2)
 
+# ════════════════════════════════════════════════════════════════════════════════
+# HALAMAN 3: Prediction
+# ════════════════════════════════════════════════════════════════════════════════
 elif st.session_state.page == "🔍 Prediction":
     st.title("Prediksi Risiko Kolesterol")
     st.markdown("Masukkan gambar mata untuk memprediksi tingkat risiko kolesterol secara real-time.")
-    
-    uploaded_file = st.file_uploader(
-        "Upload gambar (JPG)",
-        type=['jpg', 'jpeg', 'png']
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        clip_limit = st.slider("CLAHE Clip Limit", 1.0, 4.0, 2.0, 0.5)
+    with col2:
+        target_w = st.number_input("Target Width",  value=IMG_SIZE[0], step=8)
+    with col3:
+        target_h = st.number_input("Target Height", value=IMG_SIZE[1], step=8)
+    target_size = (int(target_w), int(target_h))
+
+    # Load model
+    model, model_err = load_model(MODEL_PATH)
+
+    if model:
+        st.success("✅ Model berhasil dimuat")
+        with st.expander("Info model"):
+            buf = io.StringIO()
+            model.summary(print_fn=lambda x: buf.write(x + "\n"))
+            st.code(buf.getvalue(), language="text")
+    else:
+        st.warning(f"⚠️ Model tidak dimuat: {model_err}")
+
+    # Upload gambar
+    uploaded_files = st.file_uploader(
+        "Upload gambar mata (JPG / PNG)",
+        type=["jpg", "jpeg", "png"],
+        accept_multiple_files=True,
     )
 
-    if uploaded_file:
-        image = Image.open(uploaded_file)
-        st.image(image, caption="Uploaded Image", use_container_width=True)
+    if not uploaded_files:
+        st.info("📂 Belum ada gambar diupload")
+
+    for uploaded_file in uploaded_files:
+        # Validasi ukuran file
+        if uploaded_file.size > MAX_FILE_SIZE:
+            st.warning(f"⚠️ `{uploaded_file.name}` melebihi batas 10 MB — dilewati.")
+            continue
+
+        st.markdown(f"---\n### 🖼️ `{uploaded_file.name}`")
+        col_img, col_result = st.columns([1.3, 1], gap="large")
+
+        with st.spinner("Memproses gambar…"):
+            processed, original, method, debug = process_eye_image(
+                uploaded_file,
+                target_size=target_size,
+                clip_limit=clip_limit,
+            )
+
+        if processed is None:
+            st.error(f"❌ {debug}")
+            continue
+
+        with col_img:
+            fig = show_comparison(original, processed, method)
+            st.pyplot(fig, use_container_width=True)
+            plt.close(fig)
+
+            badge = "🟢" if method == "Hough Circle" else "🟡"
+            st.caption(f"{badge} Crop method: **{method}**")
+            if isinstance(debug, dict) and "circle" in debug:
+                x, y, r = debug["circle"]
+                st.caption(f"Lingkaran — pusat ({x}, {y}), radius {r}px")
+
+
+        with col_result:
+            st.subheader("📊 Hasil Prediksi")
+            img_array = prepare_input(processed)
+
+            if model:
+                with st.spinner("Inferensi…"):
+                    t0      = time.time()
+                    results = predict(model, img_array, CLASS_NAMES)
+                    elapsed = time.time() - t0
+
+                top_class = max(results, key=results.get)
+                top_conf  = results[top_class]
+
+                badge_map = {"normal": "🟢", "beresiko": "🟡", "kolesterol": "🔴"}
+                badge     = badge_map.get(top_class.lower(), "⚪")
+                st.metric("Prediksi", f"{badge} {top_class}", f"{top_conf:.1%} confidence")
+                st.caption(
+                    f"Waktu inferensi: {elapsed * 1000:.1f} ms  |  "
+                    f"Params — clip_limit={clip_limit}, size={target_size}"
+                )
+
+                st.markdown("**Distribusi probabilitas:**")
+                for cls, conf in sorted(results.items(), key=lambda x: -x[1]):
+                    b = badge_map.get(cls.lower(), "⚪")
+                    st.progress(conf, text=f"{b} {cls}: {conf:.1%}")
+
+            else:
+                st.info("Model tidak dimuat — shape tensor input:")
+                st.code(
+                    f"shape = {img_array.shape}  # (batch, H, W, C)\n"
+                    f"dtype = {img_array.dtype}\n"
+                    f"range = [{img_array.min():.1f}, {img_array.max():.1f}]"
+                )
+
+            # Download hasil preprocessing
+            buf = io.BytesIO()
+            Image.fromarray(processed).save(buf, format="PNG")
+            st.download_button(
+                "⬇️ Download Processed Image",
+                data=buf.getvalue(),
+                file_name=f"processed_{uploaded_file.name}",
+                mime="image/png",
+            )
