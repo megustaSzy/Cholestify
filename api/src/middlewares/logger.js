@@ -45,8 +45,12 @@ export const requestLogger = (req, res, next) => {
     const time = `${durationColor}${duration}ms${reset}`;
     const url = `${dim}${req.originalUrl}${reset}`;
 
+    const ip =
+      req.headers["x-forwarded-for"] || req.ip || req.connection.remoteAddress;
+    const ipColor = `${dim}${ip}${reset}`;
+
     console.log(
-      `${dim}[${timestamp}]${reset} ${method} ${status} ${time} ${url}`,
+      `${dim}[${timestamp}]${reset} ${ipColor} ${method} ${status} ${time} ${url}`,
     );
   });
 
