@@ -30,6 +30,7 @@ Base URL: `http://localhost:3001`
 | `POST`  | `/api/calculates`                         | ❌   | Hitung zone detak jantung                           |
 | `POST`  | `/api/health-goals`                       | 🍪   | Input target kesehatan dan dapatkan saran           |
 | `GET`   | `/api/health-goals/me`                    | 🍪   | Ambil riwayat target kesehatan                      |
+| `GET`   | `/api/health-goals/progress`              | 🍪   | Ambil progress goals                                |
 | `GET`   | `/api/health-recommendations/overview`    | 🍪   | **Widget Overview** — Lipid Panel & Saran Terbaru   |
 | `GET`   | `/api/health-recommendations/me`          | 🍪   | Ambil riwayat saran kesehatan saja                  |
 | `POST`  | `/api/daily-trackings`                    | 🍪   | Catat aktivitas & kalori harian                     |
