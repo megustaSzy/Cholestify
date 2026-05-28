@@ -4,6 +4,8 @@ import { prisma } from "../lib/prisma.js";
 import { badRequestId } from "../utils/bad-request-id.util.js";
 import { notExist } from "../utils/not-exist.util.js";
 
+import { formatProgressResponse } from "../utils/format-progress.util.js";
+
 export const HealthGoalService = {
   async create(userId, body) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
@@ -24,22 +26,30 @@ export const HealthGoalService = {
   async getMyHealthGoals(userId) {
     badRequestId(userId, MESSAGE.COMMON.BAD_REQUEST);
 
-    const data = await prisma.healthGoal.findFirst({
+    const goal = await prisma.healthGoal.findFirst({
       where: { userId },
       orderBy: { createdAt: "desc" },
+      skip: 1,
       select: {
         id: true,
         targetWeeklyCalories: true,
         targetExerciseMins: true,
         createdAt: true,
+        dailyTrackings: {
+          select: {
+            calories: true,
+            exerciseMins: true,
+          },
+        },
       },
     });
 
-    if (!data) {
+    if (!goal) {
       throw new NotFoundError(MESSAGE.HEALTH_GOAL.NOT_FOUND);
     }
 
-    return data;
+    const trackings = goal.dailyTrackings;
+    return formatProgressResponse(goal, trackings);
   },
 
   async getProgressByUserId(userId) {
@@ -48,6 +58,12 @@ export const HealthGoalService = {
     const healthGoal = await prisma.healthGoal.findFirst({
       where: { userId },
       orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        targetWeeklyCalories: true,
+        targetExerciseMins: true,
+        createdAt: true,
+      },
     });
 
     if (!healthGoal) {
@@ -66,36 +82,12 @@ export const HealthGoalService = {
         healthGoalId: healthGoal.id,
         date: { gte: startOfWeek },
       },
+      select: {
+        calories: true,
+        exerciseMins: true,
+      },
     });
 
-    const totalCalories = trackingsThisWeek.reduce(
-      (sum, t) => sum + t.calories,
-      0,
-    );
-    const totalExerciseMins = trackingsThisWeek.reduce(
-      (sum, t) => sum + t.exerciseMins,
-      0,
-    );
-
-    return {
-      goal: {
-        targetWeeklyCalories: healthGoal.targetWeeklyCalories,
-        targetExerciseMins: healthGoal.targetExerciseMins,
-      },
-      current: {
-        totalCalories,
-        totalExerciseMins,
-      },
-      percentage: {
-        calories: Math.min(
-          100,
-          Math.round((totalCalories / healthGoal.targetWeeklyCalories) * 100),
-        ),
-        exerciseMins: Math.min(
-          100,
-          Math.round((totalExerciseMins / healthGoal.targetExerciseMins) * 100),
-        ),
-      },
-    };
+    return formatProgressResponse(healthGoal, trackingsThisWeek);
   },
 };
