@@ -653,7 +653,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 
 ### Built With
 
-- [Dicoding Indonesia](https://www.dicoding.com/) — DBS Foundation Coding Camp 2025
+- [Dicoding Indonesia](https://www.dicoding.com/) — DBS Foundation Coding Camp 2026
 - [Express.js](https://expressjs.com/) — Fast, unopinionated web framework
 - [Next.js](https://nextjs.org/) — The React Framework
 - [FastAPI](https://fastapi.tiangolo.com/) — Modern Python web framework
