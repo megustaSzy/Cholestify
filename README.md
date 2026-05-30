@@ -8,26 +8,21 @@ streamlit run streamlit_app.py
 ```
 
 ## Struktur Repository
-├───analisis data
-|   ├───cholestify_cholesterol-notebook.ipynb
-|   ├───cholestify_food-table-notebook.ipynb
-|   └───cholestify_modelling-notebook.ipynb
-├───dashboard
-|   └───cholestify_streamlit.py
-├───model
-|   ├───cholestify_efficientb0.h5
-|   └───cholestify_efficientb0.keras
-├───data
-|   ├───df_cholesterol.csv
-|   ├───df_cholesterol_cleaned.csv
-|   ├───df_nutrition.csv
-|   ├───df_nutrition_cleaned.csv
-|   ├───df_food_status_LDL145_HDL42.csv
-|   ├───arcus_new.zip
-|   ├───roboflow.zip
-|   ├───telkom.zip
-|   └───ubiris.zip
-├───README.md
-└───requirements.txt
+├───analisis data<br>
+|   ├───cholestify_cholesterol-notebook.ipynb<br>
+|   └───cholestify_food-table-notebook.ipynb<br>
+├───dashboard<br>
+|   └───cholestify_streamlit.py<br>
+├───model<br>
+|   ├───cholestify_efficientb0.h5<br>
+|   └───cholestify_efficientb0.keras<br>
+├───data<br>
+|   ├───df_cholesterol.csv<br>
+|   ├───df_cholesterol_cleaned.csv<br>
+|   ├───df_nutrition.csv<br>
+|   ├───df_nutrition_cleaned.csv<br>
+|   └───df_food_status_LDL145_HDL42.csv<br>
+├───README.md<br>
+└───requirements.txt<br>
 
 
