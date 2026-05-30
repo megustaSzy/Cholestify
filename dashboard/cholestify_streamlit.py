@@ -24,7 +24,7 @@ MAX_FILE_SIZE   = 10 * 1024 * 1024
 
 CAT_ORDER       = ["Normal", "Berisiko", "Kolesterol"]
 IMG_SIZE        = (240, 240)
-MODEL_PATH      = "model/cholestify_efficientb0_final.h5"
+MODEL_PATH      = "model/cholestify_efficientb0.h5"
 CLASS_NAMES     = ["normal", "beresiko", "kolesterol"]
 
 C_NORMAL        = "#22C55E"
@@ -148,8 +148,8 @@ CUSTOM_OBJECTS = {
 def load_data() -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load kedua dataset CSV. Mengembalikan (df_cholesterol, df_nutrition)."""
     try:
-        df_cholesterol = pd.read_csv("data/cholesterol_clean.csv")
-        df_nutrition   = pd.read_csv("data/nutrition.csv")
+        df_cholesterol = pd.read_csv("data/df_cholesterol_cleaned.csv")
+        df_nutrition   = pd.read_csv("data/df_nutrition_cleaned.csv")
         return df_cholesterol, df_nutrition
     except FileNotFoundError as e:
         st.error(f"❌ File data tidak ditemukan: {e}")
