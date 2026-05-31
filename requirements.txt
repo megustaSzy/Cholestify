@@ -11,3 +11,4 @@ Pillow
 statsmodels
 seaborn
 missingno
+scikit-learn
