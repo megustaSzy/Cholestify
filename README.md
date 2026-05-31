@@ -276,10 +276,15 @@ http://localhost:3001/api-docs
 
 #### User Profile
 
-| Method  | Endpoint        | Description                          |
-| ------- | --------------- | ------------------------------------ |
-| `GET`   | `/api/users/me` | Get profil user yang login           |
-| `PATCH` | `/api/users/me` | Update profil user (termasuk avatar) |
+| Method   | Endpoint                | Description                            |
+| -------- | ----------------------- | -------------------------------------- |
+| `GET`    | `/api/users/me`         | Get profil user yang login             |
+| `PATCH`  | `/api/users/me`         | Update profil user (termasuk avatar)   |
+| `POST`   | `/api/users`            | Buat user baru *(Admin)*               |
+| `GET`    | `/api/users`            | Get semua data user *(Admin)*          |
+| `PATCH`  | `/api/users/:id`        | Update profil user tertentu *(Admin)*  |
+| `DELETE` | `/api/users/:id`        | Hapus user tertentu *(Admin)*          |
+| `DELETE` | `/api/users/:id/avatar` | Hapus avatar user tertentu *(Admin)*   |
 
 #### AI Eye Screening
 
@@ -291,19 +296,24 @@ http://localhost:3001/api-docs
 
 #### Lipid Panel
 
-| Method | Endpoint                          | Description                             |
-| ------ | --------------------------------- | --------------------------------------- |
-| `POST` | `/api/lipid-panels`               | Input hasil lab kolesterol              |
-| `GET`  | `/api/lipid-panels/me`            | Riwayat lipid panel user                |
-| `GET`  | `/api/lipid-panels/me/export/pdf` | Download riwayat lipid dalam format PDF |
+| Method   | Endpoint                          | Description                               |
+| -------- | --------------------------------- | ----------------------------------------- |
+| `POST`   | `/api/lipid-panels`               | Input hasil lab kolesterol                |
+| `GET`    | `/api/lipid-panels/me`            | Riwayat lipid panel user                  |
+| `GET`    | `/api/lipid-panels/me/export/pdf` | Download riwayat lipid dalam format PDF   |
+| `GET`    | `/api/lipid-panels`               | Get semua histori lipid panel *(Admin)*   |
+| `PATCH`  | `/api/lipid-panels/:id`           | Update data lipid panel spesifik *(Admin)*|
+| `DELETE` | `/api/lipid-panels/:id`           | Hapus data lipid panel spesifik *(Admin)* |
 
 #### Biometrics
 
-| Method  | Endpoint             | Description                  |
-| ------- | -------------------- | ---------------------------- |
-| `POST`  | `/api/biometrics`    | Input biometrik pertama kali |
-| `GET`   | `/api/biometrics/me` | Get biometrik terkini user   |
-| `PATCH` | `/api/biometrics`    | Update tinggi & berat badan  |
+| Method   | Endpoint              | Description                               |
+| -------- | --------------------- | ----------------------------------------- |
+| `POST`   | `/api/biometrics`     | Input biometrik pertama kali              |
+| `GET`    | `/api/biometrics/me`  | Get biometrik terkini user                |
+| `PATCH`  | `/api/biometrics`     | Update tinggi & berat badan               |
+| `GET`    | `/api/biometrics`     | Get semua data biometrik global *(Admin)* |
+| `DELETE` | `/api/biometrics/:id` | Hapus data biometrik spesifik *(Admin)*   |
 
 #### Health Goals & Daily Tracking
 
