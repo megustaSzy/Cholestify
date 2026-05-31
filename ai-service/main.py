@@ -124,8 +124,9 @@ def preprocess_image(img, target_size=(240,240)):
         s = 800/max(h0,w0); img = cv2.resize(img,(int(w0*s),int(h0*s)))
     rgb  = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    gray_bl = cv2.GaussianBlur(gray, (7, 7), 0)
     h, w = gray.shape
-    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1.2, 100,
+    circles = cv2.HoughCircles(gray_bl, cv2.HOUGH_GRADIENT, 1.2, 100,
                                 param1=50, param2=30,
                                 minRadius=int(h*0.1), maxRadius=int(h*0.5))
     if circles is not None:
@@ -177,10 +178,10 @@ def predict(file: UploadFile = File(..., description="File gambar mata (retina/k
     if img is None:
         raise HTTPException(400, "File tidak dapat dibaca sebagai gambar.")
 
-    # -- Mencegah RAM Lagging jika foto beresolusi terlampau raksasa --
+    # -- Mencegah RAM Lagging dan Timeout dari HoughCircles --
     h_init, w_init = img.shape[:2]
-    if max(h_init, w_init) > 1200:
-        scale = 1200 / max(h_init, w_init)
+    if max(h_init, w_init) > 800:
+        scale = 800 / max(h_init, w_init)
         img = cv2.resize(img, (int(w_init * scale), int(h_init * scale)))
 
     # -- OOD Check -------------------------------------------------------
