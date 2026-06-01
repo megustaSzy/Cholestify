@@ -110,7 +110,8 @@ function getLipidStatus(totalCholesterol?: number) {
 
 function CholesterolGauge({ value }: { value?: number }) {
   const safeValue = typeof value === "number" ? value : 0;
-  const pct = Math.min(safeValue / 300, 1);
+  const pct = Math.min(Math.max(safeValue / 300, 0), 1);
+
   const r = 80;
   const cx = 110;
   const cy = 105;
@@ -125,13 +126,18 @@ function CholesterolGauge({ value }: { value?: number }) {
 
   const start = toXY(startAngle);
   const trackEnd = toXY(endAngle);
-  const fillEnd = toXY(startAngle + pct * totalAngle);
+
+  // pakai minus agar progress bergerak ke arah atas, bukan turun ke bawah
+  const fillEnd = toXY(startAngle - pct * totalAngle);
 
   const trackD = `M ${start.x} ${start.y} A ${r} ${r} 0 0 1 ${trackEnd.x} ${trackEnd.y}`;
-  const fillD = `M ${start.x} ${start.y} A ${r} ${r} 0 ${pct > 0.5 ? 1 : 0} 1 ${fillEnd.x} ${fillEnd.y}`;
+  const fillD = `M ${start.x} ${start.y} A ${r} ${r} 0 0 1 ${fillEnd.x} ${fillEnd.y}`;
 
   return (
-    <svg viewBox="0 0 220 120" className="mx-auto h-28 w-52">
+    <svg
+      viewBox="0 0 220 130"
+      className="mx-auto h-28 w-52 overflow-visible sm:h-40 sm:w-72"
+    >
       <path
         d={trackD}
         fill="none"
@@ -139,6 +145,7 @@ function CholesterolGauge({ value }: { value?: number }) {
         strokeWidth="14"
         strokeLinecap="round"
       />
+
       <path
         d={fillD}
         fill="none"
@@ -146,23 +153,26 @@ function CholesterolGauge({ value }: { value?: number }) {
         strokeWidth="14"
         strokeLinecap="round"
       />
+
       <text
         x={cx}
-        y={cy + 4}
+        y={cy - 8}
         textAnchor="middle"
-        fontSize="28"
+        fontSize="34"
         fill="#111827"
         fontWeight="700"
       >
         {typeof value === "number" ? value : "-"}
       </text>
+
       <text
         x={cx}
-        y={cy + 22}
+        y={cy + 19}
         textAnchor="middle"
         fontSize="9"
-        fill="#9ca3af"
+        fill="#111827"
         letterSpacing="1"
+        className="font-bold uppercase"
       >
         TOTAL CHOLESTEROL mg/dL
       </text>
@@ -178,42 +188,33 @@ function HealthAdviceCard({
   activityAdvice?: string;
 }) {
   return (
-    <Card className="mx-auto w-full max-w-[340px] border-blue-700 bg-blue-700 py-5 text-white sm:max-w-[380px] lg:mx-0 lg:w-56 lg:max-w-none lg:flex-shrink-0">
-      <CardHeader className="px-5">
-        <CardTitle className="flex items-center gap-2 text-sm font-bold text-white">
-          <Sparkles size={15} className="text-blue-300" />
+    // <Card className="mx-auto w-full border-blue-700 bg-blue-700 py-6 text-white sm:max-w-[420px] lg:mx-0 lg:w-[300px] lg:max-w-none lg:flex-shrink-0">
+    <Card className="mx-auto w-full border-blue-700 bg-blue-700 py-6 text-white sm:max-w-[420px] lg:mx-0 lg:w-[300px] lg:max-w-none lg:flex-shrink-0 lg:py-5 xl:py-6">
+      <CardHeader className="px-6 pb-3 lg:px-5 lg:pb-2 xl:px-6 xl:pb-3">
+        <CardTitle className="text-base font-bold text-white">
           Saran Kesehatan
         </CardTitle>
+        <CardDescription className="mt-1 text-xs leading-relaxed text-blue-100">
+          Rekomendasi berdasarkan data kesehatan terbaru Anda.
+        </CardDescription>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-4 px-5">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1.5">
-            <Utensils size={14} className="text-blue-200" />
-            <Badge
-              variant="ghost"
-              className="h-auto px-0 text-[9px] font-bold tracking-widest text-blue-200 uppercase hover:bg-transparent"
-            >
-              POLA MAKAN
-            </Badge>
-          </div>
-          <p className="text-xs leading-relaxed text-blue-100">
+      <CardContent className="flex flex-col gap-5 px-6 lg:gap-4 lg:px-5 xl:gap-5 xl:px-6">
+        <div className="border-t border-blue-500/40 pt-4">
+          <p className="text-[10px] font-bold tracking-widest text-blue-200 uppercase">
+            Pola Makan
+          </p>
+          <p className="mt-2 text-sm leading-6 text-blue-50 lg:text-xs lg:leading-5 xl:text-sm xl:leading-6">
             {dietaryAdvice ||
               "Belum ada saran pola makan. Input lipid panel terlebih dahulu untuk mendapatkan rekomendasi."}
           </p>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-1.5">
-            <Footprints size={14} className="text-blue-200" />
-            <Badge
-              variant="ghost"
-              className="h-auto px-0 text-[9px] font-bold tracking-widest text-blue-200 uppercase hover:bg-transparent"
-            >
-              AKTIVITAS
-            </Badge>
-          </div>
-          <p className="text-xs leading-relaxed text-blue-100">
+        <div className="border-t border-blue-500/40 pt-4">
+          <p className="text-[10px] font-bold tracking-widest text-blue-200 uppercase">
+            Aktivitas
+          </p>
+          <p className="mt-2 text-sm leading-6 text-blue-50 lg:text-xs lg:leading-5 xl:text-sm xl:leading-6">
             {activityAdvice ||
               "Belum ada saran aktivitas. Rekomendasi akan muncul setelah data lab tersedia."}
           </p>
@@ -234,13 +235,13 @@ function BiometricsItem({
 }) {
   return (
     <div className="rounded-xl border border-gray-100 bg-gray-50 p-3">
-      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400">
+      <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-black">
         {label}
       </p>
       <p className="text-xl font-bold text-gray-900">
         {value}{" "}
         {unit && (
-          <span className="text-xs font-normal text-gray-400">{unit}</span>
+          <span className="text-xs font-normal text-gray-500">{unit}</span>
         )}
       </p>
     </div>
@@ -340,12 +341,12 @@ export default function ReportsContent() {
     lipidHistory.length === 0;
 
   const clinicalReports = [
-    {
-      title: "Riwayat Target Harian",
-      description:
-        "Lihat riwayat kalori, protein, olahraga, dan catatan makanan harian.",
-      href: "/user/riwayat/target-aktivitas",
-    },
+    // {
+    //   title: "Riwayat Target Harian",
+    //   description:
+    //     "Lihat riwayat kalori, protein, olahraga, dan catatan makanan harian.",
+    //   href: "/user/riwayat/target-aktivitas",
+    // },
     {
       title: "Riwayat Screening Mata",
       description:
@@ -361,7 +362,8 @@ export default function ReportsContent() {
 
   return (
     <div className="flex min-h-screen flex-1 flex-col bg-gray-50">
-      <main className="flex w-full flex-1 flex-col gap-5 px-4 py-6 sm:px-6 lg:mx-auto lg:max-w-5xl lg:px-0">
+      {/* <main className="flex w-full flex-1 flex-col gap-5 px-4 py-6 sm:px-6 lg:mx-auto lg:max-w-5xl lg:px-0"> */}
+      <main className="flex w-full flex-1 flex-col gap-5 px-4 py-6 sm:px-6 lg:mx-auto lg:max-w-5xl lg:px-5 xl:px-0">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">
             Laporan Kesehatan
@@ -398,63 +400,91 @@ export default function ReportsContent() {
           )}
 
         <div className="flex flex-col gap-4 lg:flex-row">
-          <Card className="flex-1 border-gray-200 bg-white py-5">
-            <CardHeader className="px-5">
+          <Card className="flex flex-1 flex-col border-gray-200 bg-white py-4 sm:py-6">
+            <CardHeader className="px-4 pb-2 sm:px-6">
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <CardTitle>Ringkasan Lipid Panel</CardTitle>
-                  <CardDescription className="text-xs">
+                <div className="min-w-0">
+                  <CardTitle className="text-lg font-semibold sm:text-xl xl:text-2xl">
+                    Ringkasan Lipid Panel
+                  </CardTitle>
+
+                  <CardDescription className="mt-1 text-xs sm:text-sm xl:text-base">
                     Berdasarkan catatan {formatDate(lipidPanel?.date)}
                   </CardDescription>
                 </div>
 
                 <Badge
                   variant="outline"
-                  className={`text-[10px] ${lipidStatus.className}`}
+                  className={`shrink-0 px-2 py-0.5 text-[10px] sm:px-3 sm:py-1 sm:text-xs xl:text-sm ${lipidStatus.className}`}
                 >
-                  {lipidStatus.isWarning && <AlertTriangle size={10} />}
                   {lipidStatus.label}
                 </Badge>
               </div>
             </CardHeader>
 
-            <CardContent className="px-5">
-              <CholesterolGauge value={lipidPanel?.totalCholesterol} />
+            <CardContent className="flex flex-1 flex-col gap-4 px-4 pb-4 sm:px-6 sm:pb-6 xl:justify-between">
+              <div className="flex flex-col items-center rounded-2xl bg-gray-50/70 px-3 py-4 sm:px-4 sm:py-6">
+                <CholesterolGauge value={lipidPanel?.totalCholesterol} />
 
-              <div className="mt-2 grid grid-cols-3 gap-3 px-2">
-                <div>
-                  <p className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
-                    LDL (Kolesterol Buruk)
+                {/* <p className="mt-1 max-w-[230px] text-center text-xs leading-relaxed text-gray-500 sm:max-w-xs sm:text-sm">
+                  Total kolesterol terbaru berada pada status{" "}
+                  <span className="font-semibold text-gray-700">
+                    {lipidStatus.label}
+                  </span>
+                  .
+                </p> */}
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 sm:p-4 xl:p-5">
+                  <p className="text-[9px] font-bold tracking-widest text-black uppercase sm:text-[10px] xl:text-[11px]">
+                    LDL
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {toDisplayNumber(lipidPanel?.ldl)}{" "}
-                    <span className="text-sm font-normal text-gray-400">
+
+                  <p className="mt-1 text-xl font-bold text-gray-900 sm:mt-2 sm:text-2xl xl:text-3xl">
+                    {toDisplayNumber(lipidPanel?.ldl)}
+                    <span className="block text-[10px] font-normal text-gray-500 sm:inline sm:ml-1 sm:text-sm xl:text-base">
                       mg/dL
                     </span>
+                  </p>
+
+                  <p className="mt-1 hidden text-xs text-black sm:block xl:text-sm">
+                    Kolesterol buruk
                   </p>
                 </div>
 
-                <div>
-                  <p className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
-                    HDL ( Kolesterol Baik)
+                <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 sm:p-4 xl:p-5">
+                  <p className="text-[9px] font-bold tracking-widest text-black uppercase sm:text-[10px] xl:text-[11px]">
+                    HDL
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {toDisplayNumber(lipidPanel?.hdl)}{" "}
-                    <span className="text-sm font-normal text-gray-400">
+
+                  <p className="mt-1 text-xl font-bold text-gray-900 sm:mt-2 sm:text-2xl xl:text-3xl">
+                    {toDisplayNumber(lipidPanel?.hdl)}
+                    <span className="block text-[10px] font-normal text-gray-500 sm:inline sm:ml-1 sm:text-sm xl:text-base">
                       mg/dL
                     </span>
+                  </p>
+
+                  <p className="mt-1 hidden text-xs sm:block lg:text-sm text-black">
+                    Kolesterol baik
                   </p>
                 </div>
 
-                <div>
-                  <p className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">
-                    TRIGLYCERIDES
+                <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 sm:p-4 xl:p-5">
+                  <p className="text-[9px] font-bold tracking-widest text-black uppercase sm:text-[10px] xl:text-[11px]">
+                    <span className="sm:hidden">TG</span>
+                    <span className="hidden sm:inline">Triglycerides</span>
                   </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {toDisplayNumber(lipidPanel?.triglycerides)}{" "}
-                    <span className="text-sm font-normal text-gray-400">
+
+                  <p className="mt-1 text-xl font-bold text-gray-900 sm:mt-2 sm:text-2xl xl:text-3xl">
+                    {toDisplayNumber(lipidPanel?.triglycerides)}
+                    <span className="block text-[10px] font-normal text-gray-500 sm:inline sm:ml-1 sm:text-sm xl:text-base">
                       mg/dL
                     </span>
+                  </p>
+
+                  <p className="mt-1 hidden text-xs text-black sm:block xl:text-sm">
+                    Lemak darah
                   </p>
                 </div>
               </div>
@@ -471,7 +501,9 @@ export default function ReportsContent() {
           <Card className="w-full border-gray-200 bg-white py-5 lg:flex-1">
             <CardHeader className="px-5">
               <div>
-                <CardTitle>Biometrics Terkini</CardTitle>
+                <CardTitle className="text-lg font-bold">
+                  Biometrics Terkini
+                </CardTitle>
                 <CardDescription className="mt-1 text-xs leading-relaxed">
                   Ringkasan tinggi badan, berat badan, dan status BMI terbaru.
                 </CardDescription>
@@ -514,7 +546,7 @@ export default function ReportsContent() {
                 href="/user/metric/data-biometrik"
                 className="flex items-center justify-between rounded-xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
               >
-                <span>Perbarui data biometrik</span>
+                <span className="text-black">Perbarui data biometrik</span>
                 <ChevronRight size={16} />
               </Link>
             </CardContent>
@@ -524,7 +556,9 @@ export default function ReportsContent() {
             <CardHeader className="px-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <CardTitle>Laporan Clinical</CardTitle>
+                  <CardTitle className="text-lg font-bold">
+                    Laporan Clinical
+                  </CardTitle>
                   <CardDescription className="mt-1 text-xs">
                     Akses riwayat pemeriksaan dan unduh laporan clinical
                     lengkap.
