@@ -89,14 +89,16 @@ type LipidStatus = "Normal" | "High" | "Beresiko";
 const formatDate = (date?: string) => {
   if (!date) return "-";
 
-  const parsedDate = new Date(date);
-  if (Number.isNaN(parsedDate.getTime())) return "-";
+  const dateOnly = date.split("T")[0];
+  const [year, month, day] = dateOnly.split("-").map(Number);
 
-  return parsedDate.toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit",
+  if (!year || !month || !day) return "-";
+
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
     year: "numeric",
-  });
+  }).format(new Date(year, month - 1, day));
 };
 
 const formatNumber = (value?: number | null) => {
@@ -455,7 +457,7 @@ export default function LipidPanelHistoryContent() {
       {latestLipid && (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <SummaryCard
-            label="Latest LDL"
+            label="LDL Terbaru"
             value={
               <TrendValue
                 value={latestLipid.ldl}
@@ -467,7 +469,7 @@ export default function LipidPanelHistoryContent() {
           />
 
           <SummaryCard
-            label="Latest HDL"
+            label="HDL Terbaru"
             value={
               <TrendValue
                 value={latestLipid.hdl}
@@ -492,7 +494,7 @@ export default function LipidPanelHistoryContent() {
           />
 
           <SummaryCard
-            label="Last Checkup"
+            label="Pemeriksaan Terakhir"
             value={formatDate(latestLipid.date)}
             description="Tanggal pemeriksaan lipid panel terakhir."
             // icon={<CalendarDays className="size-5" />}
