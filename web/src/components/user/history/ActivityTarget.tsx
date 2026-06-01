@@ -455,13 +455,6 @@ export default function ActivityTargetHistoryContent() {
                       />
 
                       <LogMetricCard
-                        label="Protein"
-                        value={`${formatNumber(log.protein)} g`}
-                        description="Jumlah protein yang tercatat"
-                        icon={<Utensils className="size-4" />}
-                      />
-
-                      <LogMetricCard
                         label="Exercise"
                         value={`${formatNumber(log.exerciseMins)} min`}
                         description={
@@ -473,6 +466,13 @@ export default function ActivityTargetHistoryContent() {
                         }
                         progress={exerciseProgress}
                         icon={<Dumbbell className="size-4" />}
+                      />
+
+                      <LogMetricCard
+                        label="Protein"
+                        value={`${formatNumber(log.protein)} g`}
+                        description="Jumlah protein yang tercatat"
+                        icon={<Utensils className="size-4" />}
                       />
 
                       <LogMetricCard

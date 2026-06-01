@@ -7,7 +7,7 @@ import React from "react";
 export default function HeroForm() {
   return (
     <section className="bg-slate-50 px-4 sm:px-6 lg:px-16">
-      <div className="max-w-7xl mx-auto pt-12 pb-24 md:pt-16 md:pb-32 lg:pt-20 lg:pb-36 flex flex-col md:flex-row items-center gap-10 md:gap-12">
+      <div className="max-w-7xl mx-auto pt-12 pb-10 md:pt-16 md:pb-14 lg:pt-20 lg:pb-16 flex flex-col md:flex-row items-center gap-10 md:gap-12">
         <div className="flex-1 min-w-0 flex flex-col items-center md:items-start text-center md:text-left">
           <div className="inline-flex items-center gap-2 border border-gray-300 rounded-full px-4 py-1.5 mb-7">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
@@ -25,9 +25,10 @@ export default function HeroForm() {
           </h1>
 
           <p className="text-base text-gray-500 leading-relaxed mb-8 max-w-md">
-            Colestify menggunakan teknologi pencitraan mata canggih untuk
-            mendeteksi kadar kolesterol secara instan. Dapatkan hasil tingkat
-            rumah sakit dari smartphone Anda tanpa jarum.
+            Pantau kesehatan kolesterol Anda dengan lebih mudah melalui bantuan
+            teknologi analisis citra mata. Cholestify memberikan estimasi awal
+            yang dapat membantu Anda lebih sadar terhadap kondisi kesehatan,
+            namun bukan pengganti pemeriksaan medis profesional.
           </p>
 
           <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center md:justify-start gap-3 mb-8 w-full sm:w-auto">

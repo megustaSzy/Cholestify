@@ -8,19 +8,21 @@ import { Metadata } from "next";
 import { cookies } from "next/headers";
 import React from "react";
 
-const TOKEN_COOKIE_NAME = "accessToken";
-
 export const metadata: Metadata = {
-  title: "Homepage - Cholestify",
+  title: "Cholestify",
 };
 
 export default async function HomePage() {
   const cookieStore = await cookies();
-  const token = cookieStore.get(TOKEN_COOKIE_NAME)?.value;
+
+  const accessToken = cookieStore.get("accessToken")?.value;
+  const refreshToken = cookieStore.get("refreshToken")?.value;
+
+  const hasAuthCookie = Boolean(accessToken || refreshToken);
 
   return (
     <div className="font-sans text-gray-900 bg-white antialiased">
-      <NavHeaderClient hasToken={Boolean(token)} />
+      <NavHeaderClient hasToken={hasAuthCookie} />
       <HeroForm />
       <ThreeStepsPrecissionForm />
       <EcosystemHeratHealth />

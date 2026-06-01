@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { ReactNode } from "react";
-import { Mail, Phone } from "lucide-react";
+import { CalendarDays, Droplets, Mail, Phone } from "lucide-react";
 import { useFetchData } from "@/hooks/useFetchData";
 import { isAuthError, isNoDataError } from "@/lib/ApiErrorResponse";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
@@ -21,6 +21,8 @@ type UserProfile = {
   nama?: string;
   email?: string;
   notelp?: string;
+  dob?: string | null;
+  bloodType?: string | null;
   avatar?: string | null;
   avatarUrl?: string | null;
   imageUrl?: string | null;
@@ -227,8 +229,10 @@ export default function ClinicalProfileContent() {
 
   const patientName = user?.nama ?? "User";
   const patientId = user?.id ? `#HC-${String(user.id).padStart(4, "0")}` : "-";
-  const email = user?.email ?? "-";
-  const phone = user?.notelp ?? "-";
+  // const email = user?.email ?? "-";
+  // const phone = user?.notelp ?? "-";
+  const birthDate = formatDate(user?.dob ?? undefined);
+  const bloodType = user?.bloodType ?? "-";
   const patientAvatar = getAvatarUrl(
     user?.avatarUrl ?? user?.avatar ?? user?.imageUrl ?? user?.profileImage,
   );
@@ -299,18 +303,18 @@ export default function ClinicalProfileContent() {
                 </h2>
 
                 <p className="text-xs text-gray-400 mt-0.5">
-                  Patient ID: {patientId}
+                  ID: {patientId}
                 </p>
 
                 <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-gray-500">
                   <span className="flex items-center gap-1">
-                    <Mail size={12} />
-                    {email}
+                    <CalendarDays size={12} />
+                    Tanggal Lahir: {birthDate}
                   </span>
 
                   <span className="flex items-center gap-1">
-                    <Phone size={12} />
-                    {phone}
+                    <Droplets size={12} />
+                    Gol. Darah: {bloodType}
                   </span>
                 </div>
               </div>

@@ -166,6 +166,116 @@ function formatPercent(value?: number) {
   return `${value.toFixed(2)}%`;
 }
 
+function getConfidenceMessage(confidence?: number) {
+  if (typeof confidence !== "number" || Number.isNaN(confidence)) {
+    return {
+      label: "Belum tersedia",
+      description: "Nilai keyakinan analisis belum tersedia.",
+    };
+  }
+
+  if (confidence >= 85) {
+    return {
+      label: "Sangat yakin",
+      description:
+        "Sistem memiliki tingkat keyakinan yang tinggi terhadap hasil analisis ini.",
+    };
+  }
+
+  if (confidence >= 70) {
+    return {
+      label: "Cukup yakin",
+      description:
+        "Hasil analisis cukup meyakinkan, namun tetap gunakan hasil ini sebagai pemantauan awal.",
+    };
+  }
+
+  if (confidence >= 50) {
+    return {
+      label: "Keyakinan sedang",
+      description:
+        "Hasil masih dapat digunakan sebagai gambaran awal, namun tingkat keyakinannya belum terlalu kuat.",
+    };
+  }
+
+  return {
+    label: "Keyakinan rendah",
+    description:
+      "Sistem belum cukup yakin terhadap hasil analisis ini. Untuk hasil yang lebih optimal, gunakan foto mata yang terang, fokus, dan tidak buram.",
+  };
+}
+
+function getScreeningCustomResponse(result: ScreeningResponse["data"]) {
+  const normalized = result.result?.toLowerCase() ?? "";
+  const confidence = getConfidenceMessage(result.confidence);
+
+  if (normalized.includes("normal")) {
+    return {
+      title: "Hasil terlihat aman",
+      label: "Tidak ditemukan tanda arcus",
+      badge: "Normal",
+      badgeClass: "bg-emerald-100 text-emerald-700",
+      cardClass: "border-emerald-100 bg-emerald-50",
+      textClass: "text-emerald-800",
+      summary:
+        "Berdasarkan foto yang dianalisis, sistem tidak menemukan tanda arcus yang menonjol pada area mata.",
+      description:
+        result.description ||
+        "Tidak ada indikasi endapan lipid yang terlihat jelas pada gambar.",
+      recommendation:
+        result.recommendation ||
+        "Tetap jaga pola hidup sehat dan lakukan pemantauan secara berkala.",
+      confidenceLabel: confidence.label,
+      confidenceDescription: confidence.description,
+    };
+  }
+
+  if (
+    normalized.includes("kolesterol") ||
+    normalized.includes("beresiko") ||
+    normalized.includes("berisiko") ||
+    normalized.includes("follow")
+  ) {
+    return {
+      title: "Perlu pemantauan lebih lanjut",
+      label: "Ditemukan potensi tanda arcus",
+      badge: "Follow Up",
+      badgeClass: "bg-orange-100 text-orange-700",
+      cardClass: "border-orange-100 bg-orange-50",
+      textClass: "text-orange-800",
+      summary:
+        "Sistem mendeteksi kemungkinan pola visual yang menyerupai tanda arcus pada area mata.",
+      description:
+        result.description ||
+        "Terdapat pola visual yang perlu diperhatikan, namun hasil ini bukan diagnosis medis akhir.",
+      recommendation:
+        result.recommendation ||
+        "Disarankan melakukan pemeriksaan kolesterol atau berkonsultasi dengan tenaga medis untuk memastikan kondisi Anda.",
+      confidenceLabel: confidence.label,
+      confidenceDescription: confidence.description,
+    };
+  }
+
+  return {
+    title: "Hasil belum dapat dipastikan",
+    label: "Perlu cek ulang gambar",
+    badge: "Cek Ulang",
+    badgeClass: "bg-gray-100 text-gray-700",
+    cardClass: "border-gray-100 bg-gray-50",
+    textClass: "text-gray-800",
+    summary:
+      "Sistem belum dapat memastikan hasil analisis dari foto yang digunakan.",
+    description:
+      result.description ||
+      "Area mata pada gambar mungkin belum cukup jelas untuk dianalisis secara optimal.",
+    recommendation:
+      result.recommendation ||
+      "Coba upload ulang foto mata dengan pencahayaan yang lebih baik dan posisi yang lebih fokus.",
+    confidenceLabel: confidence.label,
+    confidenceDescription: confidence.description,
+  };
+}
+
 function UploadInfoMessage() {
   return (
     <div className="mx-4 mb-4 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-xs text-blue-700">
@@ -514,6 +624,10 @@ export default function EyeScanForm() {
     }
   };
 
+  const customResponseScreeningResult = screeningResult
+    ? getScreeningCustomResponse(screeningResult)
+    : null;
+
   return (
     <div className="xl:col-span-3 flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
       <div
@@ -603,7 +717,7 @@ export default function EyeScanForm() {
             <span>
               {isSocketConnected
                 ? "Realtime progress aktif"
-                : "Socket belum terhubung, progress tetap diproses setelah submit"}
+                : "Sistem AI saat ini belum terhubung, progress tetap diproses setelah submit"}
             </span>
           </div>
         </div>
@@ -623,59 +737,128 @@ export default function EyeScanForm() {
         </div>
       )}
 
-      {screeningResult && (
+      {screeningResult && customResponseScreeningResult && (
         <div className="mx-4 mb-4 rounded-xl border border-blue-100 bg-blue-50 p-4">
-          <div className="flex items-start gap-3">
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <h3 className="text-sm font-semibold text-gray-900">
-                  Hasil Analisis: {screeningResult.result}
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p
+                  className={`text-xs font-semibold ${customResponseScreeningResult.textClass}`}
+                >
+                  Hasil Analisis Selesai
+                </p>
+
+                <h3 className="mt-1 text-base font-bold text-gray-950">
+                  {customResponseScreeningResult.title}
                 </h3>
 
-                <span className="w-fit rounded-full bg-blue-600 px-2.5 py-1 text-[10px] font-bold text-white">
-                  {formatPercent(screeningResult.confidence)}
-                </span>
-              </div>
-
-              <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                {screeningResult.description}
-              </p>
-
-              <div className="mt-3 rounded-lg bg-white p-3 text-xs text-gray-600">
-                <p className="font-semibold text-gray-900">Rekomendasi</p>
-                <p className="mt-1 leading-relaxed">
-                  {screeningResult.recommendation}
+                <p className="mt-1 text-sm font-medium text-gray-700">
+                  {customResponseScreeningResult.label}
                 </p>
               </div>
 
+              <span
+                className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${customResponseScreeningResult.badgeClass}`}
+              >
+                {customResponseScreeningResult.badge}
+              </span>
+            </div>
+
+            <p className="text-sm leading-relaxed text-gray-700">
+              {customResponseScreeningResult.summary}
+            </p>
+
+            <div className="rounded-xl bg-white/80 p-3">
+              <p className="text-sm font-semibold text-gray-900">
+                Detail Kemungkinan Hasil
+              </p>
+
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground font-semibold">
+                Angka berikut menunjukkan kecenderungan sistem terhadap
+                masing-masing kategori hasil.
+              </p>
+
               <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                <div className="rounded-lg bg-white px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase text-gray-400">
-                    Normal
+                <div className="rounded-lg bg-gray-50 px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide">
+                    Kondisi Normal
                   </p>
-                  <p className="text-sm font-bold text-gray-900">
+
+                  <p className="mt-1 text-sm font-bold text-gray-900">
                     {formatPercent(screeningResult.probabilities.normal)}
                   </p>
                 </div>
 
-                <div className="rounded-lg bg-white px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase text-gray-400">
-                    Beresiko
+                <div className="rounded-lg bg-gray-50 px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide">
+                    Indikasi Awal
                   </p>
-                  <p className="text-sm font-bold text-gray-900">
+
+                  <p className="mt-1 text-sm font-bold text-gray-900">
                     {formatPercent(screeningResult.probabilities.beresiko)}
                   </p>
                 </div>
 
-                <div className="rounded-lg bg-white px-3 py-2">
-                  <p className="text-[10px] font-semibold uppercase text-gray-400">
-                    Kolesterol
+                <div className="rounded-lg bg-gray-50 px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide">
+                    Potensi Kolesterol
                   </p>
-                  <p className="text-sm font-bold text-gray-900">
+
+                  <p className="mt-1 text-sm font-bold text-gray-900">
                     {formatPercent(screeningResult.probabilities.kolesterol)}
                   </p>
                 </div>
               </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl bg-white/80 p-3">
+                <p className="text-xs font-semibold">
+                  Tingkat Keyakinan Analisis
+                </p>
+
+                <p className="mt-1 text-sm font-bold text-gray-950">
+                  {formatPercent(screeningResult.confidence)} —{" "}
+                  {customResponseScreeningResult.confidenceLabel}
+                </p>
+
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground font-semibold">
+                  {customResponseScreeningResult.confidenceDescription}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-3 shadow-sm">
+                <div className="flex items-start gap-2">
+                  <div>
+                    <p className="text-sm font-semibold text-amber-900">
+                      Catatan Penting
+                    </p>
+
+                    <p className="mt-1 text-xs leading-relaxed text-amber-800 font-medium">
+                      Hasil ini digunakan sebagai pemantauan awal dan bukan
+                      pengganti diagnosis langsung dari tenaga medis.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-white/80 p-3">
+              <p className="text-sm font-semibold text-gray-900">
+                Penjelasan Hasil
+              </p>
+
+              <p className="mt-1 text-sm leading-relaxed text-gray-600">
+                {customResponseScreeningResult.description}
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-blue-100 bg-white p-3">
+              <p className="text-sm font-semibold">Saran Untuk Anda</p>
+
+              <p className="mt-1 text-sm leading-relaxed text-muted-foreground font-semibold">
+                {customResponseScreeningResult.recommendation}
+              </p>
             </div>
           </div>
         </div>

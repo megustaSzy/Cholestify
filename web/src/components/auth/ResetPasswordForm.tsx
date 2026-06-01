@@ -139,7 +139,7 @@ export default function ResetPasswordPage() {
         ) : (
           <>
             <CardHeader className="space-y-2 text-center">
-              <CardTitle className="text-2xl font-semibold text-blue-600">
+              <CardTitle className="text-2xl font-semibold text-slate-900">
                 Reset Password
               </CardTitle>
 

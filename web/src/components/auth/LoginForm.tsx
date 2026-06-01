@@ -13,7 +13,6 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import { HidePasswordInput } from "../HidePasswordInput";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import axios from "axios";
 import { API } from "@/lib/utils";
@@ -51,8 +50,6 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const router = useRouter();
-
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -76,7 +73,7 @@ export function LoginForm({
       });
 
       if (response.data.success) {
-        router.replace("/user/dashboard");
+        window.location.replace("/user/dashboard");
       }
     } catch (err: unknown) {
       setError(getApiErrorMessage(err));
@@ -85,10 +82,9 @@ export function LoginForm({
     }
   };
 
-  const handleGoogleLogin = () => {
-    const baseURL = API.defaults.baseURL ?? "";
-    window.location.href = `${baseURL}/auth/google`;
-  };
+  // const handleGoogleLogin = () => {
+  //   window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/auth/google`;
+  // };
 
   return (
     <section className={cn("w-full max-w-md mx-auto", className)} {...props}>
@@ -109,11 +105,11 @@ export function LoginForm({
       <Card className="w-full shadow-lg border border-slate-200 py-4 rounded-2xl">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold text-slate-900">
-            Login
+            Masuk
           </CardTitle>
 
           <CardDescription className="text-slate-600">
-            Masukkan email dan password Anda
+            Masukkan email dan kata sandi Anda
           </CardDescription>
         </CardHeader>
 
@@ -216,7 +212,7 @@ export function LoginForm({
             </Button>
 
             {/* GOOGLE LOGIN */}
-            <Button
+            {/* <Button
               type="button"
               variant="outline"
               onClick={handleGoogleLogin}
@@ -253,7 +249,7 @@ export function LoginForm({
                 />
               </svg>
               Login Menggunakan Google
-            </Button>
+            </Button> */}
 
             {/* SIGNUP */}
             <div className="text-center text-sm text-neutral-600">
@@ -265,7 +261,7 @@ export function LoginForm({
                   hover:text-blue-700 hover:underline
                 "
               >
-                Daftar
+                Daftar disini
               </Link>
             </div>
           </Form>

@@ -1,11 +1,9 @@
 "use client";
 import * as React from "react";
 import { NavMenuSidebar } from "@/components/NavMenuSidebar";
-import { NavUser } from "@/components/NavUser";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -26,6 +24,8 @@ import { logout } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
 
+const menuIconClass = "size-5 shrink-0 stroke-[1.8]";
+
 const data = {
   // user: {
   //   name: "shadcn",
@@ -37,7 +37,7 @@ const data = {
     {
       title: "Keluar",
       // url: "/",
-      icon: <LogOutIcon />,
+      icon: <LogOutIcon className={menuIconClass} />,
       onClick: () => {
         logout();
       },
@@ -57,27 +57,27 @@ const data = {
     {
       name: "Dashboard",
       url: "/user/dashboard",
-      icon: <DatabaseIcon />,
+      icon: <DatabaseIcon className={menuIconClass} />,
     },
     {
       name: "Scan Mata",
       url: "/user/scan-mata",
-      icon: <Eye />,
+      icon: <Eye className={menuIconClass} />,
     },
     {
       name: "List Makanan",
       url: "/user/list-makanan",
-      icon: <UtensilsCrossed />,
+      icon: <UtensilsCrossed className={menuIconClass} />,
     },
     {
       name: "Laporan",
       url: "/user/laporan",
-      icon: <FileIcon />,
+      icon: <FileIcon className={menuIconClass} />,
     },
     {
-      name: "Metric",
+      name: "Metrik",
       // url: "",
-      icon: <BarChart />,
+      icon: <BarChart className={menuIconClass} />,
       items: [
         {
           title: "Data Lipid Panel",
@@ -100,7 +100,7 @@ const data = {
     {
       name: "Riwayat",
       // url: "",
-      icon: <HistoryIcon />,
+      icon: <HistoryIcon className={menuIconClass} />,
       items: [
         {
           title: "Scan Mata",
@@ -113,9 +113,9 @@ const data = {
       ],
     },
     {
-      name: "Profile",
+      name: "Profil",
       // url: "/user/profile/clinical-profile",
-      icon: <User />,
+      icon: <User className={menuIconClass} />,
       items: [
         {
           title: "Profile Klinik",
@@ -142,17 +142,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton className="h-auto cursor-default p-0 hover:bg-transparent hover:text-inherit active:bg-transparent active:text-inherit">
               <div className="flex w-full flex-col items-start">
                 <div className="relative h-9 w-[170px] overflow-hidden">
-                  <Image
-                    src="/Logo.png"
-                    alt="Cholestify"
-                    width={220}
-                    height={80}
-                    className="absolute left-0 top-1/2 w-[160px] -translate-y-1/2 object-contain"
-                    priority
-                  />
+                  <Link href="/">
+                    <Image
+                      src="/Logo.png"
+                      alt="Cholestify"
+                      width={220}
+                      height={80}
+                      className="absolute left-0 top-1/2 h-auto w-[160px] -translate-y-1/2 object-contain"
+                      priority
+                    />
+                  </Link>
                 </div>
 
-                <span className="mt-2 text-xs font-medium text-muted-foreground pl-3">
+                <span className="mt-2 text-xs font-medium text-muted-foreground pl-0">
                   Version 1.0
                 </span>
               </div>

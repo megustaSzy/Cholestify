@@ -40,9 +40,9 @@ export default function ThreeStepsPrecissionForm() {
               2. Analisis AI
             </p>
             <p className="text-sm text-blue-100 leading-relaxed">
-              Algoritma klinis memproses pola mikrovaskular iris untuk
-              memperkirakan kolesterol dan penanda lipid dengan akurasi yang
-              cukup tinggi.
+              Algoritma klinis kami memproses citra pada bagian tepi kornea mata
+              untuk mendeteksi keberadaan arcus senilis sebagai penanda lipid
+              dengan akurasi tinggi.
             </p>
           </div>
 

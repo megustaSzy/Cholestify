@@ -210,7 +210,7 @@ export default function CalculatesForm() {
   };
 
   return (
-    <Card className="w-full lg:w-[420px] flex-shrink-0 rounded-2xl border border-gray-200 shadow-sm">
+    <Card className="w-full flex-shrink-0 self-start rounded-2xl border border-gray-200 shadow-sm lg:sticky lg:top-24 lg:w-[420px] lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto">
       <CardHeader>
         <CardTitle className="text-xl font-semibold text-gray-800">
           Kalkulator Detak Jantung Istirahat (RHR)

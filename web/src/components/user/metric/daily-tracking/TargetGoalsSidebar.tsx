@@ -8,13 +8,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 type HealthGoal = {
   id?: number;
-  userId?: number;
   targetWeeklyCalories?: number;
   targetExerciseMins?: number;
   targetDailyCalories?: number;
   targetProtein?: number;
   createdAt?: string;
   updatedAt?: string;
+};
+
+type HealthGoalProgress = {
+  goal?: HealthGoal | null;
+  current?: {
+    totalCalories?: number;
+    totalExerciseMins?: number;
+  };
+  percentage?: {
+    calories?: number;
+    exerciseMins?: number;
+  };
 };
 
 type ApiResponse<T> = {
@@ -36,22 +47,23 @@ export default function TargetGoalsSidebar() {
     data: response,
     isLoading,
     error,
-  } = useFetchData<ApiResponse<HealthGoal>>("/health-goals/me");
+  } = useFetchData<ApiResponse<HealthGoalProgress>>("/health-goals/progress");
 
-  const goal = response?.data;
+  const goal = response?.data?.goal ?? null;
 
   const targetCalories =
     goal?.targetDailyCalories ?? goal?.targetWeeklyCalories ?? null;
 
   const targetExercise = goal?.targetExerciseMins ?? null;
 
+  const hasGoal = Boolean(targetCalories || targetExercise);
+
   return (
     <div className="flex w-full flex-col gap-4">
-      {/* Target Goals Card */}
       <Card className="w-full rounded-2xl border border-gray-200 bg-white shadow-sm">
         <CardHeader className="px-5 pb-2 pt-5">
           <CardTitle className="text-base font-semibold text-gray-950">
-            Target Goals Saat ini
+            Target Kesehatan Saat ini
           </CardTitle>
         </CardHeader>
 
@@ -61,17 +73,17 @@ export default function TargetGoalsSidebar() {
               <Loader2 className="h-4 w-4 animate-spin" />
               Memuat target...
             </div>
-          ) : error ? (
+          ) : error || !hasGoal ? (
             <p className="text-xs leading-relaxed text-amber-600">
-              Target goals belum tersedia. Silakan atur target kesehatan
+              Target kesehatan belum tersedia. Silakan atur target kesehatan
               terlebih dahulu.
             </p>
           ) : (
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="h-2 w-2 rounded-full bg-blue-600" />
-                  <span className="text-sm text-gray-600">Kalori</span>
+                  <span className="h-2 w-2 rounded-full bg-gray-600" />
+                  <span className="text-sm text-gray-900 font-semibold">Kalori</span>
                 </div>
 
                 <span className="text-sm font-semibold text-gray-950">
@@ -81,8 +93,8 @@ export default function TargetGoalsSidebar() {
 
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="h-2 w-2 rounded-full bg-blue-600" />
-                  <span className="text-sm text-gray-600">Olahraga</span>
+                  <span className="h-2 w-2 rounded-full bg-gray-600" />
+                  <span className="text-sm text-gray-900 font-semibold">Olahraga</span>
                 </div>
 
                 <span className="text-sm font-semibold text-gray-950">
@@ -94,7 +106,6 @@ export default function TargetGoalsSidebar() {
         </CardContent>
       </Card>
 
-      {/* Motivational Image Card */}
       <Card className="h-[130px] w-full overflow-hidden rounded-2xl border border-border p-0 shadow-sm sm:h-[150px] lg:h-[130px]">
         <div className="relative h-full w-full">
           <Image
