@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import Link from "next/link";
-import { CalendarDays, InfoIcon, Plus } from "lucide-react";
-
+import { HistoryIcon, InfoIcon, Plus } from "lucide-react";
 import { useFetchData } from "@/hooks/useFetchData";
 import { isAuthError, isNoDataError } from "@/lib/ApiErrorResponse";
 
@@ -23,17 +22,16 @@ type HealthGoal = {
   createdAt: string;
 };
 
-type DailyTracking = {
-  id: number;
-  date: string;
-  calories: number;
-  protein: number;
-  exerciseMins: number;
-  foodNotes?: string;
-  healthGoal?: {
-    targetWeeklyCalories: number;
-    targetExerciseMins: number;
-  } | null;
+type HealthGoalProgress = {
+  goal: HealthGoal;
+  current: {
+    totalCalories: number;
+    totalExerciseMins: number;
+  };
+  percentage: {
+    calories: number;
+    exerciseMins: number;
+  };
 };
 
 function SectionLabel({ children }: { children: ReactNode }) {
@@ -70,19 +68,6 @@ function toDisplayNumber(value?: number | string | null, fractionDigits = 0) {
     minimumFractionDigits: fractionDigits,
     maximumFractionDigits: fractionDigits,
   });
-}
-
-function getHigherIsBetterProgress(current?: number, target?: number) {
-  if (
-    typeof current !== "number" ||
-    typeof target !== "number" ||
-    current < 0 ||
-    target <= 0
-  ) {
-    return 0;
-  }
-
-  return Math.min(100, Math.max(0, Math.round((current / target) * 100)));
 }
 
 function getProgressBadge(progress: number) {
@@ -159,28 +144,71 @@ function TargetCard({
 
 function HistoryMetric({
   label,
-  value,
+  current,
+  target,
+  unit,
+  progressPercent,
 }: {
   label: string;
-  value: string | number;
+  current: string | number;
+  target: string | number;
+  unit: string;
+  progressPercent: number;
 }) {
   return (
-    <div className="px-5 py-3 sm:px-6">
-      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-        {label}
-      </p>
-      <p className="mt-1 text-sm font-bold text-gray-900">{value}</p>
+    <div className="px-5 py-4 sm:px-6">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+          {label}
+        </p>
+
+        <span
+          className={`whitespace-nowrap rounded-full px-2 py-0.5 text-[9px] font-bold text-white ${getBadgeClass(
+            progressPercent,
+          )}`}
+        >
+          {getProgressBadge(progressPercent)}
+        </span>
+      </div>
+
+      <div className="mt-2 flex items-end gap-1">
+        <span className="text-lg font-bold text-gray-900">{current}</span>
+        <span className="mb-0.5 text-xs text-gray-500">
+          / {target} {unit}
+        </span>
+      </div>
+
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
+        <div
+          className={`h-full rounded-full ${
+            progressPercent >= 100 ? "bg-green-500" : "bg-blue-600"
+          }`}
+          style={{ width: `${progressPercent}%` }}
+        />
+      </div>
     </div>
   );
 }
 
-function HistoryItem({ goal }: { goal: HealthGoal }) {
+function HistoryItem({
+  goal,
+  currentCalories,
+  currentExercise,
+  caloriesProgress,
+  exerciseProgress,
+}: {
+  goal: HealthGoal;
+  currentCalories: number;
+  currentExercise: number;
+  caloriesProgress: number;
+  exerciseProgress: number;
+}) {
   return (
     <div className="border-b border-gray-100 last:border-b-0">
       <div className="px-5 py-4 sm:px-6">
         <div className="flex items-start gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
-            <CalendarDays size={16} />
+            <HistoryIcon size={16} />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -198,12 +226,18 @@ function HistoryItem({ goal }: { goal: HealthGoal }) {
       <div className="grid grid-cols-1 divide-y divide-gray-100 border-t border-gray-100 bg-gray-50 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
         <HistoryMetric
           label="Kalori per Minggu"
-          value={`${toDisplayNumber(goal.targetWeeklyCalories)} kcal`}
+          current={toDisplayNumber(currentCalories)}
+          target={toDisplayNumber(goal.targetWeeklyCalories)}
+          unit="kcal/minggu"
+          progressPercent={caloriesProgress}
         />
 
         <HistoryMetric
           label="Durasi Olahraga per Minggu"
-          value={`${toDisplayNumber(goal.targetExerciseMins)} min`}
+          current={toDisplayNumber(currentExercise)}
+          target={toDisplayNumber(goal.targetExerciseMins)}
+          unit="menit/minggu"
+          progressPercent={exerciseProgress}
         />
       </div>
     </div>
@@ -215,76 +249,72 @@ export default function HealthGoalsContent() {
     data: goalResponse,
     error: goalsError,
     isLoading: isGoalsLoading,
-  } = useFetchData<ApiResponse<HealthGoal>>("/health-goals/me");
+  } = useFetchData<ApiResponse<HealthGoalProgress>>("/health-goals/me");
 
-  const { data: trackingResponse } = useFetchData<ApiResponse<DailyTracking[]>>(
-    "/daily-trackings/history",
+  const {
+    data: progressResponse,
+    error: progressError,
+    isLoading: isProgressLoading,
+  } = useFetchData<ApiResponse<HealthGoalProgress>>("/health-goals/progress");
+
+  const historyProgressData = goalResponse?.data ?? null;
+
+  const progressData = progressResponse?.data ?? null;
+
+  const latestGoal = progressData?.goal ?? null;
+  const latestHistoryGoal = historyProgressData?.goal ?? null;
+
+  const historyCurrentCalories =
+    historyProgressData?.current.totalCalories ?? 0;
+
+  const historyCurrentExercise =
+    historyProgressData?.current.totalExerciseMins ?? 0;
+
+  const historyCaloriesProgress = Math.min(
+    100,
+    Math.max(0, Math.round(historyProgressData?.percentage.calories ?? 0)),
   );
 
-  const latestGoal = goalResponse?.data ?? null;
-
-  const dailyTrackings = useMemo(() => {
-    const data = Array.isArray(trackingResponse?.data)
-      ? trackingResponse.data
-      : [];
-
-    return [...data].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
-    );
-  }, [trackingResponse]);
-
-  const latestSevenTrackings = dailyTrackings.slice(0, 7);
-
-  const currentWeeklyCalories = latestSevenTrackings.reduce(
-    (total, item) => total + item.calories,
-    0,
+  const historyExerciseProgress = Math.min(
+    100,
+    Math.max(0, Math.round(historyProgressData?.percentage.exerciseMins ?? 0)),
   );
 
-  const currentWeeklyExercise = latestSevenTrackings.reduce(
-    (total, item) => total + item.exerciseMins,
-    0,
+  const currentWeeklyCalories = progressData?.current.totalCalories ?? 0;
+  const currentWeeklyExercise = progressData?.current.totalExerciseMins ?? 0;
+
+  const targetWeeklyCalories = progressData?.goal.targetWeeklyCalories;
+  const targetExerciseMins = progressData?.goal.targetExerciseMins;
+
+  const caloriesProgress = Math.min(
+    100,
+    Math.max(0, Math.round(progressData?.percentage.calories ?? 0)),
   );
 
-  const caloriesProgress = getHigherIsBetterProgress(
-    currentWeeklyCalories,
-    latestGoal?.targetWeeklyCalories,
+  const exerciseProgress = Math.min(
+    100,
+    Math.max(0, Math.round(progressData?.percentage.exerciseMins ?? 0)),
   );
 
-  const exerciseProgress = getHigherIsBetterProgress(
-    currentWeeklyExercise,
-    latestGoal?.targetExerciseMins,
-  );
+  const goalErrors = [goalsError, progressError];
 
-  const goalsAuthError = isAuthError(goalsError);
-  const goalsNoDataError = isNoDataError(goalsError);
+  const goalsAuthError = goalErrors.some(isAuthError);
+  const goalsNoDataError = goalErrors.some(isNoDataError);
 
-  const goalsUnknownError =
-    Boolean(goalsError) && !goalsAuthError && !goalsNoDataError;
-
-  const isGoalsDataEmpty =
-    !isGoalsLoading && !goalsAuthError && !goalsUnknownError && !latestGoal;
-
-  const previousGoalFromTracking = dailyTrackings.find((item) => {
-    if (!item.healthGoal || !latestGoal) return false;
-
-    return (
-      item.healthGoal.targetWeeklyCalories !==
-        latestGoal.targetWeeklyCalories ||
-      item.healthGoal.targetExerciseMins !== latestGoal.targetExerciseMins
-    );
+  const goalsUnknownError = goalErrors.some((error) => {
+    return Boolean(error) && !isAuthError(error) && !isNoDataError(error);
   });
 
-  const latestHistoryGoal: HealthGoal | null =
-    previousGoalFromTracking?.healthGoal
-      ? {
-          id: previousGoalFromTracking.id,
-          targetWeeklyCalories:
-            previousGoalFromTracking.healthGoal.targetWeeklyCalories,
-          targetExerciseMins:
-            previousGoalFromTracking.healthGoal.targetExerciseMins,
-          createdAt: previousGoalFromTracking.date,
-        }
-      : null;
+  const hasActiveGoal =
+    Boolean(progressData?.goal) ||
+    Boolean(latestGoal?.targetWeeklyCalories || latestGoal?.targetExerciseMins);
+
+  const isGoalsDataEmpty =
+    !isGoalsLoading &&
+    !isProgressLoading &&
+    !goalsAuthError &&
+    !goalsUnknownError &&
+    !hasActiveGoal;
 
   return (
     <div className="flex min-h-screen flex-1 flex-col bg-gray-50">
@@ -311,7 +341,7 @@ export default function HealthGoalsContent() {
               </Link>
             </div>
 
-            {isGoalsLoading && (
+            {(isGoalsLoading || isProgressLoading) && (
               <div className="rounded-2xl border border-gray-200 bg-white p-5 text-sm text-gray-500">
                 Loading...
               </div>
@@ -329,32 +359,28 @@ export default function HealthGoalsContent() {
               </div>
             )}
 
-            {!goalsAuthError &&
-              !goalsUnknownError &&
-              (goalsNoDataError || isGoalsDataEmpty) && (
-                <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm text-blue-700">
-                  Belum ada target kesehatan. Buat target pertama agar progress
-                  kalori dan aktivitas dapat dipantau.
-                </div>
-              )}
+            {!goalsAuthError && !goalsUnknownError && isGoalsDataEmpty && (
+              <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm text-blue-700">
+                Belum ada target kesehatan. Buat target pertama agar progress
+                kalori dan aktivitas dapat dipantau.
+              </div>
+            )}
 
             <div>
               <SectionLabel>Target Kesehatan Saat Ini</SectionLabel>
 
-              {latestGoal ? (
+              {hasActiveGoal ? (
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
                   <TargetCard
                     title="Kalori Mingguan"
                     subtitle="Progress kalori dari pengukuran harian terbaru"
                     current={toDisplayNumber(currentWeeklyCalories)}
-                    target={toDisplayNumber(latestGoal.targetWeeklyCalories)}
+                    target={toDisplayNumber(targetWeeklyCalories)}
                     unit="kcal/minggu"
                     progressPercent={caloriesProgress}
                     footer={
                       <p className="text-[10px] text-gray-400">
-                        {latestSevenTrackings.length > 0
-                          ? `${latestSevenTrackings.length} daily tracking tercatat`
-                          : "Belum ada daily tracking"}
+                        Progress dari target kesehatan aktif
                       </p>
                     }
                   />
@@ -363,12 +389,12 @@ export default function HealthGoalsContent() {
                     title="Olahraga Mingguan"
                     subtitle="Progress olahraga dari pengukuran harian terbaru"
                     current={toDisplayNumber(currentWeeklyExercise)}
-                    target={toDisplayNumber(latestGoal.targetExerciseMins)}
+                    target={toDisplayNumber(targetExerciseMins)}
                     unit="menit/minggu"
                     progressPercent={exerciseProgress}
                     footer={
                       <p className="text-[10px] text-gray-400">
-                        Target dibuat: {formatDate(latestGoal.createdAt)}
+                        Progress dari target kesehatan aktif
                       </p>
                     }
                   />
@@ -395,6 +421,10 @@ export default function HealthGoalsContent() {
                   <HistoryItem
                     key={latestHistoryGoal.id}
                     goal={latestHistoryGoal}
+                    currentCalories={historyCurrentCalories}
+                    currentExercise={historyCurrentExercise}
+                    caloriesProgress={historyCaloriesProgress}
+                    exerciseProgress={historyExerciseProgress}
                   />
                 ) : (
                   <div className="px-5 py-4 text-sm text-gray-500">
