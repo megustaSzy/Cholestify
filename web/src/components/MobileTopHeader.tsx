@@ -73,7 +73,7 @@ export default function MobileTopHeader() {
               alt="Cholestify"
               width={220}
               height={80}
-              className="absolute left-0 top-1/2 w-[145px] -translate-y-1/2 object-contain"
+              className="absolute left-0 top-1/2 h-auto w-[145px] -translate-y-1/2 object-contain"
               priority
             />
           </div>

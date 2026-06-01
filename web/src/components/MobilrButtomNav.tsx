@@ -14,8 +14,10 @@ import {
   UserRound,
   X,
   type LucideIcon,
+  LogOut,
 } from "lucide-react";
 import { Button } from "./ui/button";
+import { logout } from "@/lib/utils";
 
 type NavChild = {
   label: string;
@@ -133,6 +135,25 @@ export default function MobileBottomNav() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const selectedMenu = navItems.find((item) => item.label === openMenu);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleOpenLogoutConfirm = () => {
+    setOpenMenu(null);
+    setShowLogoutConfirm(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    if (isLoggingOut) return;
+
+    try {
+      setIsLoggingOut(true);
+      await logout();
+    } finally {
+      setIsLoggingOut(false);
+      setShowLogoutConfirm(false);
+    }
+  };
 
   return (
     <>
@@ -186,6 +207,59 @@ export default function MobileBottomNav() {
                   </Link>
                 );
               })}
+
+              {selectedMenu.label === "Profil" && (
+                <button
+                  type="button"
+                  onClick={handleOpenLogoutConfirm}
+                  className="flex items-center justify-between rounded-2xl border border-gray-100 bg-gray-200 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
+                >
+                  <span className="flex items-center gap-2">Keluar</span>
+
+                  <ChevronRight size={16} />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLogoutConfirm && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm md:hidden">
+          <div className="w-full max-w-sm rounded-3xl border border-white/20 bg-white p-6 shadow-2xl">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-gray-900">
+              <LogOut size={22} />
+            </div>
+
+            <div className="mt-4 text-center">
+              <h2 className="text-lg font-bold text-gray-950">
+                Keluar dari akun?
+              </h2>
+
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                Anda akan keluar dari sesi saat ini. Pastikan semua perubahan
+                sudah tersimpan sebelum melanjutkan.
+              </p>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setShowLogoutConfirm(false)}
+                disabled={isLoggingOut}
+                className="rounded-xl border border-gray-200 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Batal
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmLogout}
+                disabled={isLoggingOut}
+                className="rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isLoggingOut ? "Keluar..." : "Ya, Keluar"}
+              </button>
             </div>
           </div>
         </div>
