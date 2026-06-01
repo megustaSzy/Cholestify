@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
   AlertTriangle,
@@ -97,8 +97,27 @@ function FoodTableState({ title, description }: FoodTableStateProps) {
   );
 }
 
+const nutritionGuideItems = [
+  {
+    title: "Kalori",
+    description: "Menunjukkan jumlah energi dari makanan.",
+    className: "border-blue-100 bg-blue-50 text-slate-800 font-medium",
+  },
+  {
+    title: "Protein",
+    description: "Membantu menjaga massa otot dan pemulihan tubuh.",
+    className: "border-blue-100 bg-blue-50 text-slate-800 font-medium",
+  },
+  {
+    title: "Lemak",
+    description: "Perlu diperhatikan agar asupan tetap seimbang.",
+    className: "border-blue-100 bg-blue-50 text-slate-800 font-medium",
+  },
+];
+
 export default function FoodDirectoryContent() {
-  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const {
     data: foods = [],
@@ -110,11 +129,30 @@ export default function FoodDirectoryContent() {
   } = useFetchListFood<Food[]>({
     endpoint: "/foods/public",
     limit: 10,
-    search,
+    search: searchQuery,
   });
 
-  const foodErrorState = error ? getFoodErrorState(error) : null;
-  const shouldShowPagination = !foodErrorState && foods.length > 0;
+  useEffect(() => {
+    const nextSearch = searchInput.trim();
+
+    const timer = window.setTimeout(() => {
+      setPage(1);
+      setSearchQuery(nextSearch);
+    }, 800);
+
+    return () => window.clearTimeout(timer);
+  }, [searchInput]);
+
+  const foodErrorState = useMemo(() => {
+    return error ? getFoodErrorState(error) : null;
+  }, [error]);
+
+  const shouldShowPagination =
+    !foodErrorState && foods.length > 0 && totalPages > 1;
+
+  const paginationItems = useMemo(() => {
+    return getPaginationItems(page, totalPages);
+  }, [page, totalPages]);
 
   const handlePrev = () => {
     if (page > 1) setPage(page - 1);
@@ -126,7 +164,7 @@ export default function FoodDirectoryContent() {
 
   return (
     <div className="w-full py-10">
-      <div className="w-full">
+      <div className="mx-auto w-full max-w-[1120px] px-4 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
           <h1 className="text-3xl font-bold tracking-tight text-gray-950">
             List Makanan
@@ -142,18 +180,17 @@ export default function FoodDirectoryContent() {
             <Search className="pointer-events-none absolute left-5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
 
             <Input
-              value={search}
+              value={searchInput}
               onChange={(event) => {
-                setSearch(event.target.value);
-                setPage(1);
+                setSearchInput(event.target.value);
               }}
-              placeholder="Search foods..."
+              placeholder="Cari Makanan..."
               className="h-12 w-full rounded-xl border-gray-200 bg-white px-14 text-sm shadow-sm placeholder:text-muted-foreground"
             />
           </div>
         </div>
 
-        <div className="mb-6 grid w-full gap-3 md:grid-cols-3">
+        {/* <div className="mb-6 grid w-full gap-3 md:grid-cols-3">
           <Card className="rounded-2xl border-gray-200 bg-white shadow-sm">
             <CardContent className="flex items-center gap-4 p-6">
               <div className="flex size-11 items-center justify-center rounded-full bg-emerald-50">
@@ -204,28 +241,58 @@ export default function FoodDirectoryContent() {
               </div>
             </CardContent>
           </Card>
+        </div> */}
+
+        <div className="mx-auto mb-6 w-full max-w-[1120px] rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-blue-50 px-5 py-6 shadow-sm sm:px-6">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-xl">
+              <h2 className="text-lg font-bold leading-snug text-gray-950">
+                Pahami kandungan makanan
+              </h2>
+
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Gunakan tabel ini sebagai referensi awal untuk melihat kandungan
+                kalori, protein, dan lemak pada setiap makanan.
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3 lg:min-w-[520px]">
+              {nutritionGuideItems.map((item) => (
+                <div
+                  key={item.title}
+                  className={`rounded-2xl border px-4 py-4 ${item.className}`}
+                >
+                  <p className="text-sm font-bold">{item.title}</p>
+
+                  <p className="mt-2 text-xs leading-relaxed opacity-90">
+                    {item.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <Card className="w-full overflow-hidden rounded-2xl border-gray-200 bg-white shadow-sm">
+        <Card className="mx-auto w-full overflow-hidden rounded-2xl border-gray-200 bg-white shadow-sm">
           <CardContent className="p-0">
             <div className="w-full overflow-x-auto pb-2">
               <Table className="min-w-[680px] table-fixed">
                 <TableHeader>
                   <TableRow className="bg-[#f7f7fb] hover:bg-[#f7f7fb]">
-                    <TableHead className="h-14 w-[40%] px-3 text-[11px] font-bold uppercase tracking-wide text-gray-950">
+                    <TableHead className="h-14 w-[40%] px-10 text-left text-[11px] font-bold uppercase tracking-wide text-gray-950">
                       Makanan
                     </TableHead>
 
-                    <TableHead className="h-14 w-[20%] px-3 text-right text-[11px] font-bold uppercase tracking-wide text-gray-950">
+                    <TableHead className="h-14 w-[20%] px-3 text-center text-[11px] font-bold uppercase tracking-wide text-gray-950">
                       Kalori (kcal)
                     </TableHead>
 
-                    <TableHead className="h-14 w-[20%] px-3 text-right text-[11px] font-bold uppercase tracking-wide text-gray-950">
+                    <TableHead className="h-14 w-[20%] px-3 text-center text-[11px] font-bold uppercase tracking-wide text-gray-950">
                       Protein (g)
                     </TableHead>
 
-                    <TableHead className="h-14 w-[20%] px-3 text-right text-[11px] font-bold uppercase tracking-wide text-gray-950">
-                      Fat (g)
+                    <TableHead className="h-14 w-[20%] px-3 text-center text-[11px] font-bold uppercase tracking-wide text-gray-950">
+                      Lemak (g)
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -249,21 +316,18 @@ export default function FoodDirectoryContent() {
                   ) : foods.length > 0 ? (
                     foods.map((food) => (
                       <TableRow key={food.id} className="bg-white">
-                        <TableCell className="px-3 py-4">
+                        <TableCell className="px-10 py-4">
                           <div className="font-medium text-gray-950">
                             {food.name}
                           </div>
                         </TableCell>
-
-                        <TableCell className="px-3 py-4 text-right font-medium text-gray-950">
+                        <TableCell className="px-3 py-4 text-center font-medium text-gray-950">
                           {food.calories}
                         </TableCell>
-
-                        <TableCell className="px-3 py-4 text-right font-medium text-gray-950">
+                        <TableCell className="px-3 py-4 text-center font-medium text-gray-950">
                           {food.proteins.toFixed(1)}
                         </TableCell>
-
-                        <TableCell className="px-3 py-4 text-right font-medium text-gray-950">
+                        <TableCell className="px-3 py-4 text-center font-medium text-gray-950">
                           {food.fat.toFixed(1)}
                         </TableCell>
                       </TableRow>
@@ -300,7 +364,7 @@ export default function FoodDirectoryContent() {
                   />
                 </PaginationItem>
 
-                {getPaginationItems(page, totalPages).map((pageItem, index) => (
+                {paginationItems.map((pageItem, index) => (
                   <PaginationItem key={`${pageItem}-${index}`}>
                     {pageItem === "..." ? (
                       <PaginationEllipsis />
@@ -308,11 +372,19 @@ export default function FoodDirectoryContent() {
                       <PaginationLink
                         href={`?page=${pageItem}`}
                         isActive={page === pageItem}
+                        aria-disabled={page === pageItem}
                         onClick={(event) => {
                           event.preventDefault();
+
+                          if (page === pageItem) return;
+
                           setPage(pageItem);
                         }}
-                        className="cursor-pointer"
+                        className={
+                          page === pageItem
+                            ? "pointer-events-none cursor-default opacity-50"
+                            : "cursor-pointer"
+                        }
                       >
                         {pageItem}
                       </PaginationLink>
