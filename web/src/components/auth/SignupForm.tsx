@@ -14,7 +14,6 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -34,7 +33,7 @@ import { API } from "@/lib/utils";
 import { toast } from "sonner";
 import axios from "axios";
 import { signupSchema } from "@/lib/ValidationAuth";
-import { ArrowLeft, CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "../ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Form } from "@base-ui/react";
@@ -106,11 +105,11 @@ export function SignupForm({
     }));
   };
 
-  const handleGoogleSignup = () => {
-    const baseURL = API.defaults.baseURL ?? "";
+  // const handleGoogleSignup = () => {
+  //   const baseURL = API.defaults.baseURL ?? "";
 
-    window.location.href = `${baseURL}/auth/google`;
-  };
+  //   window.location.href = `${baseURL}/auth/google`;
+  // };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -172,11 +171,11 @@ export function SignupForm({
   };
 
   return (
-    <section className={cn("w-full max-w-2xl mx-auto", className)} {...props}>
+    <section className={cn("w-full max-w-md mx-auto", className)} {...props}>
       <Card className="w-full shadow-lg border border-slate-200 py-4 rounded-2xl">
         <CardHeader className="space-y-1 text-center">
           <CardTitle className="text-2xl font-bold text-slate-900">
-            Registrasi
+            Daftar Akun
           </CardTitle>
 
           <CardDescription className="text-slate-600">
@@ -187,14 +186,13 @@ export function SignupForm({
         <CardContent className="pt-4 pb-4">
           <Form
             onSubmit={handleSubmit}
-            className="grid grid-cols-2 gap-3"
+            className="grid grid-cols-1 gap-4"
             aria-busy={loading}
           >
             {/* ERROR */}
             {error && (
               <div
                 className="
-                  col-span-2
                   rounded-md border border-red-200
                   bg-red-50 px-3 py-2
                   text-sm text-red-700
@@ -296,7 +294,7 @@ export function SignupForm({
                 <Input
                   id="notelp"
                   type="tel"
-                  placeholder="08xxxxxxxxxx"
+                  placeholder="08XXXXXXXXXX"
                   maxLength={13}
                   minLength={10}
                   value={form.notelp}
@@ -406,7 +404,7 @@ export function SignupForm({
             <Button
               type="submit"
               disabled={loading}
-              className="col-span-2
+              className="
                 w-full mt-2
                 bg-blue-600 hover:bg-blue-700
                 text-white font-medium cursor-pointer
@@ -417,12 +415,12 @@ export function SignupForm({
             </Button>
 
             {/* SEPARATOR */}
-            <FieldSeparator className="col-span-2 my-2 [&>span]:bg-card">
+            {/* <FieldSeparator className="col-span-2 my-2 [&>span]:bg-card">
               Atau
-            </FieldSeparator>
+            </FieldSeparator> */}
 
             {/* GOOGLE SIGNUP */}
-            <Button
+            {/* <Button
               type="button"
               variant="outline"
               onClick={handleGoogleSignup}
@@ -459,16 +457,16 @@ export function SignupForm({
                 />
               </svg>
               Daftar Menggunakan Google
-            </Button>
+            </Button> */}
 
             {/* LOGIN */}
-            <div className="col-span-2 text-center text-sm text-neutral-600">
+            <div className="text-center text-sm text-neutral-600">
               Sudah punya akun?{" "}
               <Link
                 href="/login"
                 className="text-blue-600 hover:text-blue-700 hover:underline"
               >
-                Login
+                Masuk disini
               </Link>
             </div>
           </Form>

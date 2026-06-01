@@ -54,7 +54,7 @@ export default function CallToActionForm() {
               href="/user/dashboard"
               className="inline-flex items-center justify-center bg-white hover:bg-blue-50 text-blue-700 font-semibold text-sm px-8 py-3.5 rounded-xl transition-all shadow-sm active:scale-95"
             >
-              Clinical Portal
+              Ayo Mulai Hidup Sehat Sekarang
             </Link>
           </div>
         </div>

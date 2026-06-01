@@ -90,8 +90,8 @@ export default function EcosystemHeratHealth() {
                     </span>
                   </div>
                   <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
-                    Periksa makananan sehari hari anda dengan mengecek kadar
-                    kolesterol pada makananan di halaman tabel makanan.
+                    Periksa makanan sehari hari anda dengan mengecek kadar
+                    kolesterol pada makanan di halaman tabel makanan.
                   </p>
                 </div>
                 <div className="sm:w-[340px] flex-shrink-0">

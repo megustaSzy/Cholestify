@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
         {!isSubmitted ? (
           <>
             <CardHeader className="space-y-2 text-center">
-              <CardTitle className="text-2xl font-semibold text-blue-600">
+              <CardTitle className="text-2xl font-semibold text-slate-900">
                 Lupa Password
               </CardTitle>
 
