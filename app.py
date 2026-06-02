@@ -42,3 +42,5 @@ import runpy
 import os
 app_path = os.path.join(os.path.dirname(__file__), "dashboard", "cholestify_streamlit.py")
 runpy.run_path(app_path, run_name="__main__")
+
+# test
