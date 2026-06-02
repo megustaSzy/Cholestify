@@ -23,7 +23,7 @@ import keras
 from PIL import Image
 
 # ═══ Konfigurasi Halaman ═════════════════════════════════════════════════════════
-st.set_page_config(page_title="Cholestify Dashboard", layout="wide")
+# (Diatur di app.py utama)
 
 # ═══ Konstanta ═══════════════════════════════════════════════════════════════════
 ALPHA           = 0.05
@@ -42,56 +42,255 @@ C_KOLESTEROL    = "#EF4444"
 # ═══ CSS ═════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <style>
-    .main-title {
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: #1e293b;
-        margin-bottom: 0.2rem;
-    }
-    .sub-title {
-        font-size: 1rem;
-        color: #64748b;
-        margin-bottom: 1.5rem;
-    }
-    [data-testid="metric-container"] {
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 1rem 1.2rem;
-    }
-    [data-testid="stMetricLabel"] { font-size: 0.8rem; color: #64748b; }
-    [data-testid="stMetricValue"] { font-size: 1.8rem; color: #1e293b; }
-    .stTabs [data-baseweb="tab-list"] { gap: 6px; }
-    .stTabs [data-baseweb="tab"] {
-        border-radius: 8px 8px 0 0;
-        padding: 8px 20px;
-        font-weight: 600;
-        font-size: 0.88rem;
-    }
-    .insight-box {
-        background: #f0f9ff;
-        border-left: 4px solid #0ea5e9;
-        border-radius: 0 8px 8px 0;
-        padding: 0.9rem 1.1rem;
-        margin-top: 0.8rem;
-        font-size: 0.9rem;
-        color: #0c4a6e;
-        line-height: 1.65;
-    }
-    .insight-box strong { color: #0369a1; }
-    .stat-badge {
-        display: inline-block;
-        background: #dcfce7;
-        color: #166534;
-        border-radius: 6px;
-        padding: 2px 8px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        margin: 2px;
-    }
-    .stat-badge.red    { background: #fee2e2; color: #991b1b; }
-    .stat-badge.yellow { background: #fef9c3; color: #854d0e; }
-    .stat-badge.blue   { background: #dbeafe; color: #1e40af; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+/* ── Base ── */
+html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+.stApp { background: #080c14; color: #e2e8f0; }
+
+/* ── Sidebar ── */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0f172a 0%, #080c14 100%);
+    border-right: 1px solid rgba(96,165,250,0.12);
+}
+section[data-testid="stSidebar"] .stRadio > div { gap: 4px; }
+section[data-testid="stSidebar"] .stRadio label {
+    background: rgba(30,41,59,0.5);
+    border: 1px solid rgba(51,65,85,0.6);
+    border-radius: 8px;
+    padding: 8px 14px;
+    transition: all 0.2s ease;
+    width: 100%;
+    cursor: pointer;
+}
+section[data-testid="stSidebar"] .stRadio label:hover {
+    background: rgba(96,165,250,0.12);
+    border-color: rgba(96,165,250,0.35);
+}
+[data-testid="stSidebarNavItems"] li > div > a > span { color: #e2e8f0 !important; }
+[data-testid="stSidebarNavItems"] li > div > a:hover { background-color: rgba(96,165,250,0.12) !important; }
+
+/* ── Headings ── */
+h1 {
+    font-size: 2.1rem !important;
+    font-weight: 800 !important;
+    background: linear-gradient(135deg, #60a5fa 0%, #34d399 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.2rem !important;
+}
+h2 {
+    font-size: 1.35rem !important;
+    font-weight: 700 !important;
+    color: #94a3b8 !important;
+}
+h3 {
+    font-size: 1.05rem !important;
+    font-weight: 600 !important;
+    color: #cbd5e1 !important;
+}
+
+/* ── KPI Metric Cards ── */
+.kpi-card {
+    background: linear-gradient(145deg, #111827 0%, #0f172a 100%);
+    border: 1px solid rgba(51,65,85,0.8);
+    border-radius: 16px;
+    padding: 22px 20px;
+    margin: 6px 0;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    height: 190px;
+    display: flex;
+    flex-direction: column;
+}
+.kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #60a5fa, #34d399);
+    opacity: 0.7;
+}
+.kpi-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(96,165,250,0.12);
+    border-color: rgba(96,165,250,0.3);
+}
+.kpi-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+.kpi-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #60a5fa, #a5f3fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+.kpi-label {
+    font-size: 0.72rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-top: 4px;
+    font-weight: 600;
+}
+.kpi-delta {
+    font-size: 0.75rem;
+    color: #34d399;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid rgba(51,65,85,0.5);
+    word-break: break-word;
+    line-height: 1.3;
+}
+
+/* ── Pipeline Steps ── */
+.pipeline-step {
+    text-align: center;
+    background: linear-gradient(145deg, #111827, #0f172a);
+    border: 1px solid rgba(51,65,85,0.7);
+    border-radius: 12px;
+    padding: 16px 10px;
+    min-height: 125px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    transition: all 0.25s ease;
+    overflow: hidden;
+}
+.pipeline-step::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #60a5fa, #34d399);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.pipeline-step:hover { 
+    border-color: rgba(96,165,250,0.4); 
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(96,165,250,0.1);
+}
+.pipeline-step:hover::after { opacity: 1; }
+.pipeline-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.3rem;
+    color: #60a5fa;
+    font-weight: 700;
+    line-height: 1;
+}
+.pipeline-title {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #cbd5e1;
+    margin-top: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+.pipeline-desc {
+    font-size: 0.58rem;
+    color: #475569;
+    margin-top: 4px;
+    line-height: 1.3;
+}
+
+/* ── Insight Box ── */
+.insight-box {
+    background: linear-gradient(135deg, #0a1628 0%, #0d1b2a 100%);
+    border: 1px solid rgba(30,58,95,0.8);
+    border-left: 3px solid #34d399;
+    border-radius: 0 12px 12px 0;
+    padding: 16px 18px;
+    margin: 14px 0;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: #94a3b8;
+    box-shadow: 0 0 20px rgba(52,211,153,0.04);
+}
+.insight-box b, .insight-box strong { color: #34d399; }
+.insight-box code {
+    background: rgba(96,165,250,0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+    color: #93c5fd;
+}
+
+/* ── Badges ── */
+.badge-safe   { background: rgba(20,83,45,0.7);  color: #4ade80; padding: 4px 12px; border-radius: 20px; font-size: 0.73rem; font-weight: 700; border: 1px solid rgba(74,222,128,0.25); }
+.badge-neutral{ background: rgba(113,63,18,0.7); color: #fbbf24; padding: 4px 12px; border-radius: 20px; font-size: 0.73rem; font-weight: 700; border: 1px solid rgba(251,191,36,0.25); }
+.badge-limit  { background: rgba(124,45,18,0.7); color: #fb923c; padding: 4px 12px; border-radius: 20px; font-size: 0.73rem; font-weight: 700; border: 1px solid rgba(251,146,60,0.25); }
+.badge-avoid  { background: rgba(69,10,10,0.7);  color: #f87171; padding: 4px 12px; border-radius: 20px; font-size: 0.73rem; font-weight: 700; border: 1px solid rgba(248,113,113,0.25); }
+
+/* ── Sidebar Brand ── */
+.sidebar-brand {
+    background: linear-gradient(135deg, rgba(96,165,250,0.08), rgba(52,211,153,0.08));
+    border: 1px solid rgba(96,165,250,0.15);
+    border-radius: 14px;
+    padding: 18px 16px;
+    margin-bottom: 4px;
+    text-align: center;
+}
+.sidebar-brand-icon { font-size: 2.2rem; display: block; margin-bottom: 6px; }
+.sidebar-brand-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #60a5fa, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+}
+.sidebar-brand-sub { font-size: 0.72rem; color: #475569; margin-top: 3px; }
+
+/* ── Dataset Info Card ── */
+.info-card {
+    background: rgba(15,23,42,0.7);
+    border: 1px solid rgba(51,65,85,0.5);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 8px 0;
+}
+.info-card-label { font-size: 0.68rem; color: #475569; text-transform: uppercase; letter-spacing: 0.1em; }
+.info-card-value { font-family: 'Space Mono', monospace; font-size: 1.1rem; color: #60a5fa; font-weight: 700; }
+
+/* ── Dividers ── */
+hr { border-color: rgba(51,65,85,0.4) !important; margin: 12px 0 !important; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(51,65,85,0.8); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(96,165,250,0.4); }
+
+/* ── Streamlit overrides ── */
+.stTabs [data-baseweb="tab-list"] { gap: 4px; background: transparent; }
+.stTabs [data-baseweb="tab"] {
+    background: rgba(15,23,42,0.6);
+    border: 1px solid rgba(51,65,85,0.5);
+    border-radius: 8px 8px 0 0;
+    padding: 8px 18px;
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: #64748b;
+    transition: all 0.2s ease;
+}
+.stTabs [data-baseweb="tab"]:hover { background: rgba(96,165,250,0.08); color: #94a3b8; }
+.stTabs [aria-selected="true"] { 
+    background: rgba(96,165,250,0.12) !important; 
+    border-color: rgba(96,165,250,0.3) !important;
+    color: #60a5fa !important;
+}
+[data-testid="stDataFrame"] { border-radius: 8px; overflow: hidden; }
+.stAlert { border-radius: 10px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -316,7 +515,27 @@ with st.sidebar:
         is_active = st.session_state.page == page
         if st.button(page, use_container_width=True, type="primary" if is_active else "secondary"):
             st.session_state.page = page
+            if page == "🍔 Food Table":
+                st.session_state.food_tab = "🏠 Overview"
             st.rerun()
+            
+        # Tampilkan Sub-Menu di bawah "Food Table" jika sedang aktif
+        if page == "🍔 Food Table" and st.session_state.page == "🍔 Food Table":
+            sub_pages = [
+                "🏠 Overview", "📊 EDA & Distribusi", "🔬 Business Questions",
+                "⚗️ A/B Testing", "🤖 Feature Engineering", "🎯 Rekomendasi Personal", "📚 Data Dictionary"
+            ]
+            if "food_tab" not in st.session_state:
+                st.session_state.food_tab = "🏠 Overview"
+                
+            for sp in sub_pages:
+                sp_active = st.session_state.food_tab == sp
+                # Gunakan markdown column layout kecil atau tombol agar terlihat seperti sub-menu
+                col_spacer, col_btn = st.columns([1, 10])
+                with col_btn:
+                    if st.button(sp, key=f"sub_{sp}", use_container_width=True, type="primary" if sp_active else "secondary"):
+                        st.session_state.food_tab = sp
+                        st.rerun()
 
     st.markdown("---")
     st.info("💡 **Tips:** Gunakan halaman 'Prediction' untuk simulasi risiko kolesterol.")
@@ -393,10 +612,10 @@ if st.session_state.page == "📊 Cholesterol Data":
             color_discrete_sequence=["#3b82f6"],
             labels={hist_col: hist_col},
             title=f"Distribusi {hist_col}",
-            template="plotly_white",
+            template="plotly_dark",
         )
-        fig_hist.update_traces(marker_line_color="white", marker_line_width=0.8)
-        fig_hist.update_layout(height=360, margin=dict(t=50, b=20))
+        fig_hist.update_traces(marker_line_color="#1e293b", marker_line_width=0.8)
+        fig_hist.update_layout(height=360, margin=dict(t=50, b=20), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"))
         st.plotly_chart(fig_hist, use_container_width=True)
 
         st.divider()
@@ -424,7 +643,7 @@ if st.session_state.page == "📊 Cholesterol Data":
             height=560, margin=dict(t=30, b=20),
             xaxis=dict(tickfont=dict(size=9)),
             yaxis=dict(tickfont=dict(size=9)),
-            template="plotly_white",
+            template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"),
         )
         st.plotly_chart(fig_heat, use_container_width=True)
 
@@ -458,7 +677,7 @@ if st.session_state.page == "📊 Cholesterol Data":
                 title="Proporsi Kategori Kolesterol",
                 showlegend=True,
                 height=380,
-                template="plotly_white",
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"),
                 margin=dict(t=60, b=20),
             )
             st.plotly_chart(fig_pie, use_container_width=True)
@@ -468,13 +687,13 @@ if st.session_state.page == "📊 Cholesterol Data":
             for cat, color_hex, bg in zip(
                 CAT_ORDER,
                 [C_NORMAL, C_BERISIKO, C_KOLESTEROL],
-                ["#dcfce7", "#fef9c3", "#fee2e2"],
+                ["rgba(34,197,94,0.15)", "rgba(234,179,8,0.15)", "rgba(239,68,68,0.15)"],
             ):
                 cnt = int(counts[cat])
                 pct = cnt / n_total * 100 if n_total else 0
                 st.markdown(f"""
                 <div style="background:{bg};border-radius:10px;padding:14px 18px;margin-bottom:10px;">
-                    <span style="font-size:1.1rem;font-weight:700;color:#1e293b;">{cat}</span><br>
+                    <span style="font-size:1.1rem;font-weight:700;color:#e2e8f0;">{cat}</span><br>
                     <span style="font-size:1.8rem;font-weight:800;color:{color_hex};">{cnt:,}</span>
                     <span style="color:#64748b;font-size:0.9rem;"> pasien &nbsp;·&nbsp; {pct:.1f}%</span>
                 </div>
@@ -532,7 +751,7 @@ if st.session_state.page == "📊 Cholesterol Data":
                 barmode="group",
                 title="Frekuensi catChol per Gender",
                 yaxis_title="Jumlah Pasien",
-                template="plotly_white",
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"),
                 height=380,
                 legend=dict(orientation="h", y=1.12),
                 margin=dict(t=70, b=20),
@@ -555,7 +774,7 @@ if st.session_state.page == "📊 Cholesterol Data":
                 barmode="stack",
                 title="Proporsi (%) catChol per Gender",
                 yaxis_title="Proporsi (%)",
-                template="plotly_white",
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"),
                 height=380,
                 legend=dict(orientation="h", y=1.12),
                 margin=dict(t=70, b=20),
@@ -629,7 +848,7 @@ if st.session_state.page == "📊 Cholesterol Data":
                 title="Proporsi catChol per Kelompok Usia",
                 xaxis_title="Kelompok Usia",
                 yaxis_title="Proporsi (%)",
-                template="plotly_white",
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"),
                 height=400,
                 legend=dict(orientation="h", y=1.12),
                 margin=dict(t=70, b=20),
@@ -647,14 +866,15 @@ if st.session_state.page == "📊 Cholesterol Data":
                 color="Mean totChol (mg/dL)",
                 color_continuous_scale=["#22C55E", "#F59E0B", "#EF4444"],
                 text="Mean totChol (mg/dL)",
-                template="plotly_white",
+                template="plotly_dark",
                 height=400,
             )
             fig_line.update_traces(textposition="outside")
             fig_line.update_layout(
                 title="Rata-rata totChol per Kelompok Usia",
                 coloraxis_showscale=False, 
-                margin=dict(t=70, b=20)
+                margin=dict(t=70, b=20),
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8")
             )
             st.plotly_chart(fig_line, use_container_width=True)
 
@@ -670,11 +890,11 @@ if st.session_state.page == "📊 Cholesterol Data":
             },
             trendline="ols",
             labels={"age": "Usia (tahun)", "totChol": "Total Kolesterol (mg/dL)"},
-            template="plotly_white",
+            template="plotly_dark",
             height=380,
             opacity=0.55,
         )
-        fig_scatter.update_layout(margin=dict(t=40, b=20))
+        fig_scatter.update_layout(margin=dict(t=40, b=20), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"))
         st.plotly_chart(fig_scatter, use_container_width=True)
 
         st.markdown("""
@@ -722,7 +942,7 @@ if st.session_state.page == "📊 Cholesterol Data":
                 barmode="stack",
                 title="Proporsi catChol per Status Hipertensi",
                 yaxis_title="Proporsi (%)",
-                template="plotly_white",
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"),
                 height=360,
                 legend=dict(orientation="h", y=1.12),
                 margin=dict(t=70, b=20),
@@ -754,7 +974,7 @@ if st.session_state.page == "📊 Cholesterol Data":
             fig_hm.update_layout(
                 title="Rata-rata totChol: Hipertensi × BMI Category",
                 xaxis_title="BMI Category",
-                template="plotly_white",
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"),
                 height=360,
                 margin=dict(t=60, b=20),
             )
@@ -787,7 +1007,7 @@ if st.session_state.page == "📊 Cholesterol Data":
         fig_combo.update_layout(
             title="% Pasien Kolesterol: Kombinasi Obesitas & Hipertensi",
             yaxis_title="Proporsi Kolesterol (%)",
-            template="plotly_white",
+            template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"),
             height=360,
             margin=dict(t=60, b=20),
         )
@@ -837,7 +1057,7 @@ if st.session_state.page == "📊 Cholesterol Data":
                 title="Rata-rata totChol per Kelompok Usia",
                 xaxis_title="Kelompok Usia",
                 yaxis_title="Rata-rata totChol (mg/dL)",
-                template="plotly_white",
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"),
                 height=380,
                 legend=dict(orientation="h", y=1.12),
                 margin=dict(t=80, b=20),
@@ -867,7 +1087,7 @@ if st.session_state.page == "📊 Cholesterol Data":
                 title="Distribusi Usia: Smoker vs Non-Smoker",
                 xaxis_title="Usia",
                 yaxis_title="Frekuensi",
-                template="plotly_white",
+                template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"),
                 height=380,
                 legend=dict(orientation="h", y=1.12),
                 margin=dict(t=80, b=20),
@@ -921,7 +1141,7 @@ if st.session_state.page == "📊 Cholesterol Data":
             x=spearman_df["Spearman r"],
             y=spearman_df["Faktor"],
             orientation="h",
-            marker_color=["#EF4444" if v >= 0 else "#3B82F6"
+            marker_color=["#f87171" if v >= 0 else "#60a5fa"
                         for v in spearman_df["Spearman r"]],
             text=[f"r = {v:.3f}" for v in spearman_df["Spearman r"]],
             textposition="outside",
@@ -935,7 +1155,7 @@ if st.session_state.page == "📊 Cholesterol Data":
         fig_spearman.update_layout(
             title="Rangkuman Kekuatan Faktor Risiko (Top 15 Spearman Correlation vs totChol)",
             xaxis_title="Spearman r",
-            template="plotly_white",
+            template="plotly_dark", paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(family="Inter", color="#94a3b8"),
             height=520,
             margin=dict(t=60, b=20, l=180),
         )
@@ -972,9 +1192,10 @@ if st.session_state.page == "📊 Cholesterol Data":
 # HALAMAN 2: Food Table
 # ════════════════════════════════════════════════════════════════════════════════
 elif st.session_state.page == "🍔 Food Table":
-    st.title("Food Table Dashboard")
-    st.markdown("Dashboard ini menampilkan tren data terkait pantangan makanan bagi penderita kolesterol.")
-    st.dataframe(df_nutrition, use_container_width=True)
+    import runpy
+    import os
+    dashboard_path = os.path.join(os.path.dirname(__file__), "cholestify_dashboard.py")
+    runpy.run_path(dashboard_path, run_name="__main__")
 
 
 # ════════════════════════════════════════════════════════════════════════════════

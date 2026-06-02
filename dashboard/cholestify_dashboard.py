@@ -34,12 +34,7 @@ warnings.filterwarnings("ignore")
 
 # ═══ PAGE CONFIG ════════════════════════════════════════════════════════════════
 
-st.set_page_config(
-    page_title="Cholestify Dashboard",
-    page_icon="🫀",
-    layout="wide",
-    initial_sidebar_state="expanded",
-)
+# (Diatur di app.py utama)
 
 
 # ═══ CUSTOM CSS ═════════════════════════════════════════════════════════════════
@@ -71,6 +66,8 @@ section[data-testid="stSidebar"] .stRadio label:hover {
     background: rgba(96,165,250,0.12);
     border-color: rgba(96,165,250,0.35);
 }
+[data-testid="stSidebarNavItems"] li > div > a > span { color: #e2e8f0 !important; }
+[data-testid="stSidebarNavItems"] li > div > a:hover { background-color: rgba(96,165,250,0.12) !important; }
 
 /* ── Headings ── */
 h1 {
@@ -104,6 +101,9 @@ h3 {
     position: relative;
     overflow: hidden;
     transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    height: 190px;
+    display: flex;
+    flex-direction: column;
 }
 .kpi-card::before {
     content: '';
@@ -121,13 +121,14 @@ h3 {
 .kpi-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
 .kpi-value {
     font-family: 'Space Mono', monospace;
-    font-size: 1.85rem;
+    font-size: 1.4rem;
     font-weight: 700;
     background: linear-gradient(135deg, #60a5fa, #a5f3fc);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    line-height: 1.1;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 .kpi-label {
     font-size: 0.72rem;
@@ -138,11 +139,13 @@ h3 {
     font-weight: 600;
 }
 .kpi-delta {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     color: #34d399;
-    margin-top: 8px;
+    margin-top: auto;
     padding-top: 8px;
     border-top: 1px solid rgba(51,65,85,0.5);
+    word-break: break-word;
+    line-height: 1.3;
 }
 
 /* ── Pipeline Steps ── */
@@ -151,8 +154,11 @@ h3 {
     background: linear-gradient(145deg, #111827, #0f172a);
     border: 1px solid rgba(51,65,85,0.7);
     border-radius: 12px;
-    padding: 14px 6px;
-    height: 100px;
+    padding: 16px 10px;
+    min-height: 125px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     position: relative;
     transition: all 0.25s ease;
     overflow: hidden;
@@ -207,7 +213,7 @@ h3 {
     color: #94a3b8;
     box-shadow: 0 0 20px rgba(52,211,153,0.04);
 }
-.insight-box b { color: #34d399; }
+.insight-box b, .insight-box strong { color: #34d399; }
 .insight-box code {
     background: rgba(96,165,250,0.1);
     padding: 2px 6px;
@@ -347,40 +353,32 @@ def add_rekomendasi_score(df):
     return df
 
 
-# ═══ SIDEBAR ════════════════════════════════════════════════════════════════════
+# ── Load Dataset ──────────────────────────────────────────
+CSV_CANDIDATES = [
+    "df_nutrition_cleaned.csv",
+    "data/df_nutrition_cleaned.csv",
+    "../data/df_nutrition_cleaned.csv",
+]
+df_raw = None
+csv_path = None
+for path in CSV_CANDIDATES:
+    if os.path.exists(path):
+        df_raw, csv_path = load_data(path)
+        if df_raw is not None:
+            break
+
+if df_raw is None:
+    st.error("⚠️ File dataset tidak ditemukan.\n\nPastikan `df_nutrition_cleaned.csv` ada di folder `data/`.")
+    st.stop()
+
+df = add_rekomendasi_score(df_raw)
+
+# Mengambil status halaman aktif dari navigasi utama (app.py / cholestify_streamlit.py)
+page = st.session_state.get("food_tab", "🏠 Overview")
 
 with st.sidebar:
-    # Brand header
-    st.markdown("""
-    <div class='sidebar-brand'>
-        <span class='sidebar-brand-icon'>🫀</span>
-        <div class='sidebar-brand-title'>Cholestify</div>
-        <div class='sidebar-brand-sub'>Analisis Nutrisi Makanan Indonesia</div>
-    </div>
-    """, unsafe_allow_html=True)
-
     st.markdown("---")
-
-    # ── Load Dataset ──────────────────────────────────────────
-    CSV_CANDIDATES = [
-        "df_nutrition_cleaned.csv",
-        "data/df_nutrition_cleaned.csv",
-        "../data/df_nutrition_cleaned.csv",
-    ]
-    df_raw = None
-    csv_path = None
-    for path in CSV_CANDIDATES:
-        if os.path.exists(path):
-            df_raw, csv_path = load_data(path)
-            if df_raw is not None:
-                break
-
-    if df_raw is None:
-        st.error("⚠️ File dataset tidak ditemukan.\n\nPastikan `df_nutrition_cleaned.csv` ada di folder `data/`.")
-        st.stop()
-
-    df = add_rekomendasi_score(df_raw)
-
+    
     # ── Dataset Info ──────────────────────────────────────────
     st.markdown("<p style='font-size:0.72rem;color:#475569;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px'>📦 Dataset Info</p>", unsafe_allow_html=True)
     col_s1, col_s2 = st.columns(2)
@@ -397,25 +395,6 @@ with st.sidebar:
             <div class='info-card-value'>{df.shape[1]}</div>
         </div>""", unsafe_allow_html=True)
     st.caption(f"📁 `{csv_path}`")
-
-    st.markdown("---")
-
-    # ── Navigasi ──────────────────────────────────────────────
-    st.markdown("<p style='font-size:0.72rem;color:#475569;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px'>📋 Navigasi</p>", unsafe_allow_html=True)
-    page = st.radio(
-        "Pilih Halaman",
-        options=[
-            "🏠 Overview",
-            "📊 EDA & Distribusi",
-            "🔬 Business Questions",
-            "⚗️ A/B Testing",
-            "🤖 Feature Engineering",
-            "🎯 Rekomendasi Personal",
-            "📚 Data Dictionary",
-        ],
-        label_visibility="collapsed",
-    )
-
     st.markdown("---")
     # Legend badges
     st.markdown("""
@@ -551,14 +530,16 @@ if page == "🏠 Overview":
         ("8", "Improvement",  "SMOTE + CV"),
         ("9", "Inference",    "Rule-Based LDL/HDL"),
     ]
-    for col, (num, title, desc) in zip(st.columns(len(steps)), steps):
-        with col:
-            st.markdown(f"""
-            <div class='pipeline-step'>
-                <div class='pipeline-num'>{num}</div>
-                <div class='pipeline-title'>{title}</div>
-                <div class='pipeline-desc'>{desc}</div>
-            </div>""", unsafe_allow_html=True)
+    steps_html = "<div style='display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;'>"
+    for (num, title, desc) in steps:
+        steps_html += f"""
+        <div class='pipeline-step'>
+            <div class='pipeline-num'>{num}</div>
+            <div class='pipeline-title'>{title}</div>
+            <div class='pipeline-desc'>{desc}</div>
+        </div>"""
+    steps_html += "</div>"
+    st.markdown(steps_html, unsafe_allow_html=True)
 
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -1225,18 +1206,36 @@ elif page == "📚 Data Dictionary":
 
     with tab3:
         st.markdown("### Preview Dataset Aktual")
-        cols_show = st.multiselect("Pilih Kolom", options=df.columns.tolist(),
-                                    default=["name","calories","proteins","fat",
-                                              "carbohydrate","kategori","risiko_kolesterol",
-                                              "is_recommended"])
-        n_show = st.slider("Jumlah Baris", 5, 100, 20)
-        sort_col = st.selectbox("Urutkan berdasarkan", options=cols_show,
-                                 index=min(2, len(cols_show)-1))
-        asc = st.checkbox("Ascending", value=True)
+        
+        search_query = st.text_input("🔍 Cari data (berdasarkan kolom teks seperti nama/kategori)", "")
+        
+        col_opts1, col_opts2 = st.columns(2)
+        with col_opts1:
+            cols_show = st.multiselect("Pilih Kolom", options=df.columns.tolist(),
+                                        default=["name","calories","proteins","fat",
+                                                  "carbohydrate","kategori","risiko_kolesterol",
+                                                  "is_recommended"])
+            n_show = st.slider("Jumlah Baris", 5, 100, 20)
+            
+        with col_opts2:
+            if cols_show:
+                sort_col = st.selectbox("Urutkan berdasarkan", options=cols_show,
+                                         index=min(2, len(cols_show)-1))
+                sort_order = st.radio("Urutan", ["Terkecil ke Terbesar (Ascending)", "Terbesar ke Terkecil (Descending)"])
+                asc = True if "Ascending" in sort_order else False
+
         if cols_show:
-            st.dataframe(df[cols_show].sort_values(sort_col, ascending=asc).head(n_show),
+            filtered_df = df.copy()
+            if search_query:
+                # Filter pada kolom yang bertipe object/string
+                str_cols = filtered_df.select_dtypes(include=['object', 'string']).columns
+                if not str_cols.empty:
+                    mask = filtered_df[str_cols].apply(lambda x: x.astype(str).str.contains(search_query, case=False, na=False)).any(axis=1)
+                    filtered_df = filtered_df[mask]
+            
+            st.dataframe(filtered_df[cols_show].sort_values(sort_col, ascending=asc).head(n_show),
                           use_container_width=True)
-            st.caption(f"Menampilkan {min(n_show, len(df))} dari {len(df):,} baris")
+            st.caption(f"Menampilkan {min(n_show, len(filtered_df))} dari {len(filtered_df):,} baris data yang cocok")
 
 
 # ════════════════════════════════════════════════════════════════════════════════
