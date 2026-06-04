@@ -238,17 +238,47 @@ export default function AccountSettingContent() {
   };
 
   const saveProfile = async () => {
+    if (!user?.id) {
+      toast.error("Data user belum tersedia.");
+      return;
+    }
+
+    if (!draft.nama.trim() || !draft.email.trim()) {
+      toast.error("Nama dan email wajib diisi.");
+      return;
+    }
+
     try {
       setIsSaving(true);
-      await API.patch(`/users/${user?.id}`, {
+
+      await API.patch(`/users/${user.id}`, {
         nama: draft.nama,
         email: draft.email,
         notelp: draft.notelp,
       });
+
       await mutate();
+
       setIsEditing(false);
+
+      toast.success("Profil berhasil diperbarui.", {
+        description: "Perubahan informasi akun Anda sudah tersimpan.",
+      });
     } catch (err) {
       console.error("Gagal menyimpan profil:", err);
+
+      if (axios.isAxiosError(err)) {
+        toast.error("Gagal memperbarui profil.", {
+          description:
+            err.response?.data?.message ||
+            "Pastikan data sudah benar dan sesi login masih valid.",
+        });
+        return;
+      }
+
+      toast.error("Gagal memperbarui profil.", {
+        description: "Terjadi kesalahan. Silakan coba lagi.",
+      });
     } finally {
       setIsSaving(false);
     }

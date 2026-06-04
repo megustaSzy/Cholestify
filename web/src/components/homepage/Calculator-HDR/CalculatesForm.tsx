@@ -106,14 +106,15 @@ const getApiErrorMessage = (error: unknown) => {
 
 const formatResultLabel = (key: string) => {
   const labels: Record<string, string> = {
-    minHeartRate: "Minimum Heart Rate",
-    maxHeartRate: "Maximum Heart Rate",
+    minHeartRate: "Detak Jantung Minimum",
+    maxHeartRate: "Detak Jantung Maksimum",
     zone: "Zona",
     recommendation: "Rekomendasi",
-    restingHeartRate: "Resting Heart Rate",
-    activityLevel: "Aktivitas",
+    restingHeartRate: "Detak Jantung Istirahat",
+    activityLevel: "Aktivitas Harian",
     gender: "Jenis Kelamin",
     age: "Usia",
+    dob: "Tanggal Lahir",
   };
 
   return (
@@ -128,7 +129,24 @@ const formatResultLabel = (key: string) => {
 const formatResultValue = (value: unknown) => {
   if (value === null || value === undefined || value === "") return "-";
 
-  if (typeof value === "string" || typeof value === "number") {
+  if (typeof value === "string") {
+    if (value === "MALE" || value === "FEMALE") {
+      return genderLabel[value];
+    }
+
+    if (
+      value === "INACTIVE" ||
+      value === "LIGHTLY_ACTIVE" ||
+      value === "ACTIVE" ||
+      value === "ATHLETE"
+    ) {
+      return activityLabel[value];
+    }
+
+    return value;
+  }
+
+  if (typeof value === "number") {
     return String(value);
   }
 
