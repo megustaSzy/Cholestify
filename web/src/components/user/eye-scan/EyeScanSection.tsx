@@ -206,10 +206,15 @@ function getConfidenceMessage(confidence?: number) {
 }
 
 function getScreeningCustomResponse(result: ScreeningResponse["data"]) {
-  const normalized = result.result?.toLowerCase() ?? "";
   const confidence = getConfidenceMessage(result.confidence);
 
-  if (normalized.includes("normal")) {
+  const normal = result.probabilities?.normal ?? 0;
+  const beresiko = result.probabilities?.beresiko ?? 0;
+  const kolesterol = result.probabilities?.kolesterol ?? 0;
+
+  const highest = Math.max(normal, beresiko, kolesterol);
+
+  if (highest === normal) {
     return {
       title: "Hasil terlihat aman",
       label: "Tidak ditemukan tanda arcus",
@@ -230,16 +235,32 @@ function getScreeningCustomResponse(result: ScreeningResponse["data"]) {
     };
   }
 
-  if (
-    normalized.includes("kolesterol") ||
-    normalized.includes("beresiko") ||
-    normalized.includes("berisiko") ||
-    normalized.includes("follow")
-  ) {
+  if (highest === beresiko) {
     return {
-      title: "Perlu pemantauan lebih lanjut",
+      title: "Indikasi awal terdeteksi",
+      label: "Ditemukan kemungkinan tanda awal arcus",
+      badge: "Indikasi Awal",
+      badgeClass: "bg-yellow-100 text-yellow-700",
+      cardClass: "border-yellow-100 bg-yellow-50",
+      textClass: "text-yellow-800",
+      summary:
+        "Sistem mendeteksi kemungkinan pola visual awal yang perlu dipantau lebih lanjut.",
+      description:
+        result.description ||
+        "Terdapat tanda awal yang perlu diperhatikan, namun hasil ini bukan diagnosis medis akhir.",
+      recommendation:
+        result.recommendation ||
+        "Lakukan pemantauan berkala dan pertimbangkan pemeriksaan kesehatan jika memiliki keluhan atau faktor risiko.",
+      confidenceLabel: confidence.label,
+      confidenceDescription: confidence.description,
+    };
+  }
+
+  if (highest === kolesterol) {
+    return {
+      title: "Potensi kolesterol terdeteksi",
       label: "Ditemukan potensi tanda arcus",
-      badge: "Follow Up",
+      badge: "Potensi Kolesterol",
       badgeClass: "bg-orange-100 text-orange-700",
       cardClass: "border-orange-100 bg-orange-50",
       textClass: "text-orange-800",
