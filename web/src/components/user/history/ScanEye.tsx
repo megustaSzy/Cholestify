@@ -440,7 +440,7 @@ export default function HistoryScanEyeContent() {
     <div className="w-full">
       <div className="mb-6">
         <h1 className="text-3xl font-bold tracking-tight text-gray-950">
-          Eye Scan History
+          Riwayat Scan Mata
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Review your historical eye scan results and follow-up recommendations.
@@ -486,13 +486,13 @@ export default function HistoryScanEyeContent() {
               <TableHeader>
                 <TableRow className="bg-[#f7f7fb] hover:bg-[#f7f7fb]">
                   <TableHead className="h-14 px-5 text-[11px] font-bold uppercase tracking-[0.18em] text-gray-500">
-                    Date
+                    Tanggal
                   </TableHead>
                   <TableHead className="h-14 px-5 text-[11px] font-bold uppercase tracking-[0.18em] text-gray-500">
                     Hasil Scan
                   </TableHead>
                   <TableHead className="h-14 px-5 text-center text-[11px] font-bold uppercase tracking-[0.18em] text-gray-500">
-                    Image Preview
+                    Preview Gambar
                   </TableHead>
                   <TableHead className="h-14 px-5 text-center text-[11px] font-bold uppercase tracking-[0.18em] text-gray-500">
                     Status

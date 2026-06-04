@@ -541,7 +541,7 @@ export default function LipidPanelHistoryContent() {
               <TableHeader>
                 <TableRow className="bg-gray-50 hover:bg-gray-50">
                   <TableHead className="h-14 text-center text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                    Date
+                    Tanggal
                   </TableHead>
                   <TableHead className="h-14 text-center text-xs font-bold uppercase tracking-wide text-muted-foreground">
                     LDL
