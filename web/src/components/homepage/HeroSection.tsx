@@ -39,7 +39,7 @@ export default function HeroForm() {
               Mulai Sekarang
             </Link>
             <Link
-              href="#"
+              href="https://youtu.be/zQp7VsADnZE?si=4fPgZoMcyc-yAIPo"
               className="inline-flex justify-center items-center gap-2 bg-white border border-gray-200 hover:border-blue-400 hover:text-blue-600 text-gray-700 text-sm font-semibold px-6 py-3 rounded-lg transition-all w-full sm:w-auto"
             >
               <span className="w-6 h-6 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
