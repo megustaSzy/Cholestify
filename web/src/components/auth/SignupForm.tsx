@@ -216,7 +216,7 @@ export function SignupForm({
                 <Input
                   id="nama"
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="User"
                   value={form.nama}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -294,7 +294,7 @@ export function SignupForm({
                 <Input
                   id="notelp"
                   type="tel"
-                  placeholder="08XXXXXXXXXX"
+                  placeholder="0812345678910"
                   maxLength={13}
                   minLength={10}
                   value={form.notelp}
