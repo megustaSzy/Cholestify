@@ -105,6 +105,19 @@ export function SignupForm({
     }));
   };
 
+  const formatDateLocal = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  const parseDateLocal = (value: string) => {
+    const [year, month, day] = value.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  };
+
   // const handleGoogleSignup = () => {
   //   const baseURL = API.defaults.baseURL ?? "";
 
@@ -216,7 +229,7 @@ export function SignupForm({
                 <Input
                   id="nama"
                   type="text"
-                  placeholder="John Doe"
+                  placeholder="Nama Lengkap Anda"
                   value={form.nama}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -294,7 +307,7 @@ export function SignupForm({
                 <Input
                   id="notelp"
                   type="tel"
-                  placeholder="08XXXXXXXXXX"
+                  placeholder="0812345678910"
                   maxLength={13}
                   minLength={10}
                   value={form.notelp}
@@ -336,11 +349,14 @@ export function SignupForm({
                           }
                         >
                           {form.dob
-                            ? new Date(form.dob).toLocaleDateString("id-ID", {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                              })
+                            ? parseDateLocal(form.dob).toLocaleDateString(
+                                "id-ID",
+                                {
+                                  day: "numeric",
+                                  month: "long",
+                                  year: "numeric",
+                                },
+                              )
                             : "Pilih Tanggal"}
                         </span>
                       </Button>
@@ -352,14 +368,15 @@ export function SignupForm({
                   >
                     <Calendar
                       mode="single"
-                      selected={form.dob ? new Date(form.dob) : undefined}
+                      selected={form.dob ? parseDateLocal(form.dob) : undefined}
                       captionLayout="dropdown"
                       disabled={{ after: new Date() }}
                       onSelect={(date) => {
                         setForm((prev) => ({
                           ...prev,
-                          dob: date ? date.toISOString().split("T")[0] : "",
+                          dob: date ? formatDateLocal(date) : "",
                         }));
+
                         setTouched((prev) => ({ ...prev, dob: true }));
                       }}
                     />
